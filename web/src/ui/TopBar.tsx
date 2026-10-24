@@ -2,14 +2,43 @@ import type { CSSProperties } from "react";
 import type { Army } from "../../../shared/types";
 import { Emblem } from "../cards/Glyphs";
 
-export type Tab = "army" | "cards" | "stratagems" | "data";
+export type Tab = "army" | "play" | "cards" | "stratagems" | "data";
 
 export const TABS: { id: Tab; label: string }[] = [
   { id: "army", label: "Army" },
+  { id: "play", label: "Play" },
   { id: "cards", label: "Cards" },
   { id: "stratagems", label: "Stratagems" },
   { id: "data", label: "Data" },
 ];
+
+/** On phones the tabs sit at the bottom, within reach of a thumb. */
+export function BottomNav({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
+  return (
+    <nav
+      className="no-print fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-panel-strong pb-[env(safe-area-inset-bottom)] backdrop-blur-sm md:hidden"
+      aria-label="Sections"
+    >
+      {TABS.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onTab(item.id)}
+          className={`relative flex h-14 flex-1 flex-col items-center justify-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${
+            tab === item.id ? "text-ink" : "text-ink-faint"
+          }`}
+          aria-current={tab === item.id ? "page" : undefined}
+        >
+          <span
+            className={`h-1.5 w-1.5 rotate-45 ${tab === item.id ? "bg-faction" : "border border-ink-faint"}`}
+          />
+          {item.label}
+          {tab === item.id ? <span className="absolute inset-x-4 top-0 h-[2px] bg-ink" /> : null}
+        </button>
+      ))}
+    </nav>
+  );
+}
 
 export function TopBar({
   army,
@@ -33,13 +62,13 @@ export function TopBar({
       className="no-print relative border-b border-line bg-panel-strong"
       style={{ "--color-faction": factionColor } as CSSProperties}
     >
-      <div className="mx-auto flex max-w-[1400px] flex-wrap items-stretch gap-x-6 px-8">
-        <div className="flex min-w-0 flex-1 basis-[320px] items-center gap-4 py-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center bg-faction">
-            <Emblem className="h-9 w-9 text-ink" />
+      <div className="mx-auto flex max-w-[1400px] flex-wrap items-stretch gap-x-6 px-4 md:px-8">
+        <div className="flex min-w-0 flex-1 basis-[240px] items-center gap-3 py-3 md:basis-[320px] md:gap-4 md:py-4">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center bg-faction md:h-14 md:w-14">
+            <Emblem className="h-7 w-7 text-ink md:h-9 md:w-9" />
           </div>
-          <div className="min-w-0">
-            <h1 className="truncate text-[22px] font-extrabold uppercase leading-none tracking-[0.04em]">
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-[18px] font-extrabold uppercase leading-none tracking-[0.04em] md:text-[22px]">
               {army ? army.faction : "Army Cards"}
             </h1>
             <p className="micro mt-2 truncate">
@@ -51,7 +80,7 @@ export function TopBar({
         </div>
 
         {army ? (
-          <nav className="ml-auto flex items-stretch gap-1" aria-label="Sections">
+          <nav className="ml-auto hidden items-stretch gap-1 md:flex" aria-label="Sections">
             <span className="key-hint self-center">Q</span>
             {TABS.map((item) => (
               <button
@@ -74,7 +103,7 @@ export function TopBar({
         ) : null}
 
         {army ? (
-          <div className="flex items-center gap-3 py-4">
+          <div className="hidden items-center gap-3 py-4 md:flex">
             <button type="button" className="btn" onClick={onChangeList}>
               Change list
             </button>

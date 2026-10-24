@@ -1,6 +1,7 @@
 import type { Army, Stratagem } from "../../../shared/types";
 import { StratagemCard } from "../cards/StratagemCard";
 import { themeFor } from "../cards/themes";
+import { FitToWidth } from "./FitToWidth";
 
 const PHASES: [string, string, RegExp][] = [
   ["I", "Command phase", /command/i],
@@ -33,14 +34,11 @@ export function StratagemsView({ army, fontsReady }: { army: Army; fontsReady: b
               </span>
               <span className="micro ml-auto">{stratagems.length}</span>
             </h2>
-            <div className="flex flex-wrap gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-[repeat(auto-fill,minmax(96mm,1fr))]">
               {stratagems.map((stratagem) => (
-                <StratagemCard
-                  key={stratagem.id}
-                  stratagem={stratagem}
-                  theme={theme}
-                  fontsReady={fontsReady}
-                />
+                <FitToWidth key={stratagem.id}>
+                  <StratagemCard stratagem={stratagem} theme={theme} fontsReady={fontsReady} />
+                </FitToWidth>
               ))}
             </div>
           </section>

@@ -1,15 +1,26 @@
+import { useState } from "react";
 import { unitLabel } from "../../../shared/labels";
 import type { Army, Datasheet, WeaponRow } from "../../../shared/types";
 import { Rich } from "../cards/parts";
+import { themeFor } from "../cards/themes";
+import { UnitSheet } from "../play/UnitSheet";
+import { BottomSheet } from "./BottomSheet";
+import { useMediaQuery } from "./layout";
 import { toRoman } from "./roman";
+import { StratagemRows } from "./StratagemRows";
 
-/** The roster as a tile grid, attached units bracketed together, with an inspector on the right. */
+/**
+ * The roster as a tile grid, attached units bracketed together. On a desktop
+ * the selected unit shows in an inspector beside it; on a phone or tablet,
+ * tapping a unit opens its datasheet in a sheet over the page.
+ */
 export function ArmyView({
   army,
   numbers,
   selectedId,
   onSelect,
   onOpenCards,
+  onChangeList,
 }: {
   army: Army;
   /** "#2" for units that share a name, when numbering is on. */
@@ -17,23 +28,37 @@ export function ArmyView({
   selectedId?: string;
   onSelect: (id: string) => void;
   onOpenCards: () => void;
+  onChangeList: () => void;
 }) {
+  const wide = useMediaQuery("(min-width: 1024px)");
+  const [sheetId, setSheetId] = useState<string>();
   const attachedIds = new Set(army.groups.flatMap((g) => [g.bodyguardId, ...g.characterIds]));
   const others = army.units.filter((unit) => !attachedIds.has(unit.id));
   const selected = army.units.find((unit) => unit.id === selectedId) ?? army.units[0];
   const points = army.units.reduce((sum, unit) => sum + unit.points, 0);
+  const sheetUnit = wide ? undefined : army.units.find((unit) => unit.id === sheetId);
+
+  const select = (id: string) => {
+    onSelect(id);
+    if (!wide) setSheetId(id);
+  };
 
   return (
     <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_380px]">
-      <div className="flex flex-col gap-8">
-        <div className="flex items-baseline justify-between">
+      <div className="flex min-w-0 flex-col gap-8">
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
           <p className="micro">
             {"// "}Roster · {army.units.length} units · {points.toLocaleString()} pts
             {army.disposition ? ` · ${army.disposition}` : ""}
           </p>
           {army.note ? (
-            <p className="max-w-[50ch] truncate text-[13px] italic text-ink-dim">“{army.note}”</p>
+            <p className="hidden max-w-[50ch] truncate text-[13px] italic text-ink-dim md:block">
+              “{army.note}”
+            </p>
           ) : null}
+          <button type="button" className="btn md:hidden" onClick={onChangeList}>
+            Change list
+          </button>
         </div>
 
         {army.groups.length ? (
@@ -60,7 +85,7 @@ export function ArmyView({
                         unit={unit}
                         number={numbers.get(unit.id)}
                         selected={unit.id === selected?.id}
-                        onSelect={onSelect}
+                        onSelect={select}
                       />
                     ))}
                   </div>
@@ -79,7 +104,7 @@ export function ArmyView({
                 unit={unit}
                 number={numbers.get(unit.id)}
                 selected={unit.id === selected?.id}
-                onSelect={onSelect}
+                onSelect={select}
               />
             ))}
           </div>
@@ -97,8 +122,29 @@ export function ArmyView({
         ) : null}
       </div>
 
-      {selected ? (
+      {wide && selected ? (
         <Inspector unit={selected} label={unitLabel(selected, numbers)} onOpenCards={onOpenCards} />
+      ) : null}
+
+      {sheetUnit ? (
+        <BottomSheet title={unitLabel(sheetUnit, numbers)} onClose={() => setSheetId(undefined)}>
+          <div className="flex flex-col gap-3">
+            <UnitSheet
+              unit={sheetUnit}
+              characters={[]}
+              numbers={numbers}
+              theme={themeFor(army.faction)}
+            />
+            <StratagemRows
+              title="Stratagems for this unit"
+              count={String(
+                army.stratagems.filter((s) => s.usableBy.includes(sheetUnit.name)).length,
+              )}
+              stratagems={army.stratagems.filter((s) => s.usableBy.includes(sheetUnit.name))}
+              empty="No stratagem in this army targets this unit."
+            />
+          </div>
+        </BottomSheet>
       ) : null}
     </div>
   );
