@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { parseArmyList } from "./parse";
+import { parseGwText as parseArmyList } from "./gw";
 
 const demo = readFileSync(
-  path.resolve(import.meta.dirname, "../../fixtures/demo-strike-force.txt"),
+  path.resolve(import.meta.dirname, "../../fixtures/lists/adepta-sororitas.txt"),
   "utf8",
 );
 
