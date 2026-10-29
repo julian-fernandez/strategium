@@ -4,6 +4,8 @@ import type { Army, Datasheet, WeaponRow } from "../../../shared/types";
 import { Rich } from "../cards/parts";
 import { themeFor } from "../cards/themes";
 import { UnitSheet } from "../play/UnitSheet";
+import { ArmyRulesPanel } from "../rules/ArmyRulesPanel";
+import { AbilityTerm, RuleTerms } from "../rules/Rules";
 import { BottomSheet } from "./BottomSheet";
 import { useMediaQuery } from "./layout";
 import { toRoman } from "./roman";
@@ -60,6 +62,8 @@ export function ArmyView({
             Change list
           </button>
         </div>
+
+        <ArmyRulesPanel army={army} />
 
         {army.groups.length ? (
           <section className="flex flex-col gap-3">
@@ -265,15 +269,23 @@ function Inspector({
         <div>
           <p className="micro">{"// "}Abilities</p>
           <p className="mt-2 text-[13px] leading-relaxed text-ink-dim">
-            {[
-              ...unit.coreAbilities,
-              ...unit.factionAbilities,
-              ...unit.abilities.map((a) => a.name),
-            ].join(" · ")}
+            <RuleTerms names={[...unit.coreAbilities, ...unit.factionAbilities]} separator=" · " />
+            {unit.abilities.map((ability, index) => (
+              <span key={ability.name}>
+                {index || unit.coreAbilities.length || unit.factionAbilities.length ? " · " : null}
+                <AbilityTerm ability={ability} eyebrow={unit.name} />
+              </span>
+            ))}
           </p>
           {unit.wargearAbilities.length ? (
             <p className="mt-1 text-[13px] leading-relaxed text-ink-dim">
-              Wargear: {unit.wargearAbilities.map((a) => a.name).join(" · ")}
+              Wargear:{" "}
+              {unit.wargearAbilities.map((ability, index) => (
+                <span key={ability.name}>
+                  {index ? " · " : null}
+                  <AbilityTerm ability={ability} eyebrow="Wargear" />
+                </span>
+              ))}
             </p>
           ) : null}
           {unit.enhancement ? (
@@ -317,7 +329,14 @@ function WeaponList({ title, rows }: { title: string; rows: WeaponRow[] }) {
             className="flex items-baseline gap-3 border-b border-line py-1.5 text-[13px] last:border-b-0"
           >
             <span className="w-7 shrink-0 text-right font-bold text-ink">{row.count}×</span>
-            <span className="flex-1">{row.name}</span>
+            <span className="flex-1">
+              {row.name}
+              {row.carrier ? (
+                <span className="ml-2 border border-line-strong px-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-dim">
+                  {row.carrier}
+                </span>
+              ) : null}
+            </span>
             <span className="text-[12px] text-ink-dim">
               {row.profiles[0]
                 ? `${row.profiles[0].range} · A${row.profiles[0].attacks} · S${row.profiles[0].strength} · AP${row.profiles[0].ap} · D${row.profiles[0].damage}`

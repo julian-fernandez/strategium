@@ -1,7 +1,8 @@
 import type { Army } from "../../../shared/types";
 import { FitToWidth } from "../ui/FitToWidth";
+import { ArmyRulesCard } from "./ArmyRulesCard";
 import { DatasheetCard } from "./DatasheetCard";
-import { LeaderBackCard } from "./LeaderBackCard";
+import { GlossaryCard } from "./GlossaryCard";
 import type { DeckPage } from "./printOrder";
 import { StratagemCard } from "./StratagemCard";
 import { themeFor } from "./themes";
@@ -12,11 +13,14 @@ export function Deck({
   army,
   pages,
   numbers,
+  duplex,
   fontsReady,
 }: {
   army: Army;
   pages: DeckPage[];
   numbers: Map<string, number>;
+  /** Double-sided: every second page is the back of the one before. */
+  duplex: boolean;
   fontsReady: boolean;
 }) {
   const theme = themeFor(army.faction);
@@ -27,7 +31,7 @@ export function Deck({
         <section key={page.key} className="flex w-full flex-col gap-2 print:gap-0">
           <p className="print-page-label micro">
             {"// "}Page {index + 1}
-            {page.kind === "back" || page.kind === "unit-back" ? ` · back of page ${index}` : ""}
+            {duplex && index % 2 === 1 ? ` · back of page ${index}` : ""}
             {page.kind === "blank" ? " · blank back" : ""}
           </p>
           <FitToWidth>
@@ -46,21 +50,32 @@ export function Deck({
                   fontsReady={fontsReady}
                 />
               ) : null}
-              {page.kind === "back" ? (
-                <LeaderBackCard
-                  bodyguard={page.bodyguard}
+              {page.kind === "unit-back" ? (
+                <UnitBackCard
+                  unit={page.unit}
                   characters={page.characters}
+                  number={numbers.get(page.unit.id)}
                   stratagems={page.stratagems}
-                  numbers={numbers}
                   theme={theme}
                   fontsReady={fontsReady}
                 />
               ) : null}
-              {page.kind === "unit-back" ? (
-                <UnitBackCard
-                  unit={page.unit}
-                  number={numbers.get(page.unit.id)}
-                  stratagems={page.stratagems}
+              {page.kind === "army-rules" ? (
+                <ArmyRulesCard
+                  army={army}
+                  sections={page.sections}
+                  part={page.part}
+                  parts={page.parts}
+                  theme={theme}
+                  fontsReady={fontsReady}
+                />
+              ) : null}
+              {page.kind === "glossary" ? (
+                <GlossaryCard
+                  army={army}
+                  rules={page.rules}
+                  part={page.part}
+                  parts={page.parts}
                   theme={theme}
                   fontsReady={fontsReady}
                 />

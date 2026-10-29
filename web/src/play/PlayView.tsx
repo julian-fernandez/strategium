@@ -2,8 +2,8 @@ import { type PointerEvent, useCallback, useEffect, useRef, useState } from "rea
 import { unitLabel } from "../../../shared/labels";
 import type { Army, Stratagem } from "../../../shared/types";
 import { DatasheetCard } from "../cards/DatasheetCard";
-import { LeaderBackCard } from "../cards/LeaderBackCard";
 import { themeFor } from "../cards/themes";
+import { ArmyRulesPanel } from "../rules/ArmyRulesPanel";
 import { FitToWidth } from "../ui/FitToWidth";
 import { READABLE_CARD_WIDTH, useWidth } from "../ui/layout";
 import { StratagemRows } from "../ui/StratagemRows";
@@ -188,7 +188,9 @@ export function PlayView({
           swipeStart.current = null;
         }}
       >
-        {!selected ? null : width >= READABLE_CARD_WIDTH ? (
+        {!selected ? (
+          <ArmyRulesPanel army={army} />
+        ) : width >= READABLE_CARD_WIDTH ? (
           <>
             <FitToWidth max={1.35}>
               <DatasheetCard
@@ -198,18 +200,17 @@ export function PlayView({
                 fontsReady={fontsReady}
               />
             </FitToWidth>
-            {selected.characters.length ? (
-              <FitToWidth max={1.35}>
-                <LeaderBackCard
-                  bodyguard={selected.unit}
-                  characters={selected.characters}
-                  stratagems={selected.stratagems.filter((s) => s.usableBy.length)}
-                  numbers={numbers}
+            {/* Characters on the same datasheet as every other unit. */}
+            {selected.characters.map((character) => (
+              <FitToWidth key={character.id} max={1.35}>
+                <DatasheetCard
+                  sheet={character}
+                  number={numbers.get(character.id)}
                   theme={theme}
                   fontsReady={fontsReady}
                 />
               </FitToWidth>
-            ) : null}
+            ))}
           </>
         ) : (
           <UnitSheet

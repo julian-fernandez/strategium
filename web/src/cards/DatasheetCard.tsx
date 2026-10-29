@@ -30,12 +30,15 @@ export function CardShell({
   header,
   children,
   keywords,
+  keywordsLabel = "Keywords",
   factionKeywords,
 }: {
   theme: CardTheme;
   header: ReactNode;
   children: ReactNode;
   keywords: string[];
+  /** What the footer's left strip lists; the army rules card lists its detachments there. */
+  keywordsLabel?: string;
   factionKeywords: string[];
 }) {
   const style = { "--accent": theme.accent } as CSSProperties;
@@ -53,8 +56,12 @@ export function CardShell({
       {children}
       <footer className="flex h-[9mm] shrink-0 items-center gap-[3mm] bg-card-footer px-[3mm] font-condensed text-[6.5pt] uppercase text-white">
         <p className="min-w-0 flex-1 leading-tight">
-          <span className="font-bold text-white/70">Keywords: </span>
-          {keywords.join("; ")}
+          {keywords.length ? (
+            <>
+              <span className="font-bold text-white/70">{keywordsLabel}: </span>
+              {keywords.join("; ")}
+            </>
+          ) : null}
         </p>
         <span
           className="flex h-[6mm] w-[6mm] rotate-45 items-center justify-center border border-white/60"
