@@ -85,7 +85,10 @@ describe("swaps", () => {
     const meltagun = swapsFor(dominions, "Boltgun").find(
       (s) => s.label === "Meltagun" && s.toModel === "Dominion w/ Special Weapon",
     );
-    expect(meltagun).toMatchObject({ cost: 5, blocked: "4 of 4 Dominion w/ Special Weapon" });
+    expect(meltagun).toMatchObject({
+      cost: 5,
+      blocked: "The squad already has 4 of the 4 allowed.",
+    });
     // The superior's own boltgun swaps within her slot, priced and unlimited.
     expect(
       swapsFor(dominions, "Boltgun")
@@ -105,8 +108,8 @@ describe("swaps", () => {
       (s) => s.toModel === "Seraphim with Special Weapons",
     );
     expect(flamers.map((s) => s.blocked)).toEqual([
-      "2 of 2 Seraphim with Special Weapons",
-      "2 of 2 Seraphim with Special Weapons",
+      "The squad already has 2 of the 2 allowed.",
+      "The squad already has 2 of the 2 allowed.",
     ]);
   });
 });
@@ -128,7 +131,7 @@ describe("edits", () => {
     expect(edited.points).toBe(105);
     // Still four special weapons: no fifth.
     expect(swapsFor(edited, "Boltgun").find((s) => s.label === "Meltagun")?.blocked).toBe(
-      "4 of 4 Dominion w/ Special Weapon",
+      "The squad already has 4 of the 4 allowed.",
     );
     // An edited list's points aren't compared with what it said.
     expect(after.warnings.some((w) => w.includes("adds up to"))).toBe(false);
@@ -142,6 +145,30 @@ describe("edits", () => {
 
     const after = unit(build([asEdit(before, dominions, power)]).units, "Dominion Squad");
     expect(after.melee.find((row) => row.name === "Power weapon")).toMatchObject({ count: 1 });
+  });
+
+  it("gives a Dominion the Simulacrum without adding a model, then allows no second", () => {
+    const before = build();
+    const dominions = unit(before.units, "Dominion Squad");
+    const simulacrum = dominions.extras.find(
+      (s) => s.toModel === "Dominion w/ Simulacrum Imperialis" && !s.remove.length,
+    );
+    expect(simulacrum).toMatchObject({ label: "Simulacrum Imperialis", blocked: undefined });
+    if (!simulacrum) throw new Error("no Simulacrum option");
+
+    const after = unit(build([asEdit(before, dominions, simulacrum)]).units, "Dominion Squad");
+    expect(after.modelCount).toBe(10);
+    expect(after.wargearAbilities.map((a) => a.name)).toContain("Simulacrum Imperialis");
+    // One per squad: a second is refused, and the one it has can be given up again.
+    expect(
+      after.extras.find(
+        (s) => s.toModel === "Dominion w/ Simulacrum Imperialis" && !s.remove.length,
+      )?.blocked,
+    ).toBe("The squad already has 1 of the 1 allowed.");
+    expect(after.extras.find((s) => s.label === "No Simulacrum Imperialis")).toMatchObject({
+      toModel: "Dominion",
+      blocked: undefined,
+    });
   });
 
   it("skips an edit that no longer fits the list", () => {

@@ -134,7 +134,7 @@ function SwapMenu({
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-dim">
               {first.modelLabel}
               {first.toModel ? (
-                <span className="normal-case tracking-normal"> · becomes {first.toModel}</span>
+                <span className="normal-case tracking-normal"> · one becomes {first.toModel}</span>
               ) : null}
             </p>
             {first.blocked ? <p className="mt-0.5 text-[11px] text-seal">{first.blocked}</p> : null}
@@ -148,16 +148,14 @@ function SwapMenu({
                     className="flex w-full items-baseline gap-3 py-1 text-left text-[13px] transition-colors duration-150 enabled:hover:text-ink disabled:cursor-default disabled:text-ink-faint"
                   >
                     <span className="flex-1">
-                      {describe ? (
-                        swap.remove.length ? (
-                          <span className="text-ink-dim">
-                            {swap.remove.map((r) => r.name).join(" + ")} →{" "}
-                          </span>
-                        ) : (
-                          <span className="text-ink-dim">+ </span>
-                        )
-                      ) : (
+                      {!swap.add.length ? null : !describe ? (
                         <span className="text-ink-dim">→ </span>
+                      ) : swap.remove.length ? (
+                        <span className="text-ink-dim">
+                          {swap.remove.map((r) => r.name).join(" + ")} →{" "}
+                        </span>
+                      ) : (
+                        <span className="text-ink-dim">+ </span>
                       )}
                       {swap.label}
                     </span>
