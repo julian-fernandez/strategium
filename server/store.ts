@@ -9,7 +9,7 @@ import {
   type WahapediaFile,
 } from "./sources";
 
-const CACHE_DIR = path.resolve(import.meta.dirname, "..", "data", "cache");
+export const CACHE_DIR = path.resolve(import.meta.dirname, "..", "data", "cache");
 const META_PATH = path.join(CACHE_DIR, "meta.json");
 const WAHAPEDIA_DIR = path.join(CACHE_DIR, "wahapedia");
 const BSDATA_DIR = path.join(CACHE_DIR, "bsdata");

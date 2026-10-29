@@ -21,10 +21,12 @@ const KEYWORD = '<span class="kw">$1</span>';
 /**
  * BSData text to HTML: `^^Keyword^^` becomes a keyword span, `**x**` becomes
  * bold. The markers are sometimes interleaved (`^^**[Precision]^^**`), so a
- * match never runs across another marker.
+ * match never runs across another marker. Some rules are hard-wrapped mid
+ * sentence; a break that ends without punctuation and carries on in lower
+ * case is joined back up, while list lines and paragraphs keep theirs.
  */
 export function bsdataToHtml(text: string): string {
-  return escapeHtml(text.trim())
+  return escapeHtml(text.trim().replace(/([^\s.:;!?)])[ \t]*\n(?=[a-z(])/g, "$1 "))
     .replace(/(?:\*\*\^\^|\^\^\*\*)([^*^]+?)(?:\*\*\^\^|\^\^\*\*)/g, KEYWORD)
     .replace(/\^\^([^*^]+?)\^\^/g, KEYWORD)
     .replace(/\*\*([^*]+?)\*\*/g, "<b>$1</b>")

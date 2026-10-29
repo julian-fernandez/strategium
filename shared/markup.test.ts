@@ -19,6 +19,18 @@ describe("bsdataToHtml", () => {
   });
 });
 
+describe("bsdataToHtml line breaks", () => {
+  it("joins a hard wrap mid-sentence but keeps list lines and paragraph breaks", () => {
+    expect(
+      bsdataToHtml(
+        "only a single dice can\nbe substituted.\n\nGAINING DICE\n- At the start\n■ Hit roll",
+      ),
+    ).toBe(
+      "only a single dice can be substituted.<br><br>GAINING DICE<br>- At the start<br>■ Hit roll",
+    );
+  });
+});
+
 describe("whenLine", () => {
   it("turns a bulleted list into a comma-separated one", () => {
     expect(

@@ -3,14 +3,30 @@
  * libraries it links, and the game system file with the core rules.
  */
 
-export type BsCharacteristic = { name: string; $text?: string };
+export type BsCharacteristic = { name: string; typeId?: string; $text?: string };
+
+export type BsCondition = {
+  type?: string;
+  field?: string;
+  scope?: string;
+  childId?: string;
+  value?: number | string;
+};
 
 export type BsModifier = {
   field?: string;
   type?: string;
-  value?: string | number;
-  conditions?: unknown[];
+  value?: string | number | boolean;
+  conditions?: BsCondition[];
   conditionGroups?: unknown[];
+};
+
+/** A limit on how many of something a list may take; `scope: "parent"` limits it per parent. */
+export type BsConstraint = {
+  type?: string;
+  field?: string;
+  scope?: string;
+  value?: number | string;
 };
 
 export type BsNode = {
@@ -25,6 +41,9 @@ export type BsNode = {
   importRootEntries?: boolean;
   characteristics?: BsCharacteristic[];
   modifiers?: BsModifier[];
+  constraints?: BsConstraint[];
+  /** In a choice group: the entry a model takes unless the list says otherwise. */
+  defaultSelectionEntryId?: string;
   profiles?: BsNode[];
   rules?: BsNode[];
   infoLinks?: BsNode[];
@@ -38,6 +57,11 @@ export type BsNode = {
   sharedSelectionEntryGroups?: BsNode[];
   sharedProfiles?: BsNode[];
   sharedRules?: BsNode[];
+  profileTypes?: {
+    id: string;
+    name: string;
+    characteristicTypes?: { id: string; name: string }[];
+  }[];
 };
 
 export type CatalogueFile = { name: string; root: BsNode; isGameSystem: boolean };
@@ -45,13 +69,15 @@ export type CatalogueFile = { name: string; root: BsNode; isGameSystem: boolean 
 type Indexed = { node: BsNode; file: CatalogueFile };
 
 /** Groups that never hold a unit's own wargear, skipped while searching. */
-const SKIPPED_GROUPS =
+export const SKIPPED_GROUPS =
   /^(crusade|battle honours|battle scars|battle traits|weapon modifications|crusade relic)/i;
 
 export class Catalogues {
   readonly files: CatalogueFile[];
   private readonly byId = new Map<string, Indexed>();
   private readonly hiddenCategories = new Set<string>();
+  /** Characteristic type id -> its profile type and name, e.g. "Ranged Weapons" / "A". */
+  private readonly characteristicTypes = new Map<string, { profile: string; name: string }>();
 
   constructor(files: CatalogueFile[]) {
     this.files = files;
@@ -60,7 +86,20 @@ export class Catalogues {
       for (const category of file.root.categoryEntries ?? []) {
         if (category.hidden && category.id) this.hiddenCategories.add(category.id);
       }
+      for (const type of file.root.profileTypes ?? []) {
+        for (const characteristic of type.characteristicTypes ?? []) {
+          this.characteristicTypes.set(characteristic.id, {
+            profile: type.name,
+            name: characteristic.name,
+          });
+        }
+      }
     }
+  }
+
+  /** What a modifier's `field` refers to, when it's a profile characteristic. */
+  characteristic(id: string | undefined): { profile: string; name: string } | undefined {
+    return id ? this.characteristicTypes.get(id) : undefined;
   }
 
   /** The faction catalogue: the first non-game-system file. */
@@ -72,12 +111,16 @@ export class Catalogues {
     return id ? this.byId.get(id) : undefined;
   }
 
-  /** Follows a link to its target, keeping the link's own modifiers. */
+  /** Follows a link to its target, keeping the link's own modifiers and, if it has any, constraints. */
   resolve(node: BsNode): BsNode {
     if (!node.targetId) return node;
     const target = this.byId.get(node.targetId)?.node;
     if (!target) return node;
-    return { ...target, modifiers: [...(node.modifiers ?? []), ...(target.modifiers ?? [])] };
+    return {
+      ...target,
+      modifiers: [...(node.modifiers ?? []), ...(target.modifiers ?? [])],
+      constraints: node.constraints?.length ? node.constraints : target.constraints,
+    };
   }
 
   /** Finds a unit by its exact name, then ignoring case. */
@@ -132,13 +175,18 @@ export class Catalogues {
     return undefined;
   }
 
-  /** Profiles on the node and the ones it links to. */
+  /** Profiles on the node and the ones it links to, with the link's modifiers carried over. */
   profiles(node: BsNode): BsNode[] {
     const out = [...(node.profiles ?? [])];
     for (const link of node.infoLinks ?? []) {
       if (link.type !== "profile") continue;
       const target = this.byId.get(link.targetId ?? "")?.node;
-      if (target) out.push({ ...target, name: applyNameModifiers(target.name, link.modifiers) });
+      if (!target) continue;
+      out.push({
+        ...target,
+        name: applyNameModifiers(target.name, link.modifiers),
+        modifiers: [...(link.modifiers ?? []), ...(target.modifiers ?? [])],
+      });
     }
     return out;
   }
@@ -214,5 +262,13 @@ export function sameName(a: string | undefined, b: string | undefined): boolean 
 }
 
 export function normalizeName(name: string | undefined): string {
-  return (name ?? "").toLowerCase().replace(/[’']/g, "'").replace(/\s+/g, " ").trim();
+  return (
+    (name ?? "")
+      .toLowerCase()
+      .replace(/[’‘`]/g, "'")
+      // Non-breaking and typographic hyphens ("tox‑cycler").
+      .replace(/[‐-―]/g, "-")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
 }
