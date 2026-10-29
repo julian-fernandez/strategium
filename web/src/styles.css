@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
- * App UI: after Destiny 2's menus. A mid-tone stone ground, darker translucent
+ * App UI: after Destiny 2's menus. A deep-space navy ground, darker translucent
  * panels, hairline square frames, one grotesk family with wide-tracked capitals.
  * Cards: after the official 11th-edition datasheet, on paper.
  */
@@ -10,10 +10,11 @@
   --font-card: "Barlow", ui-sans-serif, sans-serif;
   --font-condensed: "Barlow Condensed", ui-sans-serif, sans-serif;
 
-  --color-ground: #56585b;
-  --color-ground-deep: #47494c;
-  --color-panel: rgb(22 24 27 / 0.58);
-  --color-panel-strong: rgb(16 17 20 / 0.8);
+  --color-ground: #16212f;
+  --color-ground-deep: #111a26;
+  --color-ground-raised: #1c2a3c;
+  --color-panel: rgb(6 10 18 / 0.6);
+  --color-panel-strong: rgb(4 7 13 / 0.86);
   --color-line: rgb(255 255 255 / 0.2);
   --color-line-strong: rgb(255 255 255 / 0.55);
   --color-ink: #f3f1ec;
@@ -90,7 +91,7 @@
   }
 
   .btn:hover {
-    background: #525458;
+    background: var(--color-ground-raised);
     border-color: var(--color-ink);
   }
 
