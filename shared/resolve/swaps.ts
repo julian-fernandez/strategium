@@ -101,31 +101,34 @@ export function unitSwaps(
       }
     }
 
-    // Another model type from its squad group.
+    // Another model type from its squad group: one model changes, so the squad keeps its size.
     if (!model.group) continue;
     const mine = loadouts(model, state.held);
     for (const other of states.values()) {
       if (other === state || other.model.group !== model.group) continue;
       const blocked =
         other.model.max > 0 && other.count >= other.model.max
-          ? `${other.count} of ${other.model.max} ${other.model.name}`
+          ? `The squad already has ${other.count} of the ${other.model.max} allowed.`
           : model.min > 0 && state.count <= model.min
-            ? `Needs ${model.min} ${model.name}`
+            ? `The squad must keep ${model.min} ${model.name}.`
             : undefined;
       for (const from of mine) {
         for (const to of loadouts(other.model)) {
           const remove = minus(from.items, to.items);
           const add = minus(to.items, from.items);
-          if (!add.length) continue;
+          if (!add.length && !remove.length) continue;
           offer({
             model: model.name,
             modelLabel,
             toModel: other.model.name,
             remove,
             add,
-            label: add
-              .map((item) => (item.count > 1 ? `${item.count}× ${item.name}` : item.name))
-              .join(" + "),
+            // Giving something up for nothing: "No Simulacrum Imperialis".
+            label: add.length
+              ? add
+                  .map((item) => (item.count > 1 ? `${item.count}× ${item.name}` : item.name))
+                  .join(" + ")
+              : `No ${remove.map((item) => item.name).join(" or ")}`,
             cost: to.cost + other.model.cost - from.cost - model.cost,
             blocked,
           });
