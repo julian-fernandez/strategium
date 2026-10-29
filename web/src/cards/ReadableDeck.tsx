@@ -58,7 +58,7 @@ export function ReadableDeck({
             numbers={numbers}
             theme={theme}
           />
-          {card.stratagems.length ? (
+          {options.unitStratagems && card.stratagems.length ? (
             <StratagemRows
               title="Stratagems for this unit"
               count={String(card.stratagems.length)}

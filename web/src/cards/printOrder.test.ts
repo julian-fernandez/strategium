@@ -66,6 +66,19 @@ describe("buildDeck", () => {
     ]);
   });
 
+  it("leaves out every unit stratagem card when they're turned off, keeping sheets paired", () => {
+    expect(kinds({ ...UNITS_ONLY, unitStratagems: false })).toEqual([
+      "datasheet:u2",
+      "datasheet:u1",
+      "datasheet:u3",
+      "blank:",
+      "datasheet:u4",
+      "blank:",
+      "stratagems:",
+      "blank:",
+    ]);
+  });
+
   it("gives characters their own backs when leaders don't go on the bodyguard", () => {
     expect(kinds({ ...UNITS_ONLY, leadersOnBack: false }).slice(0, 4)).toEqual([
       "datasheet:u1",
