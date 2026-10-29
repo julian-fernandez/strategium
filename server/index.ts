@@ -6,6 +6,7 @@ import { SERVER_PORT, UPDATE_INTERVAL_MS } from "../shared/config";
 import { parseArmyList } from "../shared/list/parse";
 import type { DataVersions } from "../shared/types";
 import { loadCatalogues, loadWahapedia } from "./data";
+import { lanAddresses } from "./lan";
 import { fetchListhammerListText } from "./sources";
 import { type Meta, readMeta } from "./store";
 import { checkForUpdates } from "./updates";
@@ -25,6 +26,8 @@ const app = new Hono();
 app.get("/api/meta", async (c) => c.json(versions(await readMeta())));
 
 app.post("/api/updates/check", async (c) => c.json(versions(await checkForUpdates())));
+
+app.get("/api/lan", async (c) => c.json(await lanAddresses()));
 
 app.post("/api/army", async (c) => {
   const parsed = armyRequest.safeParse(await c.req.json().catch(() => ({})));
