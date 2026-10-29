@@ -69,7 +69,7 @@ export function TopBar({
           </div>
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-[18px] font-extrabold uppercase leading-none tracking-[0.04em] md:text-[22px]">
-              {army ? army.faction : "Army Cards"}
+              {army ? army.faction : "Strategium"}
             </h1>
             <p className="micro mt-2 truncate">
               {army

@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "army-cards",
+      "name": "strategium",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["dev"],
       "port": 5173

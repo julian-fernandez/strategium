@@ -1,5 +1,5 @@
 {
-  "name": "army-cards",
+  "name": "strategium",
   "version": "0.1.0",
   "private": true,
   "description": "Turns a Warhammer 40,000 list into printable datasheets that show only what the army needs.",

@@ -6,7 +6,7 @@ export { WAHAPEDIA_FILES, type WahapediaFile } from "../shared/wahapedia";
 const BSDATA_REPO = "BSData/wh40k-11e";
 const BSDATA_BRANCH = "main";
 const WAHAPEDIA_BASE = "https://wahapedia.ru/wh40k11ed/";
-const USER_AGENT = "army-cards (personal datasheet printer)";
+const USER_AGENT = "strategium (personal datasheet printer)";
 
 async function get(url: string, accept?: string): Promise<Response> {
   const headers: Record<string, string> = { "User-Agent": USER_AGENT };

@@ -1,4 +1,4 @@
-# Army Cards
+# Strategium
 
 Turns a Warhammer 40,000 list into printable datasheets that hold only what
 that army needs:
@@ -90,7 +90,7 @@ allow Node.js on private networks.
 
 ### Not a game tracker
 
-Army Cards is a reference, the same cards on paper or on a screen. Tracking a
+Strategium is a reference, the same cards on paper or on a screen. Tracking a
 game is out of scope: no wound counters, command points, victory points,
 turn or round tracking, or army state shared between players. The phase and
 turn picker in Play only filters which stratagems show; it doesn't record
