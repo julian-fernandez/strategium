@@ -63,3 +63,23 @@ export function ShieldShape({ className }: { className?: string }) {
     </svg>
   );
 }
+
+/** Two arcs turning about each other: turn a card over. */
+export function FlipIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="square"
+      aria-hidden
+    >
+      <path d="M4.5 10.5a7.5 7.5 0 0 1 13.6-3.9" />
+      <path d="M18.5 3v4h-4" />
+      <path d="M19.5 13.5a7.5 7.5 0 0 1-13.6 3.9" />
+      <path d="M5.5 21v-4h4" />
+    </svg>
+  );
+}
