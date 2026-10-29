@@ -12,6 +12,11 @@ export type DeckOptions = {
    */
   unitStratagems: boolean;
   stratagems: boolean;
+  /**
+   * Double-sided, stratagem pages back onto each other instead of onto blank
+   * pages: a bound booklet rather than cards to cut out.
+   */
+  stratagemsBothSides: boolean;
   /** "Paragon Warsuits #1, #2, #3" for units that share a name. */
   numberDuplicates: boolean;
   /** A first card with the army rule, the detachment rules and the enhancements taken. */
@@ -25,6 +30,7 @@ export const DEFAULT_DECK_OPTIONS: DeckOptions = {
   duplex: true,
   unitStratagems: true,
   stratagems: true,
+  stratagemsBothSides: true,
   numberDuplicates: true,
   armyRules: true,
   glossary: true,
@@ -133,8 +139,10 @@ export function buildDeck(army: Army, options: DeckOptions): DeckPage[] {
         key,
         stratagems: army.stratagems.slice(i, i + STRATAGEMS_PER_PAGE),
       });
-      pushBlank(key);
+      if (!options.stratagemsBothSides) pushBlank(key);
     }
+    const count = Math.ceil(army.stratagems.length / STRATAGEMS_PER_PAGE);
+    if (options.stratagemsBothSides && count % 2) pushBlank("stratagems");
   }
 
   if (options.glossary) {
@@ -183,15 +191,28 @@ export function armyRulesSections(army: Army): RulesSection[] {
 
 /**
  * Packs items into pages in order, starting a new page when the next item
- * would take the page past `budget`. An item bigger than a page gets one to itself.
+ * would take the page past `budget`. An item bigger than a page gets one to
+ * itself. When that takes several pages, the items are spread evenly over the
+ * same number of pages, so no page is crammed while the last runs short.
  */
 export function paginate<T>(items: T[], size: (item: T) => number, budget: number): T[][] {
+  const packed = pack(items, size, budget, false);
+  if (packed.length < 2) return packed;
+  const total = items.reduce((sum, item) => sum + size(item), 0);
+  const even = pack(items, size, total / packed.length, true);
+  const fits = even.every((page) => page.reduce((sum, item) => sum + size(item), 0) <= budget);
+  return even.length === packed.length && fits ? even : packed;
+}
+
+/** In order, a page at a time: past `limit`, or (nearest) once an item would end further from it. */
+function pack<T>(items: T[], size: (item: T) => number, limit: number, nearest: boolean): T[][] {
   const pages: T[][] = [];
   let page: T[] = [];
   let used = 0;
   for (const item of items) {
     const length = size(item);
-    if (page.length && used + length > budget) {
+    const over = nearest ? used + length / 2 > limit : used + length > limit;
+    if (page.length && over) {
       pages.push(page);
       page = [];
       used = 0;

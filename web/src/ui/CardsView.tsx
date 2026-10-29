@@ -26,6 +26,11 @@ const OPTIONS: { key: keyof DeckOptions; label: string; hint: string }[] = [
     hint: "Four stratagem cards per page, after the datasheets.",
   },
   {
+    key: "stratagemsBothSides",
+    label: "Stratagems both sides",
+    hint: "Stratagem pages back onto each other, for a bound booklet; off leaves blank backs for cutting out.",
+  },
+  {
     key: "armyRules",
     label: "Army rules card",
     hint: "The army rule, detachment rules and enhancements taken, on the first card.",
@@ -60,7 +65,12 @@ export function CardsView({
   const [area, width] = useWidth<HTMLDivElement>();
   // On a phone the A5 cards would be too small to read, so they're reflowed instead.
   const readable = width > 0 && width < READABLE_CARD_WIDTH;
-  const shown = readable ? OPTIONS.filter((option) => option.key !== "duplex") : OPTIONS;
+  // Paper-only choices mean nothing on a phone, and both-sides stratagems only double-sided.
+  const shown = OPTIONS.filter((option) => {
+    if (option.key === "duplex") return !readable;
+    if (option.key === "stratagemsBothSides") return !readable && options.duplex;
+    return true;
+  });
 
   return (
     <div ref={area} className="flex flex-col gap-6 md:gap-8">

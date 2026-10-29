@@ -18,28 +18,40 @@ export function useFitText<T extends HTMLElement>(
   content: unknown,
   fontsReady: boolean,
   sideWidths?: number[],
+  shared?: SharedFit,
 ) {
   const ref = useRef<T>(null);
   const widths = sideWidths?.join(",");
+  const cap = shared?.cap;
+  const report = useRef(shared?.onFit);
+  report.current = shared?.onFit;
 
   useLayoutEffect(() => {
     const element = ref.current;
     if (!element || content === undefined) return;
 
+    const top = Math.min(base, cap ?? base);
     const candidates = widths ? widths.split(",").map(Number) : [undefined];
     let best = { size: -1, width: candidates[0] };
     for (const width of candidates) {
       if (width) element.style.setProperty("--side", `${width}mm`);
-      const size = shrink(element, base, min);
+      const size = shrink(element, top, min);
       if (size > best.size) best = { size, width };
     }
     if (best.width) element.style.setProperty("--side", `${best.width}mm`);
     element.style.setProperty("--fit", String(best.size));
     element.dataset.fitReady = String(fontsReady);
-  }, [base, min, content, fontsReady, widths]);
+    report.current?.(best.size);
+  }, [base, min, content, fontsReady, widths, cap]);
 
   return ref;
 }
+
+/**
+ * For pages that must share one type size (the rules reference's pages):
+ * each reports the size it fits at, and is held to `cap`, the smallest of them.
+ */
+export type SharedFit = { cap?: number; onFit: (size: number) => void };
 
 function shrink(element: HTMLElement, base: number, min: number): number {
   let size = base;

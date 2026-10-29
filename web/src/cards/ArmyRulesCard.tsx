@@ -4,7 +4,7 @@ import { Emblem } from "./Glyphs";
 import { Rich, SectionBar } from "./parts";
 import type { RulesSection } from "./printOrder";
 import type { CardTheme } from "./themes";
-import { useFitText } from "./useFitText";
+import { type SharedFit, useFitText } from "./useFitText";
 
 /**
  * The deck's first card: the army rule, each detachment's rules and the
@@ -17,6 +17,7 @@ export function ArmyRulesCard({
   parts,
   theme,
   fontsReady,
+  shared,
 }: {
   army: Army;
   sections: RulesSection[];
@@ -24,8 +25,10 @@ export function ArmyRulesCard({
   parts: number;
   theme: CardTheme;
   fontsReady: boolean;
+  /** Held to the same type size as the card's other pages. */
+  shared?: SharedFit;
 }) {
-  const body = useFitText<HTMLDivElement>(7.2, 5, sections, fontsReady);
+  const body = useFitText<HTMLDivElement>(7.2, 5, sections, fontsReady, undefined, shared);
   const size = army.battleSize
     ? `${army.battleSize.name} · ${army.battleSize.points.toLocaleString("en")} points`
     : "";
