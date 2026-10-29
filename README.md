@@ -10,8 +10,7 @@ that army needs:
 - **Squad leaders:** a weapon only the Superior, Sergeant or Nob carries is
   marked with who carries it (`1× Inferno pistol  SUPERIOR`).
 - **Leaders:** every character prints on the same full datasheet as any other
-  unit. A leader can go on the back of the unit it joins, followed by a card
-  of the stratagems the attached unit can use.
+  unit. A leader can go on the back of the unit it joins.
 - **Army rules card:** the army rule, each detachment's rules and the
   enhancements taken, on the first card.
 - **Rules reference:** the full text of every core ability, faction rule and

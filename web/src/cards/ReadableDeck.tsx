@@ -1,9 +1,8 @@
-import type { Army, Datasheet, Stratagem } from "../../../shared/types";
+import type { Army, Datasheet } from "../../../shared/types";
 import { playEntries } from "../play/playOrder";
 import { UnitSheet } from "../play/UnitSheet";
 import { ArmyRulesPanel } from "../rules/ArmyRulesPanel";
 import { FitToWidth } from "../ui/FitToWidth";
-import { StratagemRows } from "../ui/StratagemRows";
 import { Rich } from "./parts";
 import type { DeckOptions } from "./printOrder";
 import { StratagemCard } from "./StratagemCard";
@@ -11,8 +10,8 @@ import { themeFor } from "./themes";
 
 /**
  * The deck for a phone screen, where an A5 card would be too small to read:
- * the army rules, each unit's datasheet reflowed and followed by what its
- * card's back would hold, the stratagem deck, then the rules reference.
+ * the army rules, each unit's datasheet reflowed (with the characters leading
+ * it), the stratagem deck, then the rules reference.
  */
 export function ReadableDeck({
   army,
@@ -26,23 +25,9 @@ export function ReadableDeck({
   fontsReady: boolean;
 }) {
   const theme = themeFor(army.faction);
-  const cards: {
-    key: string;
-    unit: Datasheet;
-    characters: Datasheet[];
-    stratagems: Stratagem[];
-  }[] = options.leadersOnBack
-    ? playEntries(army).map((entry) => ({
-        ...entry,
-        // Army-wide stratagems (New Orders) aren't on any unit's card.
-        stratagems: entry.stratagems.filter((s) => s.usableBy.length),
-      }))
-    : army.units.map((unit) => ({
-        key: unit.id,
-        unit,
-        characters: [],
-        stratagems: army.stratagems.filter((s) => s.usableBy.includes(unit.name)),
-      }));
+  const cards: { key: string; unit: Datasheet; characters: Datasheet[] }[] = options.leadersOnBack
+    ? playEntries(army)
+    : army.units.map((unit) => ({ key: unit.id, unit, characters: [] }));
 
   return (
     <div className="flex flex-col gap-8">
@@ -51,22 +36,13 @@ export function ReadableDeck({
       </p>
       {options.armyRules ? <ArmyRulesPanel army={army} /> : null}
       {cards.map((card) => (
-        <section key={card.key} className="flex flex-col gap-3">
-          <UnitSheet
-            unit={card.unit}
-            characters={card.characters}
-            numbers={numbers}
-            theme={theme}
-          />
-          {options.unitStratagems && card.stratagems.length ? (
-            <StratagemRows
-              title="Stratagems for this unit"
-              count={String(card.stratagems.length)}
-              stratagems={card.stratagems}
-              empty=""
-            />
-          ) : null}
-        </section>
+        <UnitSheet
+          key={card.key}
+          unit={card.unit}
+          characters={card.characters}
+          numbers={numbers}
+          theme={theme}
+        />
       ))}
       {options.stratagems ? (
         <section className="flex flex-col gap-3">

@@ -38,16 +38,13 @@ const kinds = (options = UNITS_ONLY) =>
   buildDeck(army, options).map((page) => `${page.kind}:${"unit" in page ? page.unit.id : ""}`);
 
 describe("buildDeck", () => {
-  it("prints a leader on the standard datasheet behind its unit, then their stratagems", () => {
+  it("prints a leader on the standard datasheet behind its unit, and blank backs for the rest", () => {
     expect(kinds()).toEqual([
       "datasheet:u2",
       // The Canoness's own full datasheet, on the Zephyrim's back.
       "datasheet:u1",
-      "unit-back:u2",
-      "blank:",
       "datasheet:u3",
-      "unit-back:u3",
-      // Nothing it can use: the back stays blank.
+      "blank:",
       "datasheet:u4",
       "blank:",
       "stratagems:",
@@ -55,36 +52,22 @@ describe("buildDeck", () => {
     ]);
   });
 
-  it("prints no lone-unit backs single-sided, but keeps an attached unit's stratagems", () => {
+  it("prints no blank backs single-sided", () => {
     expect(kinds({ ...UNITS_ONLY, duplex: false })).toEqual([
       "datasheet:u2",
       "datasheet:u1",
-      "unit-back:u2",
       "datasheet:u3",
       "datasheet:u4",
       "stratagems:",
     ]);
   });
 
-  it("leaves out every unit stratagem card when they're turned off, keeping sheets paired", () => {
-    expect(kinds({ ...UNITS_ONLY, unitStratagems: false })).toEqual([
-      "datasheet:u2",
-      "datasheet:u1",
-      "datasheet:u3",
-      "blank:",
-      "datasheet:u4",
-      "blank:",
-      "stratagems:",
-      "blank:",
-    ]);
-  });
-
-  it("gives characters their own backs when leaders don't go on the bodyguard", () => {
+  it("gives characters their own sheets when leaders don't go on the bodyguard", () => {
     expect(kinds({ ...UNITS_ONLY, leadersOnBack: false }).slice(0, 4)).toEqual([
       "datasheet:u1",
-      "unit-back:u1",
+      "blank:",
       "datasheet:u2",
-      "unit-back:u2",
+      "blank:",
     ]);
   });
 
@@ -124,16 +107,11 @@ describe("the stratagem deck", () => {
 
   it("backs its pages onto each other for a booklet, with one blank to finish the sheet", () => {
     // Nine stratagems, four to a page: three pages, the last sheet's back blank.
-    expect(deck({ ...UNITS_ONLY, unitStratagems: false })).toEqual([
-      "stratagems",
-      "stratagems",
-      "stratagems",
-      "blank",
-    ]);
+    expect(deck(UNITS_ONLY)).toEqual(["stratagems", "stratagems", "stratagems", "blank"]);
   });
 
   it("leaves every page a blank back when printed for cutting out", () => {
-    expect(deck({ ...UNITS_ONLY, unitStratagems: false, stratagemsBothSides: false })).toEqual([
+    expect(deck({ ...UNITS_ONLY, stratagemsBothSides: false })).toEqual([
       "stratagems",
       "blank",
       "stratagems",

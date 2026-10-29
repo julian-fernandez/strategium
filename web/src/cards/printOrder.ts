@@ -6,11 +6,6 @@ export type DeckOptions = {
   leadersOnBack: boolean;
   /** Print double-sided: every card gets a back, so each stays on its own sheet. */
   duplex: boolean;
-  /**
-   * A card of each unit's own stratagems behind it: after an attached unit's
-   * characters, or (double-sided) on a lone unit's back.
-   */
-  unitStratagems: boolean;
   stratagems: boolean;
   /**
    * Double-sided, stratagem pages back onto each other instead of onto blank
@@ -28,7 +23,6 @@ export type DeckOptions = {
 export const DEFAULT_DECK_OPTIONS: DeckOptions = {
   leadersOnBack: true,
   duplex: true,
-  unitStratagems: true,
   stratagems: true,
   stratagemsBothSides: true,
   numberDuplicates: true,
@@ -41,14 +35,6 @@ export type RulesSection = { title: string; rules: (Ability & { note?: string })
 
 export type DeckPage =
   | { kind: "datasheet"; key: string; unit: Datasheet }
-  /** Stratagems for one unit, or for an attached unit and its characters. */
-  | {
-      kind: "unit-back";
-      key: string;
-      unit: Datasheet;
-      characters?: Datasheet[];
-      stratagems: Stratagem[];
-    }
   | { kind: "stratagems"; key: string; stratagems: Stratagem[] }
   | { kind: "army-rules"; key: string; sections: RulesSection[]; part: number; parts: number }
   | { kind: "glossary"; key: string; rules: Ability[]; part: number; parts: number }
@@ -66,9 +52,8 @@ const GLOSSARY_BUDGET = 7600;
  * The print order: the army rules card, each datasheet followed by its back,
  * the stratagem deck, then the rules reference. Every unit, characters
  * included, prints on the same full datasheet. An attached unit's characters
- * follow it (the first on its back), then (optionally) a card with the
- * stratagems the attached unit can use. A lone unit's back holds (double-sided,
- * optionally) its own stratagems, or is left blank.
+ * follow it, the first on its back. Double-sided, a unit with nothing behind it
+ * gets a blank back.
  */
 export function buildDeck(army: Army, options: DeckOptions): DeckPage[] {
   const pages: DeckPage[] = [];
@@ -99,36 +84,14 @@ export function buildDeck(army: Army, options: DeckOptions): DeckPage[] {
     pages.push({ kind: "datasheet", key: unit.id, unit });
 
     const group = options.leadersOnBack ? groupFor(unit) : undefined;
-    if (group) {
-      const characters = group.characterIds
-        .map((id) => byId.get(id))
-        .filter((c): c is Datasheet => Boolean(c));
-      for (const character of characters) {
-        pages.push({ kind: "datasheet", key: character.id, unit: character });
-      }
-      const stratagems = options.unitStratagems
-        ? army.stratagems.filter((s) => group.stratagemIds.includes(s.id))
-        : [];
-      if (stratagems.length) {
-        pages.push({
-          kind: "unit-back",
-          key: `unit-back-${unit.id}`,
-          unit,
-          characters,
-          stratagems,
-        });
-      }
-      // Double-sided, the group ends on a back so the next unit starts on a front.
-      if ((1 + characters.length + (stratagems.length ? 1 : 0)) % 2) pushBlank(unit.id);
-      continue;
+    const characters = (group?.characterIds ?? [])
+      .map((id) => byId.get(id))
+      .filter((c): c is Datasheet => Boolean(c));
+    for (const character of characters) {
+      pages.push({ kind: "datasheet", key: character.id, unit: character });
     }
-
-    const own = army.stratagems.filter((s) => s.usableBy.includes(unit.name));
-    if (options.duplex && options.unitStratagems && own.length) {
-      pages.push({ kind: "unit-back", key: `unit-back-${unit.id}`, unit, stratagems: own });
-    } else {
-      pushBlank(unit.id);
-    }
+    // Double-sided, a unit ends on a back so the next unit starts on a front.
+    if ((1 + characters.length) % 2) pushBlank(unit.id);
   }
 
   if (options.stratagems) {
