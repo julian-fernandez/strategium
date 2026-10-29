@@ -4,7 +4,7 @@ import { app } from "./app";
 import { checkForUpdates } from "./updates";
 
 serve({ fetch: app.fetch, port: SERVER_PORT }, ({ port }) => {
-  console.log(`army-cards server on http://localhost:${port}`);
+  console.log(`strategium server on http://localhost:${port}`);
 });
 
 const runCheck = () =>
