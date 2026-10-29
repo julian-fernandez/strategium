@@ -4,11 +4,13 @@ import type { Ability, Army, AttachedGroup, Datasheet, Stratagem } from "../../.
 export type DeckOptions = {
   /** Print leaders and supports right after the unit they join, the first on its back. */
   leadersOnBack: boolean;
-  /**
-   * Print double-sided: every card gets a back, so each stays on its own sheet.
-   * A unit without a leader gets its own stratagems there.
-   */
+  /** Print double-sided: every card gets a back, so each stays on its own sheet. */
   duplex: boolean;
+  /**
+   * A card of each unit's own stratagems behind it: after an attached unit's
+   * characters, or (double-sided) on a lone unit's back.
+   */
+  unitStratagems: boolean;
   stratagems: boolean;
   /** "Paragon Warsuits #1, #2, #3" for units that share a name. */
   numberDuplicates: boolean;
@@ -21,6 +23,7 @@ export type DeckOptions = {
 export const DEFAULT_DECK_OPTIONS: DeckOptions = {
   leadersOnBack: true,
   duplex: true,
+  unitStratagems: true,
   stratagems: true,
   numberDuplicates: true,
   armyRules: true,
@@ -57,9 +60,9 @@ const GLOSSARY_BUDGET = 7600;
  * The print order: the army rules card, each datasheet followed by its back,
  * the stratagem deck, then the rules reference. Every unit, characters
  * included, prints on the same full datasheet. An attached unit's characters
- * follow it (the first on its back), then a card with the stratagems the
- * attached unit can use. A lone unit's back holds (double-sided only) its own
- * stratagems, or is left blank when there's nothing to put on it.
+ * follow it (the first on its back), then (optionally) a card with the
+ * stratagems the attached unit can use. A lone unit's back holds (double-sided,
+ * optionally) its own stratagems, or is left blank.
  */
 export function buildDeck(army: Army, options: DeckOptions): DeckPage[] {
   const pages: DeckPage[] = [];
@@ -97,7 +100,9 @@ export function buildDeck(army: Army, options: DeckOptions): DeckPage[] {
       for (const character of characters) {
         pages.push({ kind: "datasheet", key: character.id, unit: character });
       }
-      const stratagems = army.stratagems.filter((s) => group.stratagemIds.includes(s.id));
+      const stratagems = options.unitStratagems
+        ? army.stratagems.filter((s) => group.stratagemIds.includes(s.id))
+        : [];
       if (stratagems.length) {
         pages.push({
           kind: "unit-back",
@@ -113,7 +118,7 @@ export function buildDeck(army: Army, options: DeckOptions): DeckPage[] {
     }
 
     const own = army.stratagems.filter((s) => s.usableBy.includes(unit.name));
-    if (options.duplex && own.length) {
+    if (options.duplex && options.unitStratagems && own.length) {
       pages.push({ kind: "unit-back", key: `unit-back-${unit.id}`, unit, stratagems: own });
     } else {
       pushBlank(unit.id);

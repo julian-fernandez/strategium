@@ -8,12 +8,17 @@ const OPTIONS: { key: keyof DeckOptions; label: string; hint: string }[] = [
   {
     key: "leadersOnBack",
     label: "Leaders on the back",
-    hint: "A character's datasheet prints on the back of the unit it joins, then the attached unit's stratagems.",
+    hint: "A character's datasheet prints on the back of the unit it joins.",
   },
   {
     key: "duplex",
     label: "Double-sided",
-    hint: "Every card gets a back; units without a leader list their stratagems there. Flip on the short edge.",
+    hint: "Every card gets a back, so each stays on its own sheet. Flip on the short edge.",
+  },
+  {
+    key: "unitStratagems",
+    label: "Unit stratagem cards",
+    hint: "Each unit's own stratagems on a card behind it: on a lone unit's back, or after an attached unit's characters.",
   },
   {
     key: "stratagems",
