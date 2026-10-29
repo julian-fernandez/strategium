@@ -1,0 +1,178 @@
+@import "tailwindcss";
+
+/*
+ * App UI: after Destiny 2's menus. A mid-tone stone ground, darker translucent
+ * panels, hairline square frames, one grotesk family with wide-tracked capitals.
+ * Cards: after the official 11th-edition datasheet, on paper.
+ */
+@theme {
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-card: "Barlow", ui-sans-serif, sans-serif;
+  --font-condensed: "Barlow Condensed", ui-sans-serif, sans-serif;
+
+  --color-ground: #56585b;
+  --color-ground-deep: #47494c;
+  --color-panel: rgb(22 24 27 / 0.58);
+  --color-panel-strong: rgb(16 17 20 / 0.8);
+  --color-line: rgb(255 255 255 / 0.2);
+  --color-line-strong: rgb(255 255 255 / 0.55);
+  --color-ink: #f3f1ec;
+  --color-ink-dim: rgb(243 241 236 / 0.62);
+  --color-ink-faint: rgb(243 241 236 / 0.38);
+  --color-faction: #a3242a;
+  --color-action: #4b8a3e;
+  --color-action-hover: #57a048;
+  --color-seal: #c4372f;
+  --color-gold: #d8b45a;
+
+  --color-paper: #efece3;
+  --color-paper-rule: #cdc7b6;
+  --color-card-ink: #1f1f1c;
+  --color-card-bar: #3d4639;
+  --color-card-footer: #2c312a;
+}
+
+@layer base {
+  html {
+    background: var(--color-ground);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "tnum" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: var(--color-faction);
+    color: var(--color-ink);
+  }
+}
+
+@layer components {
+  /* `// LABEL` micro labels. */
+  .micro {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--color-ink-dim);
+  }
+
+  .tracked {
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+
+  /* Destiny-style button: hairline frame with an inset second frame. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 2.5rem;
+    padding: 0 1.25rem;
+    border: 1px solid var(--color-line-strong);
+    box-shadow:
+      inset 0 0 0 3px var(--color-ground-deep),
+      inset 0 0 0 4px var(--color-line);
+    background: var(--color-ground-deep);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    transition:
+      background-color 150ms,
+      border-color 150ms;
+    cursor: pointer;
+  }
+
+  .btn:hover {
+    background: #525458;
+    border-color: var(--color-ink);
+  }
+
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  .btn-action {
+    background: var(--color-action);
+    border-color: var(--color-action);
+    box-shadow:
+      inset 0 0 0 3px var(--color-action),
+      inset 0 0 0 4px rgb(255 255 255 / 0.35);
+  }
+
+  .btn-action:hover {
+    background: var(--color-action-hover);
+    border-color: var(--color-action-hover);
+  }
+
+  .hairline {
+    border: 1px solid var(--color-line);
+  }
+
+  .key-hint {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.25rem;
+    padding: 0 0.3rem;
+    border: 1px solid var(--color-line-strong);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--color-ink-dim);
+  }
+
+  /* Keywords inside rules text. */
+  .kw {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+}
+
+/* One card per A5 landscape page. Nothing but the deck prints. */
+@page {
+  size: A5 landscape;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: white !important;
+  }
+
+  /*
+   * Browsers drop background colours when printing unless "Background graphics"
+   * is ticked in the print dialog. The cards are mostly backgrounds (header,
+   * section bars, footer), so ask for them to print exactly as on screen.
+   */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-page {
+    break-after: page;
+    margin: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  .print-page-label {
+    display: none !important;
+  }
+}
