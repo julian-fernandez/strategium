@@ -8,7 +8,7 @@ const OPTIONS: { key: keyof DeckOptions; label: string; hint: string }[] = [
   {
     key: "leadersOnBack",
     label: "Leaders on the back",
-    hint: "Characters print on the back of the unit they join, with that unit's stratagems.",
+    hint: "A character's datasheet prints on the back of the unit it joins, then the attached unit's stratagems.",
   },
   {
     key: "duplex",
@@ -19,6 +19,16 @@ const OPTIONS: { key: keyof DeckOptions; label: string; hint: string }[] = [
     key: "stratagems",
     label: "Stratagem deck",
     hint: "Four stratagem cards per page, after the datasheets.",
+  },
+  {
+    key: "armyRules",
+    label: "Army rules card",
+    hint: "The army rule, detachment rules and enhancements taken, on the first card.",
+  },
+  {
+    key: "glossary",
+    label: "Rules reference",
+    hint: "Every core ability and weapon keyword the cards name, in full, at the end.",
   },
   {
     key: "numberDuplicates",
@@ -84,7 +94,13 @@ export function CardsView({
       {width === 0 ? null : readable ? (
         <ReadableDeck army={army} options={options} numbers={numbers} fontsReady={fontsReady} />
       ) : (
-        <Deck army={army} pages={pages} numbers={numbers} fontsReady={fontsReady} />
+        <Deck
+          army={army}
+          pages={pages}
+          numbers={numbers}
+          duplex={options.duplex}
+          fontsReady={fontsReady}
+        />
       )}
     </div>
   );
