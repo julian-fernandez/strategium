@@ -8,7 +8,6 @@ import { FlipIcon } from "./Glyphs";
 import type { DeckPage } from "./printOrder";
 import { StratagemCard } from "./StratagemCard";
 import { type CardTheme, themeFor } from "./themes";
-import { UnitBackCard } from "./UnitBackCard";
 import type { SharedFit } from "./useFitText";
 
 /**
@@ -148,16 +147,6 @@ function Face({
         <DatasheetCard
           sheet={page.unit}
           number={numbers.get(page.unit.id)}
-          theme={theme}
-          fontsReady={fontsReady}
-        />
-      ) : null}
-      {page.kind === "unit-back" ? (
-        <UnitBackCard
-          unit={page.unit}
-          characters={page.characters}
-          number={numbers.get(page.unit.id)}
-          stratagems={page.stratagems}
           theme={theme}
           fontsReady={fontsReady}
         />

@@ -16,11 +16,6 @@ const OPTIONS: { key: keyof DeckOptions; label: string; hint: string }[] = [
     hint: "Every card gets a back, so each stays on its own sheet. Flip on the short edge.",
   },
   {
-    key: "unitStratagems",
-    label: "Unit stratagem cards",
-    hint: "Each unit's own stratagems on a card behind it: on a lone unit's back, or after an attached unit's characters.",
-  },
-  {
     key: "stratagems",
     label: "Stratagem deck",
     hint: "Four stratagem cards per page, after the datasheets.",
