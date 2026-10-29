@@ -24,8 +24,11 @@ describe("buildArmy on the demo list", () => {
     army = buildArmy(list, snapshotBundle(list.faction), {});
   });
 
-  it("loads without warnings", () => {
-    expect(army.warnings).toEqual([]);
+  it("loads without warnings, but that points changed since it was exported", () => {
+    // Retributors were 125 when the list was made; BSData has them at 105 now.
+    expect(army.warnings).toEqual([
+      "The list adds up to 2,000 pts; at the current points it's 1,980.",
+    ]);
     expect(army.battleSize).toEqual({ name: "Strike Force", points: 2000, supported: true });
     expect(army.detachments).toEqual(["Champions of Faith", "Sanctified Orators"]);
   });

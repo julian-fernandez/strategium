@@ -19,6 +19,40 @@ export type WeaponRow = {
   profiles: WeaponProfile[];
   /** The squad leader's own weapon: who carries it ("Superior"), when no one else does. */
   carrier?: string;
+  /** The option it comes from, by normalized name. */
+  key?: string;
+  /** What one model carrying it could take instead. */
+  swaps?: Swap[];
+};
+
+/** A number of one piece of wargear, as BSData names it. */
+export type Counted = { name: string; count: number };
+
+/**
+ * One model's change of wargear: what it gives up and what it takes. A
+ * Dominion taking a meltagun becomes a "Dominion w/ Special Weapon", so a
+ * swap can change the model's type too.
+ */
+export type Swap = {
+  /** The model type making the change, and its label on the card ("Superior"). */
+  model: string;
+  modelLabel: string;
+  /** The type it becomes, when that changes. */
+  toModel?: string;
+  remove: Counted[];
+  add: Counted[];
+  /** What it's called in a menu: the choice's name, or what it adds. */
+  label: string;
+  /** The change in the unit's points. */
+  cost: number;
+  /** Why it can't be taken as the unit stands ("4 of 4 Dominion w/ Special Weapon"). */
+  blocked?: string;
+};
+
+/** A swap made to a unit of the list, kept so the list can be rebuilt with it. */
+export type Edit = Pick<Swap, "model" | "toModel" | "remove" | "add"> & {
+  /** The unit's place in the list. */
+  unit: number;
 };
 
 export type StatLine = {
@@ -39,7 +73,14 @@ export type AttachmentRole = "leader" | "support" | "bodyguard";
 export type Datasheet = {
   id: string;
   name: string;
+  /** What the data prices the unit at, or what the list says when the data can't. */
   points: number;
+  /** What the list says it costs. */
+  listedPoints: number;
+  /** False when BSData has a points rule the app can't read, so `points` may be off. */
+  pointsExact: boolean;
+  /** Wargear a model may add without giving anything up (a Simulacrum, a Null Rod). */
+  extras: Swap[];
   models: { name: string; count: number }[];
   modelCount: number;
   stats: StatLine[];

@@ -22,12 +22,16 @@ const SUPPORTED_SIZES = [
   { name: "Strike Force", points: 2000 },
 ];
 
-/** Builds an army from a parsed list and its faction's bundle. Runs in the browser. */
+/**
+ * Builds an army from a parsed list and its faction's bundle. Runs in the browser.
+ * `checkPoints: false` skips comparing the list's points with the data's, for a list that's been edited.
+ */
 export function buildArmy(
   list: ArmyList,
   bundle: FactionBundle,
   versions: DataVersions,
   format?: ListFormat,
+  options: { checkPoints?: boolean } = {},
 ): Army {
   const warnings = [...list.warnings];
   if (!bundle.wahapediaFactionId) {
@@ -41,8 +45,13 @@ export function buildArmy(
     );
   }
 
+  // A datasheet taken again costs more for each copy before it.
+  const copies = new Map<string, number>();
   const units = list.units.map((unit, index) => {
-    const sheet = resolveDatasheet(bundle, unit, `u${index + 1}`);
+    const name = findUnit(bundle, unit.name)?.name ?? unit.name;
+    const before = copies.get(name) ?? 0;
+    copies.set(name, before + 1);
+    const sheet = resolveDatasheet(bundle, unit, `u${index + 1}`, before);
     if (!sheet.warnings.length && !sheet.wahapediaId) {
       sheet.warnings.push(
         `Wahapedia has no datasheet named "${unit.name}", so it has no stratagems.`,
@@ -51,6 +60,14 @@ export function buildArmy(
     return sheet;
   });
   for (const unit of units) for (const warning of unit.warnings) warnings.push(warning);
+  // Lists carry the points their builder priced them at; a difference means either side is out of date.
+  const listed = units.reduce((sum, unit) => sum + unit.listedPoints, 0);
+  const priced = units.reduce((sum, unit) => sum + unit.points, 0);
+  if (listed && listed !== priced && options.checkPoints !== false) {
+    warnings.push(
+      `The list adds up to ${listed.toLocaleString("en")} pts; at the current points it's ${priced.toLocaleString("en")}.`,
+    );
+  }
   // Most names unknown: almost always an export in another language.
   const unknown = warnings.filter((w) => w.includes("has no unit named")).length;
   if (unknown >= 3 && unknown >= units.length / 2) {

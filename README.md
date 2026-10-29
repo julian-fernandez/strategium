@@ -16,6 +16,13 @@ that army needs:
 - **Rules reference:** the full text of every core ability, faction rule and
   weapon keyword the cards name, at the back of the deck. On screen, tap any of
   those names to read it.
+- **Points:** every unit priced from the current data: its size, wargear that
+  costs extra (a meltagun, a multi-melta), its enhancement, and the surcharge on
+  a repeated datasheet. A list whose own total differs says so.
+- **Wargear swaps:** in the Army tab, click a weapon to swap it on one model:
+  another choice in its slot, or a trooper taking a special weapon, within the
+  squad's limits and with the points it costs. Swaps are kept with the list,
+  with undo and revert.
 
 The cards follow the official 11th-edition datasheet layout and print one per
 A5 landscape page.
