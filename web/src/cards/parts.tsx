@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { Ability, Datasheet, StatLine, WeaponRow } from "../../../shared/types";
+import { RuleTerms } from "../rules/Rules";
 import { BladesIcon, CrosshairIcon, ShieldShape } from "./Glyphs";
 
 const STAT_FIELDS = [
@@ -128,6 +129,7 @@ export function WeaponTable({ rows, melee }: { rows: WeaponRow[]; melee: boolean
             <div className="px-[1.6mm] pt-[0.6mm] font-semibold">
               <Count value={row.count} />
               {row.name}
+              <CarrierTag carrier={row.carrier} />
             </div>
           ) : null}
           {row.profiles.map((profile) => (
@@ -137,9 +139,10 @@ export function WeaponTable({ rows, melee }: { rows: WeaponRow[]; melee: boolean
                 <span className={row.profiles.length > 1 ? "pl-[1.5mm]" : "font-semibold"}>
                   {row.profiles.length > 1 ? profile.name : row.name}
                 </span>
+                {row.profiles.length === 1 ? <CarrierTag carrier={row.carrier} /> : null}
                 {profile.keywords.length ? (
                   <span className="ml-[1mm] font-condensed text-[0.85em] font-bold uppercase text-[#4a4a44]">
-                    [{profile.keywords.join(", ")}]
+                    [<RuleTerms names={profile.keywords} />]
                   </span>
                 ) : null}
               </span>
@@ -163,6 +166,16 @@ export function WeaponTable({ rows, melee }: { rows: WeaponRow[]; melee: boolean
         </div>
       ))}
     </div>
+  );
+}
+
+/** "SUPERIOR" after a weapon only the squad's leader carries. */
+export function CarrierTag({ carrier }: { carrier?: string }) {
+  if (!carrier) return null;
+  return (
+    <span className="ml-[1.2mm] inline-block rounded-[0.6mm] border border-[var(--accent)] px-[0.8mm] align-[0.08em] font-condensed text-[0.72em] font-bold uppercase leading-[1.25] tracking-[0.04em] text-[var(--accent)]">
+      {carrier}
+    </span>
   );
 }
 
@@ -194,12 +207,12 @@ export function AbilitiesBlock({ sheet }: { sheet: Datasheet }) {
       <div className="px-[1.6mm] pb-[1mm]">
         {sheet.coreAbilities.length ? (
           <p className="mt-[0.9mm]">
-            <b className="uppercase">Core:</b> {sheet.coreAbilities.join(", ")}
+            <b className="uppercase">Core:</b> <RuleTerms names={sheet.coreAbilities} />
           </p>
         ) : null}
         {sheet.factionAbilities.length ? (
           <p className="mt-[0.9mm]">
-            <b className="uppercase">Faction:</b> {sheet.factionAbilities.join(", ")}
+            <b className="uppercase">Faction:</b> <RuleTerms names={sheet.factionAbilities} />
           </p>
         ) : null}
         <AbilityList abilities={sheet.abilities} />

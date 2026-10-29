@@ -1,7 +1,8 @@
 import type { CSSProperties } from "react";
 import type { Datasheet, StatLine, WeaponRow } from "../../../shared/types";
-import { AbilityList, Rich, SectionBar, splitName } from "../cards/parts";
+import { AbilityList, CarrierTag, Rich, SectionBar, splitName } from "../cards/parts";
 import type { CardTheme } from "../cards/themes";
+import { RuleTerms } from "../rules/Rules";
 
 /**
  * A datasheet reflowed for a phone: the printed card's look (paper, faction
@@ -95,12 +96,12 @@ function SheetSection({
           <div className="px-1 pt-1">
             {sheet.coreAbilities.length ? (
               <p className="mt-1.5">
-                <b className="uppercase">Core:</b> {sheet.coreAbilities.join(", ")}
+                <b className="uppercase">Core:</b> <RuleTerms names={sheet.coreAbilities} />
               </p>
             ) : null}
             {sheet.factionAbilities.length ? (
               <p className="mt-1.5">
-                <b className="uppercase">Faction:</b> {sheet.factionAbilities.join(", ")}
+                <b className="uppercase">Faction:</b> <RuleTerms names={sheet.factionAbilities} />
               </p>
             ) : null}
             <AbilityList abilities={sheet.abilities} />
@@ -193,6 +194,7 @@ function Weapons({ rows, melee }: { rows: WeaponRow[]; melee: boolean }) {
               {row.count}×
             </span>
             {row.name}
+            <CarrierTag carrier={row.carrier} />
           </p>
           {row.profiles.map((profile) => (
             <div key={profile.name} className="mt-1">
@@ -201,7 +203,7 @@ function Weapons({ rows, melee }: { rows: WeaponRow[]; melee: boolean }) {
               ) : null}
               {profile.keywords.length ? (
                 <p className="font-condensed text-[12px] font-bold uppercase text-[#4a4a44]">
-                  [{profile.keywords.join(", ")}]
+                  [<RuleTerms names={profile.keywords} />]
                 </p>
               ) : null}
               <dl className="mt-1 grid grid-cols-6 text-center">
