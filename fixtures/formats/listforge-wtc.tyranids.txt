@@ -1,0 +1,112 @@
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+List Name: HoHo Hier kommt der Köfermann
+Factions Used: Tyranids
+Army Points: 2000
+Army Enhancements (list on which model): Trygon Prime (on Trygon)
+Disposition: Reconnaissance
+Detachment(s): Subterranean Assault
+Interactive List Link: https://share.listforge.club/CN7Q9k7yZnsW5xb6hgh9
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ATTACHED UNITS:
+Tyranid Prime with Lash Whip + Hormagaunts (145 pts)
+  Tyranid Prime with Lash Whip (75 pts)
+    • Lash whip
+    • Rending claw
+    • Scything talons
+  Hormagaunts (70 pts)
+    • 10x Hormagaunts
+      • 10x Hormagaunt talons
+
+Tyranid Prime with Lash Whip + Hormagaunts (145 pts)
+  Tyranid Prime with Lash Whip (75 pts)
+    • Lash whip
+    • Rending claw
+    • Scything talons
+  Hormagaunts (70 pts)
+    • 10x Hormagaunts
+      • 10x Hormagaunt talons
+
+Tyranid Prime with Lash Whip + Hormagaunts (145 pts)
+  Tyranid Prime with Lash Whip (75 pts)
+    • Lash whip
+    • Rending claw
+    • Scything talons
+  Hormagaunts (70 pts)
+    • 10x Hormagaunts
+      • 10x Hormagaunt talons
+
+
+CHARACTERS:
+Hyperadapted Raveners (165 pts)
+  • 3x Ravener
+    • 3x Ravener heavy claws and talons
+  • Ravener Prime
+    • Prime claws and talons
+  • Ravener w/ Venom bolt
+    • Ravener heavy claws and talons
+    • Venom bolt
+
+Hyperadapted Raveners (165 pts)
+  • 3x Ravener
+    • 3x Ravener heavy claws and talons
+  • Ravener Prime
+    • Prime claws and talons
+  • Ravener w/ Venom bolt
+    • Ravener heavy claws and talons
+    • Venom bolt
+
+Old One Eye (130 pts)
+  • Old One Eye’s claws and talons
+  • Warlord
+
+The Red Terror (120 pts)
+  • Gaping maw
+  • Scything talons
+
+Trygon (155 pts)
+  • Bio-electric pulse
+  • Trygon Character upgrade
+  • Trygon scything talons
+  • Enhancement: Trygon Prime
+
+
+OTHER DATASHEETS:
+Biovores (60 pts)
+  • Biovore
+    • Chitin-barbed limbs
+    • Spore mine launcher
+
+Haruspex (125 pts)
+  • Grasping tongue
+  • Ravenous maw
+  • Shovelling claws
+
+Hive Guard (160 pts)
+  • 6x Hive Guard w/ shockcannon
+    • 6x Chitinous claws and teeth
+    • 6x Shockcannon
+
+Maleceptor (180 pts)
+  • Massive scything talons
+  • Psychic overload
+
+Raveners (125 pts)
+  • 5x Ravener
+    • 5x Ravener claws and talons
+
+Zoanthropes (90 pts)
+  • Neurothrope
+    • Chitinous claws and teeth
+    • Warp blast
+  • 2x Zoanthrope
+    • 2x Chitinous claws and teeth
+    • 2x Warp blast
+
+Zoanthropes (90 pts)
+  • Neurothrope
+    • Chitinous claws and teeth
+    • Warp blast
+  • 2x Zoanthrope
+    • 2x Chitinous claws and teeth
+    • 2x Warp blast

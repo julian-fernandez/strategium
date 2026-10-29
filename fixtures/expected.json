@@ -1,0 +1,1007 @@
+{
+  "lists/adepta-sororitas.txt": {
+    "format": "gw-app",
+    "faction": "Adepta Sororitas",
+    "detachments": [
+      "Champions of Faith",
+      "Sanctified Orators"
+    ],
+    "battleSize": 2000,
+    "units": 17,
+    "models": 61,
+    "points": 2000,
+    "attachedGroups": 4,
+    "stratagems": 16,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "lists/adeptus-custodes.txt": {
+    "format": "gw-app",
+    "faction": "Adeptus Custodes",
+    "detachments": [
+      "Lions of the Emperor"
+    ],
+    "battleSize": 2000,
+    "units": 17,
+    "models": 29,
+    "points": 2390,
+    "attachedGroups": 5,
+    "stratagems": 14,
+    "warnings": [
+      "BSData has no enhancement named \"Fierce Conqueror\" for Shield-Captain on Dawneagle Jetbike.",
+      "BSData has no unit named \"Vigilators\".",
+      "BSData has no enhancement named \"Fierce Conqueror\" for Shield-Captain on Dawneagle Jetbike.",
+      "BSData has no enhancement named \"Admonimortis\" for Shield-Captain in Allarus Terminator Armour.",
+      "BSData has no unit named \"Prosecutors\"."
+    ],
+    "crossCheck": [
+      "Blade Champion: ➤ Vaultswords - Hurricanis AP -1 / -2"
+    ]
+  },
+  "lists/adeptus-mechanicus.txt": {
+    "format": "gw-app",
+    "faction": "Adeptus Mechanicus",
+    "detachments": [
+      "Cohort Cybernetica",
+      "Eradication Cohort"
+    ],
+    "battleSize": 2000,
+    "units": 14,
+    "models": 64,
+    "points": 1985,
+    "attachedGroups": 1,
+    "stratagems": 23,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "lists/aeldari.txt": {
+    "format": "gw-app",
+    "faction": "Aeldari",
+    "detachments": [
+      "Armoured Warhost",
+      "Spirit Conclave"
+    ],
+    "battleSize": 2000,
+    "units": 18,
+    "models": 38,
+    "points": 2000,
+    "attachedGroups": 1,
+    "stratagems": 19,
+    "warnings": [],
+    "crossCheck": [
+      "Farseer: Shuriken Pistol BS/WS 3+ / 2"
+    ]
+  },
+  "lists/astra-militarum.txt": {
+    "format": "gw-app",
+    "faction": "Astra Militarum",
+    "detachments": [
+      "Abhuman Auxiliaries",
+      "Steel Hammer"
+    ],
+    "battleSize": 2000,
+    "units": 14,
+    "models": 38,
+    "points": 1995,
+    "attachedGroups": 3,
+    "stratagems": 19,
+    "warnings": [
+      "BSData has no wargear named \"Zealot’s vindictor\" in Ministorum Priest."
+    ],
+    "crossCheck": []
+  },
+  "lists/black-templars.txt": {
+    "format": "gw-app",
+    "faction": "Black Templars",
+    "detachments": [
+      "Assault Brethren",
+      "Ironstorm Spearhead",
+      "Marshal’s Household"
+    ],
+    "battleSize": 2000,
+    "units": 15,
+    "models": 32,
+    "points": 2000,
+    "attachedGroups": 3,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "lists/blood-angels.txt": {
+    "format": "gw-app",
+    "faction": "Blood Angels",
+    "detachments": [
+      "Assault Brethren",
+      "Stormlance Task Force",
+      "Terminator Storm Force"
+    ],
+    "battleSize": 2000,
+    "units": 13,
+    "models": 47,
+    "points": 2000,
+    "attachedGroups": 5,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "lists/chaos-daemons.txt": {
+    "format": "gw-app",
+    "faction": "Chaos Daemons",
+    "detachments": [
+      "Blood Legion",
+      "Warptide"
+    ],
+    "battleSize": 2000,
+    "units": 13,
+    "models": 57,
+    "points": 1995,
+    "attachedGroups": 2,
+    "stratagems": 18,
+    "warnings": [
+      "BSData has no wargear named \"Attendants' hellblades\" in Rendmaster on Blood Throne."
+    ],
+    "crossCheck": []
+  },
+  "lists/chaos-knights.txt": {
+    "format": "gw-app",
+    "faction": "Chaos Knights",
+    "detachments": [
+      "Houndpack Lance",
+      "Hunting Warpack"
+    ],
+    "battleSize": 2000,
+    "units": 14,
+    "models": 14,
+    "points": 2000,
+    "attachedGroups": 0,
+    "stratagems": 17,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "lists/chaos-space-marines.txt": {
+    "format": "gw-app",
+    "faction": "Chaos Space Marines",
+    "detachments": [
+      "Cabal of Chaos",
+      "Warpstrike Champions"
+    ],
+    "battleSize": 2000,
+    "units": 11,
+    "models": 55,
+    "points": 1995,
+    "attachedGroups": 2,
+    "stratagems": 18,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "lists/dark-angels.txt": {
+    "format": "gw-app",
+    "faction": "Dark Angels",
+    "detachments": [
+      "Assault Brethren",
+      "Wrath of the Rock"
+    ],
+    "battleSize": 2000,
+    "units": 14,
+    "models": 40,
+    "points": 2000,
+    "attachedGroups": 4,
+    "stratagems": 19,
+    "warnings": [],
+    "crossCheck": [
+      "Asmodai: Heavy Bolt Pistol BS/WS 3+ / 2",
+      "Invader ATVs: Twin Bolt Rifle BS/WS 3+ / 2"
+    ]
+  },
+  "lists/death-guard.txt": {
+    "format": "gw-app",
+    "faction": "Death Guard",
+    "detachments": [
+      "Champions of Contagion",
+      "Paragons of Putrescence"
+    ],
+    "battleSize": 2000,
+    "units": 16,
+    "models": 52,
+    "points": 2000,
+    "attachedGroups": 4,
+    "stratagems": 20,
+    "warnings": [
+      "BSData has no wargear named \"Deathshroud Champion\" in Deathshroud Terminators."
+    ],
+    "crossCheck": [
+      "Lord of Poxes: ➤ Plasma pistol - standard BS/WS 3+ / 2",
+      "Lord of Poxes: ➤ Plasma pistol - supercharge BS/WS 3+ / 2"
+    ]
+  },
+  "lists/deathwatch.txt": {
+    "format": "gw-app",
+    "faction": "Deathwatch",
+    "detachments": [
+      "Black Spear Task Force"
+    ],
+    "battleSize": 2000,
+    "units": 11,
+    "models": 68,
+    "points": 1985,
+    "attachedGroups": 2,
+    "stratagems": 15,
+    "warnings": [
+      "BSData has no wargear named \"Astartes shield\" in Deathwatch Veterans.",
+      "BSData has no wargear named \"Astartes shield\" in Deathwatch Veterans.",
+      "BSData has no wargear named \"Close combat weapon\" in Deathwatch Veterans.",
+      "BSData has no wargear named \"Deathwatch thunder hammer\" in Deathwatch Veterans.",
+      "BSData has no wargear named \"Close combat weapon\" in Lieutenant.",
+      "BSData has no wargear named \"Astartes shield\" in Deathwatch Veterans.",
+      "BSData has no wargear named \"Astartes shield\" in Deathwatch Veterans.",
+      "BSData has no wargear named \"Close combat weapon\" in Deathwatch Veterans.",
+      "BSData has no wargear named \"Deathwatch thunder hammer\" in Deathwatch Veterans.",
+      "BSData has no wargear named \"Close combat weapon\" in Talonstrike Kill Team.",
+      "BSData has no wargear named \"Close combat weapon\" in Talonstrike Kill Team.",
+      "BSData has no wargear named \"Close combat weapon\" in Talonstrike Kill Team."
+    ],
+    "crossCheck": []
+  },
+  "lists/drukhari.txt": {
+    "format": "gw-app",
+    "faction": "Drukhari",
+    "detachments": [
+      "Exhibition of Slaughter",
+      "Skysplinter Assault"
+    ],
+    "battleSize": 2000,
+    "units": 20,
+    "models": 65,
+    "points": 2000,
+    "attachedGroups": 3,
+    "stratagems": 19,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "lists/emperors-children.txt": {
+    "format": "gw-app",
+    "faction": "Emperor's Children",
+    "detachments": [
+      "Peerless Bladesmen",
+      "Spectacle of Slaughter"
+    ],
+    "battleSize": 2000,
+    "units": 16,
+    "models": 49,
+    "points": 1995,
+    "attachedGroups": 3,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": [
+      "Lord Exultant: Bolt pistol BS/WS 3+ / 2"
+    ]
+  },
+  "lists/genestealer-cults.txt": {
+    "format": "gw-app",
+    "faction": "Genestealer Cults",
+    "detachments": [
+      "Final Day",
+      "Purestrain Broodswarm"
+    ],
+    "battleSize": 2000,
+    "units": 19,
+    "models": 63,
+    "points": 2000,
+    "attachedGroups": 3,
+    "stratagems": 19,
+    "warnings": [
+      "BSData has no wargear named \"Leader’s cult weapons\" in Hybrid Metamorphs.",
+      "BSData has no wargear named \"Leader’s cult weapons\" in Hybrid Metamorphs."
+    ],
+    "crossCheck": []
+  },
+  "lists/grey-knights.txt": {
+    "format": "gw-app",
+    "faction": "Grey Knights",
+    "detachments": [
+      "Argent Assault",
+      "Banishers"
+    ],
+    "battleSize": 2000,
+    "units": 12,
+    "models": 43,
+    "points": 2000,
+    "attachedGroups": 2,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": [
+      "Strike Squad: Close combat weapon S 5 / 4"
+    ]
+  },
+  "lists/imperial-agents.txt": {
+    "format": "gw-app",
+    "faction": "Imperial Agents",
+    "detachments": [
+      "Imperialis Fleet",
+      "Veiled Blade Elimination Force"
+    ],
+    "battleSize": 2000,
+    "units": 16,
+    "models": 82,
+    "points": 2000,
+    "attachedGroups": 4,
+    "stratagems": 22,
+    "warnings": [
+      "BSData has no wargear named \"Astartes shield\" in Deathwatch Kill Team.",
+      "BSData has no wargear named \"Deathwatch thunder hammer\" in Deathwatch Kill Team.",
+      "BSData has no wargear named \"Astartes shield\" in Deathwatch Kill Team.",
+      "BSData has no wargear named \"Deathwatch thunder hammer\" in Deathwatch Kill Team.",
+      "BSData has no wargear named \"Rejuvenat Adept\" in Rogue Trader Entourage.",
+      "BSData has no wargear named \"Simulacrum Imperialis\" in Sisters of Battle Squad."
+    ],
+    "crossCheck": []
+  },
+  "lists/imperial-fists.txt": {
+    "format": "gw-app",
+    "faction": "Imperial Fists",
+    "detachments": [
+      "Ceramite Sentinels",
+      "Terminator Storm Force"
+    ],
+    "battleSize": 2000,
+    "units": 13,
+    "models": 47,
+    "points": 2000,
+    "attachedGroups": 3,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "lists/imperial-knights.txt": {
+    "format": "gw-app",
+    "faction": "Imperial Knights",
+    "detachments": [
+      "Freeblade Company"
+    ],
+    "battleSize": 2000,
+    "units": 7,
+    "models": 7,
+    "points": 2000,
+    "attachedGroups": 0,
+    "stratagems": 15,
+    "warnings": [],
+    "crossCheck": [
+      "Knight Destrier: Titanic feet S 7 / 8"
+    ]
+  },
+  "lists/iron-hands.txt": {
+    "format": "gw-app",
+    "faction": "Iron Hands",
+    "detachments": [
+      "Devastator Brethren",
+      "Medusa's Wrath"
+    ],
+    "battleSize": 2000,
+    "units": 16,
+    "models": 37,
+    "points": 2000,
+    "attachedGroups": 2,
+    "stratagems": 19,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "lists/leagues-of-votann.txt": {
+    "format": "gw-app",
+    "faction": "Leagues of Votann",
+    "detachments": [
+      "Dêlve Assault Shift",
+      "Hearthguard Covenant"
+    ],
+    "battleSize": 2000,
+    "units": 15,
+    "models": 77,
+    "points": 1995,
+    "attachedGroups": 2,
+    "stratagems": 18,
+    "warnings": [
+      "BSData has no enhancement named \"Dêlvewerke Navigator\" for Memnyr Strategist."
+    ],
+    "crossCheck": []
+  },
+  "lists/necrons.txt": {
+    "format": "gw-app",
+    "faction": "Necrons",
+    "detachments": [
+      "Cryptek Conclave",
+      "Hand of the Dynasty"
+    ],
+    "battleSize": 2000,
+    "units": 21,
+    "models": 80,
+    "points": 2000,
+    "attachedGroups": 3,
+    "stratagems": 18,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "lists/orks.txt": {
+    "format": "gw-app",
+    "faction": "Orks",
+    "detachments": [
+      "Brute Bosses",
+      "Green Tide",
+      "Runt Swarm"
+    ],
+    "battleSize": 2000,
+    "units": 19,
+    "models": 126,
+    "points": 2000,
+    "attachedGroups": 5,
+    "stratagems": 17,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "lists/raven-guard.txt": {
+    "format": "gw-app",
+    "faction": "Raven Guard",
+    "detachments": [
+      "Shadowmark Talon",
+      "Terminator Storm Force"
+    ],
+    "battleSize": 2000,
+    "units": 13,
+    "models": 61,
+    "points": 2000,
+    "attachedGroups": 2,
+    "stratagems": 19,
+    "warnings": [],
+    "crossCheck": [
+      "Apothecary Biologis: Apothecary Biologis OC 3 / 1"
+    ]
+  },
+  "lists/salamanders.txt": {
+    "format": "gw-app",
+    "faction": "Salamanders",
+    "detachments": [
+      "Forgefather’s Seekers",
+      "Ironstorm Spearhead"
+    ],
+    "battleSize": 2000,
+    "units": 14,
+    "models": 43,
+    "points": 1990,
+    "attachedGroups": 2,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": [
+      "Invader ATVs: Twin Bolt Rifle BS/WS 3+ / 2"
+    ]
+  },
+  "lists/space-wolves.txt": {
+    "format": "gw-app",
+    "faction": "Space Wolves",
+    "detachments": [
+      "Saga of the Great Wolf",
+      "Terminator Storm Force"
+    ],
+    "battleSize": 2000,
+    "units": 13,
+    "models": 49,
+    "points": 2000,
+    "attachedGroups": 3,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": [
+      "Venerable Dreadnought: Venerable Dreadnought M 8\" / 6\""
+    ]
+  },
+  "lists/tau-empire.txt": {
+    "format": "gw-app",
+    "faction": "T'au Empire",
+    "detachments": [
+      "Retaliation Cadre"
+    ],
+    "battleSize": 2000,
+    "units": 16,
+    "models": 57,
+    "points": 2000,
+    "attachedGroups": 3,
+    "stratagems": 17,
+    "warnings": [],
+    "crossCheck": [
+      "Commander in Enforcer Battlesuit: Missile pod BS/WS 5+ / 3",
+      "Crisis Fireknife Battlesuits: Missile pod BS/WS 5+ / 4"
+    ]
+  },
+  "lists/thousand-sons.txt": {
+    "format": "gw-app",
+    "faction": "Thousand Sons",
+    "detachments": [
+      "Grand Coven"
+    ],
+    "battleSize": 2000,
+    "units": 14,
+    "models": 49,
+    "points": 2000,
+    "attachedGroups": 3,
+    "stratagems": 17,
+    "warnings": [],
+    "crossCheck": [
+      "Exalted Sorcerer: Force weapon A 4 / 5",
+      "Sorcerer in Terminator Armour: Force weapon A 4 / 5"
+    ]
+  },
+  "lists/tyranids.txt": {
+    "format": "gw-app",
+    "faction": "Tyranids",
+    "detachments": [
+      "Assimilation Swarm",
+      "Talons of the Norn Queen"
+    ],
+    "battleSize": 2000,
+    "units": 13,
+    "models": 24,
+    "points": 2000,
+    "attachedGroups": 1,
+    "stratagems": 19,
+    "warnings": [
+      "BSData has no wargear named \"Toxinjector Harpoon\" in Norn Assimilator.",
+      "BSData has no wargear named \"Toxinjector Harpoon\" in Norn Assimilator."
+    ],
+    "crossCheck": []
+  },
+  "lists/ultramarines.txt": {
+    "format": "gw-app",
+    "faction": "Ultramarines",
+    "detachments": [
+      "Assault Brethren",
+      "Deathwatch Support",
+      "Terminator Storm Force"
+    ],
+    "battleSize": 2000,
+    "units": 12,
+    "models": 46,
+    "points": 2000,
+    "attachedGroups": 2,
+    "stratagems": 21,
+    "warnings": [
+      "BSData has no wargear named \"Dainal Komelius\" in Wardens of Ultramar.",
+      "BSData has no wargear named \"Master-crafted Power Sword\" in Bladeguard Veteran Squad.",
+      "BSData has no wargear named \"Master-crafted Power Sword\" in Bladeguard Veteran Squad."
+    ],
+    "crossCheck": [
+      "Marneus Calgar: Marneus Calgar InSv  / 4",
+      "Marneus Calgar: Gauntlets of Ultramar S 4 / 5",
+      "Marneus Calgar: Gauntlets of Ultramar AP -1 / -2",
+      "Marneus Calgar: Gauntlets of Ultramar S 8 / 10"
+    ]
+  },
+  "lists/white-scars.txt": {
+    "format": "gw-app",
+    "faction": "White Scars",
+    "detachments": [
+      "Assault Brethren",
+      "Ironstorm Spearhead",
+      "Stormlance Task Force"
+    ],
+    "battleSize": 2000,
+    "units": 18,
+    "models": 45,
+    "points": 2000,
+    "attachedGroups": 2,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": [
+      "Suboden Khan: Onslaught Gatling Cannon AP -1 / 0",
+      "Invader ATVs: Twin Bolt Rifle BS/WS 3+ / 2"
+    ]
+  },
+  "lists/world-eaters.txt": {
+    "format": "gw-app",
+    "faction": "World Eaters",
+    "detachments": [
+      "Berzerker Warband",
+      "Vessels of Wrath"
+    ],
+    "battleSize": 2000,
+    "units": 16,
+    "models": 58,
+    "points": 2000,
+    "attachedGroups": 3,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "formats/40kapp.orks.txt": {
+    "format": "40kapp",
+    "faction": "Orks",
+    "detachments": [
+      "Bully Boyz",
+      "Blitz Brigade",
+      "Brute Bosses"
+    ],
+    "battleSize": 2000,
+    "units": 13,
+    "models": 34,
+    "points": 2000,
+    "attachedGroups": 3,
+    "stratagems": 16,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "formats/battlebase.chaos-daemons.txt": {
+    "format": "gw-app",
+    "faction": "Chaos Daemons",
+    "detachments": [
+      "Blood Legion",
+      "Warptide"
+    ],
+    "battleSize": 2000,
+    "units": 13,
+    "models": 57,
+    "points": 1995,
+    "attachedGroups": 2,
+    "stratagems": 18,
+    "warnings": [
+      "BSData has no wargear named \"Attendants' hellblades\" in Rendmaster on Blood Throne."
+    ],
+    "crossCheck": []
+  },
+  "formats/gwapp-flat.adepta-sororitas.txt": {
+    "format": "gw-app",
+    "faction": "Adepta Sororitas",
+    "detachments": [
+      "Bringers of Flame",
+      "Chorus of Condemnation"
+    ],
+    "battleSize": 2000,
+    "units": 14,
+    "models": 34,
+    "points": 2000,
+    "attachedGroups": 1,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "formats/gwapp-localized.imperial-knights.txt": {
+    "format": "gw-app",
+    "faction": "Imperial Knights",
+    "detachments": [
+      "Freeblade Company"
+    ],
+    "battleSize": 2000,
+    "units": 9,
+    "models": 9,
+    "points": 1995,
+    "attachedGroups": 0,
+    "stratagems": 16,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "formats/gwapp-nested.adeptus-mechanicus.txt": {
+    "format": "gw-app",
+    "faction": "Adeptus Mechanicus",
+    "detachments": [
+      "Cohort Cybernetica",
+      "Eradication Cohort"
+    ],
+    "battleSize": 2000,
+    "units": 14,
+    "models": 64,
+    "points": 1985,
+    "attachedGroups": 1,
+    "stratagems": 23,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "formats/gwapp-template-placeholder.adepta-sororitas.txt": {
+    "format": "gw-app",
+    "faction": "Adepta Sororitas",
+    "detachments": [
+      "Champions of Faith",
+      "Sanctified Orators"
+    ],
+    "battleSize": 2000,
+    "units": 17,
+    "models": 45,
+    "points": 1990,
+    "attachedGroups": 3,
+    "stratagems": 17,
+    "warnings": [
+      "BSData has no wargear named \"Chirurgeon’s tools\" in Hospitaller."
+    ],
+    "crossCheck": []
+  },
+  "formats/ironbuilt.tau-empire.txt": {
+    "format": "ironbuilt",
+    "faction": "T'au Empire",
+    "detachments": [
+      "Kauyon",
+      "Experimental Prototype Cadre"
+    ],
+    "battleSize": 2000,
+    "units": 21,
+    "models": 74,
+    "points": 1995,
+    "attachedGroups": 4,
+    "stratagems": 17,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "formats/listforge-detailed.black-templars.txt": {
+    "format": "listforge",
+    "faction": "Black Templars",
+    "detachments": [
+      "Vow-sworn Crusaders",
+      "Assault Brethren"
+    ],
+    "battleSize": 2000,
+    "units": 14,
+    "models": 50,
+    "points": 2000,
+    "attachedGroups": 4,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "formats/listforge-short.adeptus-custodes.txt": {
+    "format": "listforge",
+    "faction": "Adeptus Custodes",
+    "detachments": [
+      "Lions of the Emperor",
+      "Might of the Moritoi",
+      "Emperor’s Chosen"
+    ],
+    "battleSize": 2000,
+    "units": 10,
+    "models": 20,
+    "points": 1995,
+    "attachedGroups": 1,
+    "stratagems": 19,
+    "warnings": [],
+    "crossCheck": [
+      "Prosecutor Squad: Gun Stock A 3 / 2",
+      "Witchseeker Squad: Gun Stock A 3 / 2"
+    ]
+  },
+  "formats/listforge-simple.world-eaters.txt": {
+    "format": "listforge",
+    "faction": "World Eaters",
+    "detachments": [
+      "Berzerker Warband",
+      "Vessels of Wrath"
+    ],
+    "battleSize": 2000,
+    "units": 16,
+    "models": 60,
+    "points": 2000,
+    "attachedGroups": 2,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "formats/listforge-wtc.tyranids.txt": {
+    "format": "listforge",
+    "faction": "Tyranids",
+    "detachments": [
+      "Subterranean Assault"
+    ],
+    "battleSize": 2000,
+    "units": 18,
+    "models": 66,
+    "points": 2000,
+    "attachedGroups": 3,
+    "stratagems": 15,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "formats/listforge.adeptus-custodes.json": {
+    "format": "roster-json",
+    "faction": "Adeptus Custodes",
+    "detachments": [
+      "Emperor’s Chosen",
+      "Lions of the Emperor",
+      "Might of the Moritoi"
+    ],
+    "battleSize": 2000,
+    "units": 10,
+    "models": 20,
+    "points": 1995,
+    "attachedGroups": 1,
+    "stratagems": 19,
+    "warnings": [],
+    "crossCheck": [
+      "Prosecutor Squad: Gun Stock A 3 / 2",
+      "Witchseeker Squad: Gun Stock A 3 / 2"
+    ]
+  },
+  "formats/newrecruit-gw-legacy.thousand-sons.txt": {
+    "format": "gw-app",
+    "faction": "Thousand Sons",
+    "detachments": [
+      "Grand Coven"
+    ],
+    "battleSize": 2000,
+    "units": 14,
+    "models": 47,
+    "points": 2000,
+    "attachedGroups": 3,
+    "stratagems": 16,
+    "warnings": [],
+    "crossCheck": [
+      "Sorcerer in Terminator Armour: Force weapon A 4 / 5"
+    ]
+  },
+  "formats/newrecruit-gw.chaos-space-marines.txt": {
+    "format": "gw-app",
+    "faction": "Chaos Space Marines",
+    "detachments": [
+      "Cabal of Chaos",
+      "Warpstrike Champions"
+    ],
+    "battleSize": 2000,
+    "units": 11,
+    "models": 55,
+    "points": 1995,
+    "attachedGroups": 3,
+    "stratagems": 18,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "formats/newrecruit-nr.leagues-of-votann.txt": {
+    "format": "nr-text",
+    "faction": "Leagues of Votann",
+    "detachments": [],
+    "battleSize": 2000,
+    "units": 18,
+    "models": 69,
+    "points": 1995,
+    "attachedGroups": 2,
+    "stratagems": 10,
+    "warnings": [],
+    "crossCheck": [
+      "Hearthkyn Warriors: Hearthkyn Warriors InSv 5+ / -"
+    ]
+  },
+  "formats/newrecruit-wtc-compact.chaos-space-marines.txt": {
+    "format": "nr-wtc-compact",
+    "faction": "Chaos Space Marines",
+    "detachments": [
+      "Fellhammer Siege-host",
+      "Cabal of Chaos"
+    ],
+    "battleSize": 2000,
+    "units": 14,
+    "models": 38,
+    "points": 2000,
+    "attachedGroups": 2,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "formats/newrecruit-wtc.imperial-knights.txt": {
+    "format": "wtc",
+    "faction": "Imperial Knights",
+    "detachments": [
+      "Valourstrike Lance",
+      "Dominus Foebreakers"
+    ],
+    "battleSize": 2000,
+    "units": 6,
+    "models": 6,
+    "points": 1995,
+    "attachedGroups": 0,
+    "stratagems": 18,
+    "warnings": [],
+    "crossCheck": [
+      "Knight Destrier: Titanic feet S 7 / 8"
+    ]
+  },
+  "formats/newrecruit.thousand-sons.json": {
+    "format": "roster-json",
+    "faction": "Thousand Sons",
+    "detachments": [
+      "Changehost of Deceit"
+    ],
+    "battleSize": 1000,
+    "units": 11,
+    "models": 17,
+    "points": 1000,
+    "attachedGroups": 0,
+    "stratagems": 17,
+    "warnings": [
+      "Wahapedia has no datasheet named \"Brayherd Shaman [Crucible]\", so it has no stratagems.",
+      "Wahapedia has no datasheet named \"Vengeance Weapon Battery [Legends]\", so it has no stratagems."
+    ],
+    "crossCheck": [
+      "Exalted Sorcerer: Force weapon A 4 / 5",
+      "Exalted Sorcerer on Disc of Tzeentch: Force weapon A 4 / 5"
+    ]
+  },
+  "formats/newrecruit.thousand-sons.ros": {
+    "format": "roster-xml",
+    "faction": "Thousand Sons",
+    "detachments": [
+      "Changehost of Deceit"
+    ],
+    "battleSize": 1000,
+    "units": 11,
+    "models": 17,
+    "points": 1000,
+    "attachedGroups": 0,
+    "stratagems": 17,
+    "warnings": [
+      "Wahapedia has no datasheet named \"Brayherd Shaman [Crucible]\", so it has no stratagems.",
+      "Wahapedia has no datasheet named \"Vengeance Weapon Battery [Legends]\", so it has no stratagems."
+    ],
+    "crossCheck": [
+      "Exalted Sorcerer: Force weapon A 4 / 5",
+      "Exalted Sorcerer on Disc of Tzeentch: Force weapon A 4 / 5"
+    ]
+  },
+  "formats/unidentified-perline-dp.dark-angels.txt": {
+    "format": "gw-app",
+    "faction": "Dark Angels",
+    "detachments": [
+      "Stormlance Task Force",
+      "Darkflight Pursuit",
+      "Assault Brethren"
+    ],
+    "battleSize": 2000,
+    "units": 16,
+    "models": 16,
+    "points": 2000,
+    "attachedGroups": 3,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "formats/warmind.space-wolves.txt": {
+    "format": "warmind",
+    "faction": "Space Wolves",
+    "detachments": [
+      "Saga of the Great Wolf",
+      "Terminator Storm Force"
+    ],
+    "battleSize": 2000,
+    "units": 12,
+    "models": 63,
+    "points": 1995,
+    "attachedGroups": 5,
+    "stratagems": 18,
+    "warnings": [
+      "Couldn't match \"Combat Blade (Wolf Scouts)\" to anything in BSData."
+    ],
+    "crossCheck": [
+      "Lieutenant in Phobos Armour: Master-crafted Bolt Carbine S 5 / 4",
+      "Lieutenant in Phobos Armour: Master-crafted Bolt Carbine AP -1 / 0"
+    ]
+  },
+  "formats/warorgan.chaos-knights.txt": {
+    "format": "warorgan",
+    "faction": "Chaos Knights",
+    "detachments": [
+      "Houndpack Lance",
+      "Hunting Warpack"
+    ],
+    "battleSize": 2000,
+    "units": 15,
+    "models": 17,
+    "points": 1995,
+    "attachedGroups": 0,
+    "stratagems": 17,
+    "warnings": [],
+    "crossCheck": []
+  },
+  "formats/wtc-style-other.space-marines.txt": {
+    "format": "nr-wtc-compact",
+    "faction": "Space Marines",
+    "detachments": [
+      "Medusa's Wrath",
+      "Ironclad Champions"
+    ],
+    "battleSize": 2000,
+    "units": 11,
+    "models": 13,
+    "points": 1910,
+    "attachedGroups": 0,
+    "stratagems": 20,
+    "warnings": [],
+    "crossCheck": []
+  }
+}

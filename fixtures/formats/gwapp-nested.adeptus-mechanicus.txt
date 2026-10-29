@@ -1,0 +1,114 @@
+^Cyberadication (Copy) (Copy) (1,985 Points)
+
+Adeptus Mechanicus
+Cohort Cybernetica and Eradication Cohort (3 Detachment Points)
+Purge the Foe
+Strike Force (2,000 Points)
+
+ATTACHED UNITS
+
+Attached unit 1
+
+Cybernetica Datasmith (35 Points)
+• Attached as: Support (Character)
+• 1x Mechanicus pistol
+• 1x Power fist
+• Enhancements: Martial Signatum Amplificator
+
+Kastelan Robots (300 Points)
+• Attached as: Bodyguard
+• 4x Kastelan Robot
+◦ 4x Heavy phosphor blaster
+◦ 4x Twin Kastelan fist
+
+CHARACTERS
+
+Thulia Ghuld (180 Points)
+• Warlord
+• 1x Jericho‑class conversion resonator
+• 1x Rod of the War Forge
+
+BATTLELINE
+
+Skitarii Rangers (85 Points)
+• 1x Skitarii Ranger Alpha
+◦ 1x Alpha combat weapon
+◦ 1x Close combat weapon
+◦ 1x Mechanicus pistol
+• 9x Skitarii Ranger
+◦ 1x Arc rifle
+◦ 9x Close combat weapon
+◦ 6x Galvanic rifle
+◦ 1x Omnispex
+◦ 1x Plasma caliver
+◦ 1x Transuranic arquebus
+
+Skitarii Vanguard (85 Points)
+• 1x Skitarii Vanguard Alpha
+◦ 1x Close combat weapon
+◦ 1x Radium carbine
+• 9x Skitarii Vanguard
+◦ 9x Close combat weapon
+◦ 9x Radium carbine
+
+OTHER DATASHEETS
+
+Ironstrider Ballistarii (250 Points)
+• 3x Ironstrider Ballistarii
+◦ 3x Ironstrider feet
+◦ 3x Twin cognis autocannon
+
+Ironstrider Ballistarii (250 Points)
+• 3x Ironstrider Ballistarii
+◦ 3x Ironstrider feet
+◦ 3x Twin cognis autocannon
+
+Pteraxii Skystalkers (75 Points)
+• 1x Pteraxii Skystalker Alpha
+◦ 1x Flechette blaster
+◦ 1x Taser goad
+• 4x Pteraxii Skystalker
+◦ 4x Close combat weapon
+◦ 4x Flechette carbine
+
+Sicarian Infiltrators (75 Points)
+• 1x Sicarian Infiltrator Princeps
+◦ 1x Flechette blaster
+◦ 1x Taser goad
+• 4x Sicarian Infiltrator
+◦ 4x Flechette blaster
+◦ 4x Taser goad
+
+Sicarian Infiltrators (75 Points)
+• 1x Sicarian Infiltrator Princeps
+◦ 1x Flechette blaster
+◦ 1x Taser goad
+• 4x Sicarian Infiltrator
+◦ 4x Flechette blaster
+◦ 4x Taser goad
+
+Sicarian Ruststalkers (160 Points)
+• 1x Sicarian Ruststalker Princeps
+◦ 1x Transonic razor and chordclaw
+• 9x Sicarian Ruststalker
+◦ 9x Transonic razor and chordclaw
+
+Sicarian Ruststalkers (75 Points)
+• 1x Sicarian Ruststalker Princeps
+◦ 1x Transonic razor and chordclaw
+• 4x Sicarian Ruststalker
+◦ 4x Transonic razor and chordclaw
+
+Skorpius Disintegrator (170 Points)
+• 1x Armoured hull
+• 3x Cognis heavy stubber
+• 1x Disruptor missile launcher
+• 1x Ferrumite cannon
+
+Skorpius Disintegrator (170 Points)
+• 1x Armoured hull
+• 3x Cognis heavy stubber
+• 1x Disruptor missile launcher
+• 1x Ferrumite cannon
+
+Exported with App Version: v2.8.1 (1), Data Version: v995

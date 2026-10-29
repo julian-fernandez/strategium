@@ -1,0 +1,141 @@
+Flawless Victory (1995 points)
+
+Emperor’s Children
+Peerless Bladesmen and Spectacle of Slaughter (3 Detachment Points)
+Priority Assets
+Strike Force (2000 points)
+ERRORS
+• Invalid wargear selected for Tormentor model in Tormentors.
+• Invalid wargear selected for Tormentor model in Tormentors.
+
+Attached Units
+Attached Unit 1
+
+Lucius the Eternal (130 points)
+• Attached as: Leader (Character)
+• Warlord
+• 1x Blade of the Laer
+1x Lash of Torment
+
+Flawless Blades (210 points)
+• Attached as: Bodyguard
+• 6x Flawless Blade
+• 6x Blissblade
+6x Bolt pistol
+• Enhancement: Eager Patrons (Upgrade)
+
+Attached Unit 2
+
+Lord Exultant (120 points)
+• Attached as: Leader (Character)
+• 1x Bolt Pistol
+1x Close combat weapon
+1x Phoenix power spear
+1x Rapture lash
+• Enhancement: Distortion
+
+Infractors (95 points)
+• Attached as: Bodyguard (Battleline)
+• 1x Obsessionist
+• 1x Plasma pistol
+1x Power sword
+• 4x Infractor
+• 4x Bolt pistol
+4x Duelling sabre
+1x Icon of Excess
+
+Attached Unit 3
+
+Lord Exultant (95 points)
+• Attached as: Leader (Character)
+• 1x Bolt Pistol
+1x Close combat weapon
+1x Phoenix power spear
+1x Rapture lash
+
+Infractors (95 points)
+• Attached as: Bodyguard (Battleline)
+• 1x Obsessionist
+• 1x Plasma pistol
+1x Power sword
+• 4x Infractor
+• 4x Bolt pistol
+4x Duelling sabre
+1x Icon of Excess
+
+
+BATTLELINE
+
+Tormentors (85 points)
+• 1x Obsessionist
+• 1x Plasma pistol
+1x Power sword
+• 4x Tormentor
+• 2x Boltgun
+4x Close Combat Weapon
+1x Icon of Excess
+1x Meltagun
+1x Plasma gun
+
+Tormentors (85 points)
+• 1x Obsessionist
+• 1x Plasma pistol
+1x Power sword
+• 4x Tormentor
+• 2x Boltgun
+4x Close Combat Weapon
+1x Icon of Excess
+1x Meltagun
+1x Plasma gun
+
+
+DEDICATED TRANSPORTS
+
+Chaos Rhino (70 points)
+• 1x Armoured tracks
+1x Combi-bolter
+1x Combi-weapon
+1x Havoc launcher
+
+Chaos Rhino (70 points)
+• 1x Armoured tracks
+1x Combi-bolter
+1x Combi-weapon
+1x Havoc launcher
+
+
+OTHER DATASHEETS
+
+Chaos Land Raider (210 points)
+• 1x Armoured tracks
+1x Combi-weapon
+1x Havoc launcher
+2x Soulshatter lascannon
+1x Twin heavy bolter
+
+Chaos Land Raider (210 points)
+• 1x Armoured tracks
+1x Combi-weapon
+1x Havoc launcher
+2x Soulshatter lascannon
+1x Twin heavy bolter
+
+Chaos Spawn (70 points)
+• 2x Chaos Spawn
+• 2x Hideous mutations
+
+Chaos Spawn (70 points)
+• 2x Chaos Spawn
+• 2x Hideous mutations
+
+Flawless Blades (190 points)
+• 6x Flawless Blade
+• 6x Blissblade
+6x Bolt pistol
+
+Flawless Blades (190 points)
+• 6x Flawless Blade
+• 6x Blissblade
+6x Bolt pistol
+
+Exported with App Version: v2.7.1 (146), Data Version: v972

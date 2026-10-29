@@ -1,0 +1,173 @@
+
+It came from the skies (2,000 Points)
+
+T’au Empire
+Retaliation Cadre (3 Detachment Points)
+Purge the Foe
+Strike Force (2,000 Points)
+
+ATTACHED UNITS
+
+Attached unit 1
+
+Commander Farsight (70 Points)
+• Attached as: Leader (Character)
+• Warlord
+• 1x Dawn Blade
+• 1x High-intensity plasma rifle
+
+Crisis Sunforge Battlesuits (125 Points)
+• Attached as: Bodyguard
+• 1x Crisis Sunforge Shas’vre
+◦ 1x Battlesuit fists
+◦ 2x Fusion blaster
+• 2x Crisis Sunforge Shas’ui
+◦ 2x Battlesuit fists
+◦ 4x Fusion blaster
+
+Attached unit 2
+
+Commander in Enforcer Battlesuit (100 Points)
+• Attached as: Leader (Character)
+• 1x Battlesuit fists
+• 1x Missile pod
+• 3x Missile pod
+• 2x Shield Drone
+• Enhancements: Starflare Ignition System
+
+Crisis Fireknife Battlesuits (130 Points)
+• Attached as: Bodyguard
+• 1x Crisis Fireknife Shas’vre
+◦ 1x Battlesuit fists
+◦ 1x Marker Drone
+◦ 2x Missile pod
+◦ 1x Shield Drone
+• 2x Crisis Fireknife Shas’ui
+◦ 2x Battlesuit fists
+◦ 2x Gun Drone
+◦ 4x Missile pod
+◦ 2x Shield Drone
+
+Attached unit 3
+
+Commander in Coldstar Battlesuit (110 Points)
+• Attached as: Leader (Character)
+• 1x Battlesuit fists
+• 2x Burst cannon
+• 1x Cyclic ion blaster
+• 1x High-output burst cannon
+• 2x Shield Drone
+• Enhancements: Prototype Weapon System
+
+Crisis Starscythe Battlesuits (100 Points)
+• Attached as: Bodyguard
+• 1x Crisis Starscythe Shas’vre
+◦ 1x Battlesuit fists
+◦ 2x Burst cannon
+◦ 1x Marker Drone
+◦ 1x Shield Drone
+• 2x Crisis Starscythe Shas’ui
+◦ 2x Battlesuit fists
+◦ 4x Burst cannon
+◦ 2x Gun Drone
+◦ 2x Shield Drone
+
+CHARACTERS
+
+The Twin Lance (240 Points)
+• 1x Ri’Lantar
+◦ 1x Fusion eliminator
+◦ 1x MV15 Gun Drone
+◦ 1x Shardstorm burst system
+◦ 1x XV pulse pistol
+• 1x Ri’Locai
+◦ 1x Ion scattercannon
+◦ 1x MV15 Gun Drone
+◦ 1x Shardstorm burst system
+◦ 1x XV pulse pistol
+
+OTHER DATASHEETS
+
+Broadside Battlesuits (270 Points)
+• 1x Broadside Shas’vre
+◦ 1x Crushing bulk
+◦ 1x High-yield missile pods
+◦ 2x Missile Drone
+◦ 1x Twin smart missile system
+• 2x Broadside Shas’ui
+◦ 2x Crushing bulk
+◦ 2x High-yield missile pods
+◦ 4x Missile Drone
+◦ 2x Twin smart missile system
+
+Crisis Fireknife Battlesuits (100 Points)
+• 1x Crisis Fireknife Shas’vre
+◦ 1x Battlesuit fists
+◦ 1x Marker Drone
+◦ 2x Plasma rifle
+◦ 1x Shield Drone
+• 2x Crisis Fireknife Shas’ui
+◦ 2x Battlesuit fists
+◦ 2x Gun Drone
+◦ 4x Plasma rifle
+◦ 2x Shield Drone
+
+Ghostkeel Battlesuit (150 Points)
+• 1x Fusion collider
+• 1x Ghostkeel fists
+• 1x Twin T’au flamer
+
+Hammerhead Gunship (150 Points)
+• 2x Accelerator burst cannon
+• 1x Armoured hull
+• 1x Railgun
+• 2x Seeker missile
+
+Pathfinder Team (100 Points)
+• 1x Pathfinder Shas’ui
+◦ 1x Close combat weapon
+◦ 1x Grav-inhibitor Drone
+◦ 1x Pulse carbine
+◦ 1x Pulse pistol
+• 9x Pathfinder
+◦ 9x Close combat weapon
+◦ 3x Ion rifle
+◦ 6x Pulse carbine
+◦ 9x Pulse pistol
+
+Pathfinder Team (85 Points)
+• 1x Pathfinder Shas’ui
+◦ 1x Close combat weapon
+◦ 1x Pulse carbine
+◦ 1x Pulse pistol
+◦ 1x Recon Drone
+• 9x Pathfinder
+◦ 9x Close combat weapon
+◦ 9x Pulse carbine
+◦ 9x Pulse pistol
+
+Stealth Battlesuits (100 Points)
+• 1x Stealth Shas’vre
+◦ 1x Battlesuit fists
+◦ 1x Burst cannon
+• 4x Stealth Shas’ui
+◦ 4x Battlesuit fists
+◦ 4x Burst cannon
+
+Stealth Battlesuits (100 Points)
+• 1x Stealth Shas’vre
+◦ 1x Battlesuit fists
+◦ 1x Burst cannon
+• 4x Stealth Shas’ui
+◦ 4x Battlesuit fists
+◦ 4x Burst cannon
+
+Vespid Stingwings (70 Points)
+• 1x Vespid Strain Leader
+◦ 1x Neutron blaster
+◦ 1x Stingwing claws
+• 4x Vespid Stingwing
+◦ 4x Neutron blaster
+◦ 4x Stingwing claws
+
+Exported with App Version: v2.7.2 (2), Data Version: v972
