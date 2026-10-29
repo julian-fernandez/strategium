@@ -1,0 +1,54 @@
++++++++++++++++++++++++++++++++++++++++++++++++
++ FACTION KEYWORD: Chaos - Chaos Space Marines
++ DETACHMENT: Cabal of Chaos, Fellhammer Siege‑host (Empyric Wellspring)
++ FORCE DISPOSITION: Take and Hold
++ TOTAL ARMY POINTS: 2000pts
++
++ WARLORD: Char1: Kravek Morne
++ ENHANCEMENT: Warp Tracer (on Char2: Lord Discordant on Helstalker)
+& Iron Artifice (on Char3: Master of Executions)
+& Touched by the Warp (on Char5: Warpsmith)
++ NUMBER OF UNITS: 14
++ SECONDARY: - Bring It Down: (3x2) + (2x4) - Assassination: 5 Characters
++++++++++++++++++++++++++++++++++++++++++++++++
+
+Char1: 1x Kravek Morne (130 pts): Warlord, Baleflamer, Combi-bolter, Last Argument and power fist, Servo-harness
+Leading Mutilators
+Char2: 1x Lord Discordant on Helstalker (175 pts): Bladed limbs, Bolt pistol, Impaler chainglaive, Baleflamer, Techno-virus injector
+Enhancement: Warp Tracer (+20 pts)
+Char3: 1x Master of Executions (85 pts): Axe of dismemberment, Bolt pistol
+Enhancement: Iron Artifice (+10 pts)
+Supporting Chosen
+Char4: 1x Sorcerer (65 pts): Bolt pistol, Force weapon, Infernal Gaze
+Leading Chosen
+Char5: 1x Warpsmith (75 pts): Flamer tendril, Forge weapon, Melta tendril, Plasma pistol
+Enhancement: Touched by the Warp (+10 pts)
+
+10x Cultist Mob (50 pts)
+• 1x Cultist Champion: Brutal assault weapon, Bolt pistol
+• 9x Cultist: 9 with Autopistol, Brutal assault weapon
+
+1x Chaos Land Raider (220 pts): Armoured tracks, Havoc launcher, 2x Soulshatter lascannon, Twin heavy bolter, Combi-weapon
+1x Chaos Rhino (65 pts): Armoured tracks, Combi-bolter, Havoc launcher, Combi-weapon
+10x Chosen (280 pts)
+• 9x Chosen
+2 with Accursed weapon, Bolt pistol, Boltgun
+4 with Accursed weapon, Bolt pistol, Combi-weapon
+2 with Paired accursed weapons, Plasma pistol
+1 with Boltgun, Plasma pistol, Power fist
+• 1x Chosen Champion: Chaos icon, Plasma pistol, Power fist, Boltgun
+Attached to Master of Executions
+Attached to Sorcerer
+1x Defiler (330 pts): Ectoplasma destructor, 2x Excruciator cannon, Heavy reaper autocannon, Heavy reaper autocannon, Shearing claws
+1x Helbrute (125 pts): Close combat weapon, Helbrute hammer, Heavy flamer, Helbrute fist
+3x Mutilators (165 pts): 3 with Fleshmetal weapons
+Attached to Kravek Morne
+5x Raptors (115 pts)
+• 4x Raptor
+2 with Astartes chainsword, Bolt pistol
+1 with Bolt pistol, Heavy melee weapon
+1 with Bolt pistol, Close combat weapon, Meltagun
+• 1x Raptor Champion: Heavy melee weapon, Plasma pistol
+1x Venomcrawler (120 pts): 2x Excruciator cannon, Soulflayer tendrils and claws
+
+Created with newrecruit.eu v36.40

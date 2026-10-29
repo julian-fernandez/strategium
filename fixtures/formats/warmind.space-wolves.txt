@@ -1,0 +1,46 @@
+Fenryka Hjolda
+──────────────────────────────
+Faction: Space Wolves
+Detachment: Saga of the Great Wolf, Terminator Storm Force
+Battle Size: Strike Force (2000 pts)
+Total: 1995 / 2000 pts · 3/3 DP · ✓ Legal
+Disposition: Take and Hold
+
+BATTLELINE
+Grey Hunters ×10 — 180 pts
+   · 9× Bolt Carbine, 10× Bolt Pistol, Plasma Pistol, 9× Chainsword, Power Fist
+
+INFANTRY
+Logan Grimnar — 150 pts · Warlord
+   · Storm Bolter, Axe Morkai, Tyrnak and Fenrir
+   └ Leads: Terminator Squad ×10 — 390 pts
+      · Assault Cannon, Cyclone Missile Launcher and Storm Bolter, 8× Storm Bolter, 10× Power Fist
+
+Captain in Terminator Armour — 110 pts
+   · Storm Bolter, Relic Weapon
+   · Enhancement: Champion of the First Company (+20 pts)
+   └ Leads: Wolf Guard Terminators ×10 — 400 pts
+      · 2× Assault Cannon and Power Fist, Relic Greataxe, 7× Storm Shield and Master-Crafted Power Weapon
+
+Wolf Guard Battle Leader — 100 pts
+   · Storm Shield, Thunder Hammer
+   · Enhancement: Skjald's Foretelling (+20 pts)
+   └ Leads: Wolf Guard Headtakers ×6 — 170 pts
+      · 6× Heavy Bolt Pistol, 5× Master-Crafted Power Weapon and Storm Shield, Paired Master-Crafted Power Weapons
+
+Scout Squad ×5 — 65 pts
+   · 5× Bolt Pistol, 3× Boltgun, Heavy Bolter, Shotgun, Chainsword, 4× Combat Knife
+
+Lieutenant in Phobos Armour — 40 pts
+   · Master-Crafted Bolt Carbine, Monomolecular Combat Blades
+   └ Leads: Wolf Scouts ×6 — 95 pts
+      · Bolt Pistol, Thunderclap and Runic Stave, Haywire Mine, Plasma Gun, 3× Plasma Pistol, 3× Combat Blade, Power Weapon, Teeth and Claws
+
+Arjac Rockfist — 105 pts
+   · Foehammer
+   └ Leads: Terminator Assault Squad ×5 — 190 pts
+      · 4× Storm Shield and Thunder Hammer, Twin Lightning Claws
+
+──────────────────────────────
+1995 / 2000 pts · 12 units · Strike Force
+Built with Warmind · warmind.online

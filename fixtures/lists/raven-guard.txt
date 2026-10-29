@@ -1,0 +1,131 @@
+SM (2000 points)
+
+Space Marines
+Raven Guard
+Shadowmark Talon and Terminator Storm Force (3 Detachment Points)
+Priority Assets
+Strike Force (2000 points)
+
+Attached Units
+Attached Unit 1
+
+Apothecary Biologis (60 points)
+• Attached as: Support (Character)
+• 1x Absolvor Bolt Pistol
+1x Servo-armature
+
+Eradicator Squad with heavy bolters (215 points)
+• Attached as: Bodyguard
+• 5x Eradicator
+• 5x Bolt Pistol
+5x Ceramite Fists
+5x Heavy Bolter
+• 1x Eradicator Sergeant
+• 1x Bolt Pistol
+1x Ceramite Fists
+1x Heavy Bolter
+
+Attached Unit 2
+
+Ancient in Terminator Armour (75 points)
+• Attached as: Support (Character)
+• 1x Master-crafted Power Weapon
+1x Storm Bolter
+
+Terminator Squad (400 points)
+• Attached as: Bodyguard
+• 9x Terminator
+• 5x Chainfist
+2x Cyclone Missile Launcher
+4x Power Fist
+9x Storm Bolter
+• 1x Terminator Sergeant
+• 1x Power Fist
+1x Storm Bolter
+
+
+CHARACTERS
+
+Aethon Shaan (105 points)
+• Warlord
+• 1x Claws of Severax
+1x Heavy Bolt Pistol
+
+Librarian in Phobos Armour (90 points)
+• 1x Bolt Pistol
+1x Force Weapon
+1x Smite
+• Enhancement: Umbral Raptor
+
+
+OTHER DATASHEETS
+
+Inceptor Squad (260 points)
+• 5x Inceptor
+• 5x Ceramite Fists
+5x Plasma Exterminators
+• 1x Inceptor Sergeant
+• 1x Ceramite Fists
+1x Plasma Exterminators
+
+Incursor Squad (90 points)
+• 4x Incursor
+• 4x Bolt Pistol
+4x Occulus Bolt Carbine
+4x Paired Combat Blades
+• 1x Incursor Sergeant
+• 1x Bolt Pistol
+1x Occulus Bolt Carbine
+1x Paired Combat Blades
+
+Incursor Squad (90 points)
+• 4x Incursor
+• 4x Bolt Pistol
+4x Occulus Bolt Carbine
+4x Paired Combat Blades
+• 1x Incursor Sergeant
+• 1x Bolt Pistol
+1x Occulus Bolt Carbine
+1x Paired Combat Blades
+
+Infiltrator Squad (85 points)
+• 4x Infiltrator
+• 4x Bolt Pistol
+4x Ceramite Fists
+4x Marksman Bolt Carbine
+• 1x Infiltrator Sergeant
+• 1x Bolt Pistol
+1x Ceramite Fists
+1x Helix Gauntlet
+1x Marksman Bolt Carbine
+
+Reiver Squad (85 points)
+• 1x Reiver Sergeant
+• 1x Bolt Carbine
+1x Monomolecular Combat Knife
+1x Special-issue Bolt Pistol
+• 4x Reiver
+• 4x Bolt Carbine
+4x Monomolecular Combat Knife
+4x Special-issue Bolt Pistol
+
+Scout Squad (65 points)
+• 1x Scout Sergeant
+• 1x Bolt Pistol
+1x Boltgun
+1x Combat Knife
+• 4x Scout
+• 4x Bolt Pistol
+4x Boltgun
+4x Combat Knife
+
+Terminator Assault Squad (380 points)
+• 1x Terminator Sergeant
+• 1x Storm Shield
+1x Thunder Hammer
+• 9x Terminator
+• 7x Storm Shield
+7x Thunder Hammer
+2x Twin Lightning Claws
+
+Exported with App Version: v2.7.1 (146), Data Version: v972

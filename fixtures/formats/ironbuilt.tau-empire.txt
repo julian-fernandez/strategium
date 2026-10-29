@@ -1,0 +1,121 @@
++==========================================
+Budget red cad — T'au Empire
+Kauyon (2DP) + Experimental Prototype Cadre (1DP)
+Force Disposition: Reconnaissance
+1995 / 2000 pts · 21 units
++==========================================
+
+── ATTACHED CHARACTERS ─────────
+----Attached Unit A [195 pts]---------------------
+Commander Farsight [70 pts]
+Weapons: High-intensity plasma rifle, ➤ Dawn Blade - strike, ➤ Dawn Blade - sweep
+↳ Attached to:
+
+Crisis Sunforge Battlesuits [125 pts]
+2x Crisis Sunforge Shas’ui
+1x Crisis Sunforge Shas’vre
+Weapons: Fusion blaster x6, Twin pulse carbine x2, Battlesuit fists x3
+Wargear: Shield Drone, Marker Drone
+
+----Attached Unit B [130 pts]---------------------
+Cadre Fireblade [50 pts]
+Weapons: Fireblade pulse rifle, Twin pulse carbine x2, Close combat weapon
+↳ Attached to:
+
+Breacher Team [80 pts]
+9x Breacher Fire Warriors
+1x Breacher Fire Warrior Shas'ui
+Weapons: Pulse pistol x10, Pulse blaster x10, Support turret, Twin pulse carbine, Close combat weapon x10
+Wargear: Guardian Drone
+
+----Attached Unit C [130 pts]---------------------
+Cadre Fireblade [50 pts]
+Weapons: Fireblade pulse rifle, Twin pulse carbine x2, Close combat weapon
+↳ Attached to:
+
+Breacher Team [80 pts]
+9x Breacher Fire Warriors
+1x Breacher Fire Warrior Shas'ui
+Weapons: Pulse pistol x10, Pulse blaster x10, Support turret, Twin pulse carbine, Close combat weapon x10
+Wargear: Guardian Drone
+
+----Attached Unit D [200 pts]---------------------
+Commander in Enforcer Battlesuit [100 pts]
+Enhancement: Exemplar of the Kauyon (+20)
+Weapons: ➤ Cyclic ion blaster - standard, ➤ Cyclic ion blaster - overcharge, Plasma rifle x3, Battlesuit fists
+Wargear: Shield Drone
+↳ Attached to:
+
+Crisis Fireknife Battlesuits [100 pts]
+2x Crisis Fireknife Shas’ui
+1x Crisis Fireknife Shas’vre
+Weapons: Plasma rifle x6, Twin pulse carbine x2, Battlesuit fists x3
+Wargear: Shield Drone, Marker Drone
+
+── UNATTACHED CHARACTERS ───────
+Commander Shadowsun [WARLORD] [100 pts]
+Weapons: Light missile pod, High-energy fusion blaster x2, Flechette launcher, Pulse pistol, Battlesuit fists
+
+The Twin Lance [240 pts]
+1x Ri'Lantar
+1x Ri'Locai
+Weapons: Fusion eliminator, Shardstorm burst system x2, Twin pulse blaster x2, XV pulse pistol x2, ➤ Ion scattercannon - overcharge, ➤ Ion scattercannon - standard, Ion scattercannon
+Wargear: MV15 Gun Drone
+
+── INFANTRY ────────────────────
+Pathfinder Team [85 pts]
+6x Pathfinders w/ pulse carbine
+3x Pathfinders w/ rail rifle
+1x Pathfinder Shas'ui
+Weapons: Pulse carbine x7, Pulse pistol x10, Rail rifle x3, ➤ Semi-automatic grenade launcher - EMP, ➤ Semi-automatic grenade launcher - fusion, Close combat weapon x10
+Wargear: Grav-inhibitor drone, Shield Drone
+
+Pathfinder Team [85 pts]
+6x Pathfinders w/ pulse carbine
+3x Pathfinders w/ rail rifle
+1x Pathfinder Shas'ui
+Weapons: Pulse carbine x7, Pulse pistol x10, Rail rifle x3, ➤ Semi-automatic grenade launcher - EMP, ➤ Semi-automatic grenade launcher - fusion, Close combat weapon x10
+Wargear: Grav-inhibitor drone, Shield Drone
+
+Stealth Battlesuits [100 pts]
+2x Stealth Shas'ui w/ burst cannon
+2x Stealth Shas'ui w/ fusion blaster
+1x Stealth Shas'vre
+Weapons: Burst cannon x3, Fusion blaster x2, Pulse pistol, Twin pulse carbine, Battlesuit fists x5
+Wargear: Homing Beacon, Homing beacon, Marker Drone
+
+Stealth Battlesuits [100 pts]
+2x Stealth Shas'ui w/ burst cannon
+2x Stealth Shas'ui w/ fusion blaster
+1x Stealth Shas'vre
+Weapons: Burst cannon x3, Fusion blaster x2, Pulse pistol, Twin pulse carbine, Battlesuit fists x5
+Wargear: Homing Beacon, Homing beacon, Marker Drone
+
+Vespid Stingwings [70 pts]
+1x Vespid Strain Leader
+4x Vespid Stingwings w/ Neutron Blaster
+Weapons: Neutron blaster x5, Stingwing claws x5
+
+── VEHICLES ────────────────────
+Piranha [65 pts]
+1x Piranhas
+Weapons: Twin pulse carbine x2, Piranha fusion blaster, Seeker missile x2, Armoured hull
+
+Piranha [65 pts]
+1x Piranhas
+Weapons: Twin pulse carbine x2, Piranha fusion blaster, Seeker missile x2, Armoured hull
+
+Sky Ray Gunship [140 pts]
+Weapons: Seeker missile rack, Accelerator burst cannon x2, Armoured hull
+
+Sky Ray Gunship [140 pts]
+Weapons: Seeker missile rack, Accelerator burst cannon x2, Armoured hull
+
+── DEDICATED TRANSPORT ─────────
+Devilfish [75 pts]
+Weapons: Accelerator burst cannon, Twin pulse carbine x2, Seeker missile x2, Armoured hull
+
+Devilfish [75 pts]
+Weapons: Accelerator burst cannon, Twin pulse carbine x2, Seeker missile x2, Armoured hull
+
+Total: 1995 pts

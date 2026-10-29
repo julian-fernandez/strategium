@@ -1,0 +1,120 @@
+And they said Disruption is hardmode
+But they forgot that dead men dont score :D
+
+Chaos Space Marines
+Cabal of Chaos and Warpstrike Champions (3 Detachment Points)
+Disruption
+Strike Force (2000 points)
+
+Attached Units
+Attached Unit 1
+
+Sorcerer in Terminator Armour (110 points)
+• Attached as: Leader (Character)
+  • Warlord
+  • 1x Chaos Familiar
+    1x Combi-bolter
+    1x Force weapon
+    1x Infernal Gaze
+  • Enhancement: Tzagulla
+
+Chaos Terminator Squad (370 points)
+• Attached as: Bodyguard
+  • 1x Terminator Champion
+    • 1x Accursed weapon
+      1x Combi-bolter
+  • 9x Chaos Terminator
+    • 1x Accursed weapon
+      2x Chainfist
+      7x Combi-bolter
+      6x Power fist
+      2x Reaper autocannon
+
+Attached Unit 2
+
+Sorcerer in Terminator Armour (105 points)
+• Attached as: Leader (Character)
+  • 1x Chaos Familiar
+    1x Combi-bolter
+    1x Force weapon
+    1x Infernal Gaze
+  • Enhancement: Akshur’s Binding Runes
+
+Chaos Terminator Squad (370 points)
+• Attached as: Bodyguard
+  • 1x Terminator Champion
+    • 1x Accursed weapon
+      1x Combi-bolter
+  • 9x Chaos Terminator
+    • 1x Accursed weapon
+      2x Chainfist
+      7x Combi-bolter
+      6x Power fist
+      2x Reaper autocannon
+
+
+CHARACTERS
+
+Chaos Lord in Terminator Armour (100 points)
+  • 1x Chainfist
+    1x Combi-bolter
+  • Enhancement: Touched by the Warp
+
+
+BATTLELINE
+
+Cultist Mob (50 points)
+  • 1x Cultist Champion
+    • 1x Autopistol
+      1x Brutal assault weapon
+  • 9x Chaos Cultist
+    • 9x Autopistol
+      9x Brutal assault weapon
+
+
+OTHER DATASHEETS
+
+Chaos Bikers (80 points)
+  • 1x Biker Champion
+    • 1x Chaos Icon
+      1x Close Combat Weapon
+      1x Combi-bolter
+      1x Power fist
+  • 2x Chaos Biker
+    • 2x Astartes chainsword
+      2x Close Combat Weapon
+      2x Combi-bolter
+      2x Meltagun
+
+Chaos Bikers (80 points)
+  • 1x Biker Champion
+    • 1x Chaos Icon
+      1x Close Combat Weapon
+      1x Combi-bolter
+      1x Power fist
+  • 2x Chaos Biker
+    • 2x Astartes chainsword
+      2x Close Combat Weapon
+      2x Combi-bolter
+      2x Meltagun
+
+Chaos Terminator Squad (400 points)
+  • 1x Terminator Champion
+    • 1x Accursed weapon
+      1x Combi-bolter
+  • 9x Chaos Terminator
+    • 1x Accursed weapon
+      2x Chainfist
+      7x Combi-bolter
+      6x Power fist
+      2x Reaper autocannon
+
+Mutilators (165 points)
+  • 3x Mutilator
+    • 3x Fleshmetal weapons
+
+Mutilators (165 points)
+  • 3x Mutilator
+    • 3x Fleshmetal weapons
+
+Exported with App Version: v2.7.1 (146), Data Version: v972

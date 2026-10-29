@@ -1,0 +1,133 @@
+priority es amarillo pus (2000 points)
+
+Death Guard
+Champions of Contagion and Paragons of Putrescence (3 Detachment Points)
+Priority Assets
+Strike Force (2000 points)
+
+Attached Units
+Attached Unit 1
+
+Lord of Virulence (130 points)
+• Attached as: Leader (Character)
+• 1x Power fist
+1x Twin plague spewer
+• Enhancement: Host of the Hybridised Pox
+
+Blightlord Terminators (185 points)
+• Attached as: Bodyguard
+• 1x Blightlord Champion
+• 1x Bubotic blade
+1x Combi-bolter
+• 4x Blightlord Terminator
+• 1x Blight launcher
+3x Bubotic blade
+1x Flail of corruption
+1x Plague spewer
+1x Reaper autocannon
+
+Attached Unit 2
+
+Lord of Contagion (110 points)
+• Attached as: Leader (Character)
+• 1x Manreaper
+
+Deathshroud Terminators (150 points)
+• Attached as: Bodyguard
+• 1x Deathshroud Champion
+• 1x Icon of Despair (Aura)
+1x Manreaper
+2x Plaguespurt gauntlet
+• 2x Deathshroud Terminator
+• 2x Manreaper
+2x Plaguespurt gauntlet
+
+Attached Unit 3
+
+Lord of Poxes (100 points)
+• Attached as: Leader (Character)
+• 1x Great plague blade
+1x Plasma pistol
+• Enhancement: Cornucophagus
+
+Plague Marines (90 points)
+• Attached as: Bodyguard (Battleline)
+• 1x Plague Champion
+• 1x Plasma gun
+1x Power fist
+• 4x Plague Marine
+• 2x Bubotic weapons
+2x Heavy plague weapon
+4x Plague knives
+
+Attached Unit 4
+
+Malignant Plaguecaster (80 points)
+• Attached as: Leader (Character)
+• 1x Bolt pistol
+1x Corrupted staff
+1x Plague Wind
+• Enhancement: Rejuvenating Swarm
+
+Biologus Putrifier (60 points)
+• Attached as: Leader (Character)
+• 1x Hyper blight grenades
+1x Injector pistol
+1x Plague knives
+
+Plague Marines (175 points)
+• Attached as: Bodyguard (Battleline)
+• 1x Plague Champion
+• 1x Plasma gun
+1x Power fist
+• 9x Plague Marine
+• 2x Blight launcher
+3x Boltgun
+1x Icon of Despair (Aura)
+9x Plague knives
+2x Plague spewer
+2x Plasma gun
+
+
+CHARACTERS
+
+Daemon Prince of Nurgle (185 points)
+• 1x Hellforged weapons
+1x Infernal cannon
+
+Mortarion (375 points)
+• Warlord
+• 1x Lantern
+1x Rotwind
+1x Silence
+
+Tallyman (60 points)
+• 1x Close combat weapon
+1x Plasma pistol
+
+
+DEDICATED TRANSPORTS
+
+Chaos Rhino (75 points)
+• 1x Armoured tracks
+2x Combi-bolter
+1x Havoc launcher
+
+
+OTHER DATASHEETS
+
+Myphitic Blight-haulers (95 points)
+• 1x Bile spurt
+1x Gnashing maw
+1x Missile launcher
+1x Multi-melta
+
+Poxwalkers (65 points)
+• 10x Poxwalker
+• 10x Improvised weapon
+
+Poxwalkers (65 points)
+• 10x Poxwalker
+• 10x Improvised weapon
+
+Exported with App Version: v2.8.1 (149), Data Version: v995

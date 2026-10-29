@@ -1,0 +1,113 @@
+Bikes (2000 points)
+
+Dark Angels
+Stormlance Task Force (1 Detachment Point)
+Darkflight Pursuit (1 Detachment Point)
+Assault Brethren (1 Detachment Point)
+Strike Force (2000 points)
+Force Disposition: Reconnaissance
+
+ATTACHED UNITS
+
+Attached unit 1
+Captain on Bike (110 points)
+• Attached as: Leader (Character)
+• Plasma Pistol
+• Twin Bolt Rifle
+• Thunder Hammer
+Ravenwing Command Squad (115 points)
+• Attached as: Leader (Character)
+• 3x Bolt Pistol
+• 3x Plasma Talon
+• 2x Corvus Hammers
+• Master-Crafted Power Weapon
+Outrider Squad (80 points)
+• Attached as: Bodyguard (Battleline)
+• 2x Heavy Bolt Pistol
+• Plasma Pistol
+• 3x Twin Bolt Rifle
+• 2x Chainsword
+• Thunder Hammer
+
+Attached unit 2
+Ravenwing Command Squad (115 points)
+• Attached as: Leader (Character)
+• 3x Bolt Pistol
+• 3x Plasma Talon
+• 2x Corvus Hammers
+• Master-Crafted Power Weapon
+Chaplain on Bike (95 points)
+• Enhancement: Imperium's Sword
+• Attached as: Leader (Character)
+• Absolvor Bolt Pistol
+• Twin Bolt Rifle
+• Crozius Arcanum
+Outrider Squad (80 points)
+• Attached as: Bodyguard (Battleline)
+• 2x Heavy Bolt Pistol
+• Plasma Pistol
+• 3x Twin Bolt Rifle
+• 2x Chainsword
+• Thunder Hammer
+
+Attached unit 3
+Sammael (120 points)
+• Attached as: Leader (Character)
+• Bolt Pistol
+• Master-Crafted Plasma Cannon
+• Twin Storm Bolter
+• The Raven Sword
+Ravenwing Command Squad (135 points)
+• Attached as: Leader (Character)
+• 3x Bolt Pistol
+• 3x Plasma Talon
+• 2x Corvus Hammers
+• Master-Crafted Power Weapon
+Outrider Squad (80 points)
+• Attached as: Bodyguard (Battleline)
+• 2x Heavy Bolt Pistol
+• Plasma Pistol
+• 3x Twin Bolt Rifle
+• 2x Chainsword
+• Thunder Hammer
+
+OTHER DATASHEETS
+
+Deathwing Knights (265 points)
+• Enhancement: Furious Assault
+• Watcher in the Dark
+• 4x Power Weapon
+• Relic Weapon
+
+Scout Squad (65 points)
+• 5x Bolt Pistol
+• 5x Shotgun
+• Chainsword
+• 4x Combat Knife
+
+Storm Speeder Thunderstrike (140 points)
+• Stormfury Missile Launcher
+• Thunderstrike Icarus Rocket Pod
+• Thunderstrike Las-Talon
+• Armoured Impact
+
+Land Speeder Vengeance (150 points)
+• Heavy Bolter
+• Plasma Storm Battery
+• Armoured Hull
+
+Land Speeder Vengeance (150 points)
+• Heavy Bolter
+• Plasma Storm Battery
+• Armoured Hull
+
+Land Speeder Vengeance (160 points)
+• Heavy Bolter
+• Plasma Storm Battery
+• Armoured Hull
+
+Storm Speeder Hammerstrike (140 points)
+• Hammerstrike Missile Launcher
+• Krakstorm Grenade Launchers
+• Melta Destroyer
+• Armoured Impact

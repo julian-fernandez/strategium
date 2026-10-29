@@ -1,0 +1,49 @@
+Dreaded Executioners
+
++ FACTION KEYWORD: Space Marines
++ DETACHMENT: Ironclad Champions, Medusa's Wrath
++ TOTAL ARMY POINTS: 1995pts
++ BATTLE SIZE: Strike Force (2000 point limit)
++ FORCE DISPOSITION: Purge the Foe
++ WARLORD: Char1: Iron Father Feirros
++ ENHANCEMENT: The Flesh Is Weak (on Char2: Techmarine)
++ NUMBER OF UNITS: 12
+
+CHARACTER
+
+Char1: 1x Iron Father Feirros (85 pts): Warlord, Bolt Pistol, Gorgon's Wrath, Harrowhand, Medusan Manipuli
+
+Char2: 1x Techmarine (70 pts): Forge Bolter, Grav-Pistol, Omnissian Power Axe and Servo-Arm
+Enhancement: The Flesh Is Weak (+15 pts)
+
+OTHER DATASHEETS
+
+1x Ballistus Dreadnought (150 pts)
+1 with Ballistus Lascannon, Ballistus Missile Launcher, Storm Bolters, Armoured Feet
+
+1x Ballistus Dreadnought (150 pts)
+1 with Ballistus Lascannon, Ballistus Missile Launcher, Storm Bolters, Armoured Feet
+
+1x Brutalis Dreadnought (160 pts)
+1 with Twin Icarus Ironhail Heavy Stubber, Twin Multi-Melta, Brutalis Talons
+
+1x Brutalis Dreadnought (160 pts)
+1 with Bolt Rifles and Brutalis Fists, Twin Icarus Ironhail Heavy Stubber, Twin Multi-Melta
+
+1x Redemptor Dreadnought (170 pts)
+1 with Heavy Onslaught Gatling Cannon, Icarus Rocket Pod, Onslaught Gatling Cannon, Storm Bolters, Redemptor Fist
+
+1x Redemptor Dreadnought (180 pts)
+1 with Macro Plasma Incinerator, Onslaught Gatling Cannon, Storm Bolters, Redemptor Fist
+
+1x Redemptor Dreadnought (200 pts)
+1 with Macro Plasma Incinerator, Onslaught Gatling Cannon, Storm Bolters, Redemptor Fist
+
+1x Repulsor Executioner (270 pts)
+1 with Defensive Array, Heavy Laser Destroyer, Heavy Onslaught Gatling Cannon, Twin Heavy Bolter, Armoured Hull
+
+1x Repulsor Executioner (270 pts)
+1 with Defensive Array, Heavy Laser Destroyer, Heavy Onslaught Gatling Cannon, Twin Heavy Bolter, Armoured Hull
+
+3x Inceptor Squad (130 pts)
+3 with Plasma Exterminators, Ceramite Fists

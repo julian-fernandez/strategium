@@ -15,5 +15,13 @@
     "types": ["node", "vite/client"],
     "allowImportingTsExtensions": true
   },
-  "include": ["server", "shared", "web/src", "vite.config.ts", "vitest.config.ts"]
+  "include": [
+    "server",
+    "shared",
+    "web/src",
+    "scripts",
+    "fixtures",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ]
 }
