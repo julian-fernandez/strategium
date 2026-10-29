@@ -27,6 +27,27 @@ Paste a list exported from New Recruit or the Warhammer 40,000 app, or a
 Listhammer link (for example
 `https://listhammer.info/list/b29e2c836943545e89`, the demo list).
 
+## Playing from a phone or tablet
+
+The **Play** tab is for keeping the army digital during a game:
+
+- **One unit at a time:** page through units with the arrows, a swipe, or the
+  unit strip. Leaders come along with the unit they lead.
+- **Usable now:** pick the phase and whose turn it is, and the unit's
+  stratagems narrow to those it can use right then. Tap one for its full text.
+- **Datasheet sized to the screen:** the printed card, scaled to fit, on
+  tablets and larger; a reflowed version of it on phones.
+
+To open it on a phone or tablet on the same Wi-Fi, start the app with:
+
+```bash
+pnpm dev:lan     # like `pnpm dev`, but the app is also served on your network
+```
+
+Then open the Data tab on the computer and scan the QR code. If Windows asks,
+allow Node.js on private networks. The API server stays on the computer only;
+the phone talks to it through the web app.
+
 ## Where the data comes from
 
 | What                                                  | Source                                                                                          |
@@ -53,6 +74,6 @@ pnpm print-check  # with `pnpm dev` running: prints the demo deck to print-check
 
 - Unit photos: a custom upload per unit, and a default render. The card keeps an
   emblem placeholder in that slot.
-- A phone layout.
+- Use away from home: that would need hosting, which should stay private.
 - Crusade.
 - Applying BSData's conditional modifiers.

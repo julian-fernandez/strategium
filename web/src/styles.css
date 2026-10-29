@@ -175,4 +175,23 @@
   .print-page-label {
     display: none !important;
   }
+
+  /* Cards scaled to fit a phone print at their real size. */
+  .fit-wrap,
+  .fit-wrap > div {
+    width: auto !important;
+    height: auto !important;
+  }
+
+  .fit-inner {
+    position: static !important;
+    transform: none !important;
+  }
+}
+
+/* Keyboard hints mean nothing on a touch screen. */
+@media (pointer: coarse) {
+  .key-hint {
+    display: none !important;
+  }
 }

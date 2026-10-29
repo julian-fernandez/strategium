@@ -14,13 +14,14 @@ import {
 } from "./api";
 import type { DeckOptions } from "./cards/printOrder";
 import { themeFor } from "./cards/themes";
+import { PlayView } from "./play/PlayView";
 import { ArmyView } from "./ui/ArmyView";
 import { CardsView } from "./ui/CardsView";
 import { DataPanel } from "./ui/DataPanel";
 import { LoadPanel } from "./ui/LoadPanel";
 import { Ornament } from "./ui/Ornament";
 import { StratagemsView } from "./ui/StratagemsView";
-import { TABS, type Tab, TopBar } from "./ui/TopBar";
+import { BottomNav, TABS, type Tab, TopBar } from "./ui/TopBar";
 
 export function App() {
   const [source, setSource] = useState<ListSource | undefined>(loadSavedSource);
@@ -120,7 +121,7 @@ export function App() {
 
       {dataChanged && source ? (
         <div className="no-print relative border-b border-line bg-panel">
-          <div className="mx-auto flex max-w-[1400px] items-center gap-4 px-8 py-3">
+          <div className="mx-auto flex max-w-[1400px] items-center gap-4 px-4 py-3 md:px-8">
             <span className="h-2 w-2 rotate-45 bg-gold" />
             <p className="flex-1 text-[13px]">
               <span className="font-semibold uppercase tracking-[0.18em]">Data updated</span>
@@ -141,7 +142,7 @@ export function App() {
         </div>
       ) : null}
 
-      <main className="relative mx-auto max-w-[1400px] px-8 py-10 print:max-w-none print:p-0">
+      <main className="relative mx-auto max-w-[1400px] px-4 pb-24 pt-6 md:px-8 md:py-10 print:max-w-none print:p-0">
         {!army || showLoader ? (
           <LoadPanel
             initialText={source && "text" in source ? source.text : listText}
@@ -159,7 +160,11 @@ export function App() {
             selectedId={selectedId}
             onSelect={setSelectedId}
             onOpenCards={() => setTab("cards")}
+            onChangeList={() => setShowLoader(true)}
           />
+        ) : null}
+        {army && !showLoader && tab === "play" ? (
+          <PlayView army={army} numbers={numbers} fontsReady={fontsReady} />
         ) : null}
         {army && !showLoader && tab === "cards" ? (
           <CardsView
@@ -189,6 +194,7 @@ export function App() {
           />
         ) : null}
       </main>
+      {army && !showLoader ? <BottomNav tab={tab} onTab={setTab} /> : null}
     </div>
   );
 }
