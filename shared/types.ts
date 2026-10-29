@@ -17,6 +17,8 @@ export type WeaponRow = {
   name: string;
   count: number;
   profiles: WeaponProfile[];
+  /** The squad leader's own weapon: who carries it ("Superior"), when no one else does. */
+  carrier?: string;
 };
 
 export type StatLine = {
@@ -104,15 +106,30 @@ export type DataVersions = {
   lastError?: string;
 };
 
+/** What goes on the army rules card. */
+export type ArmyRules = {
+  /** Faction rules most of the army has, such as Acts of Faith. */
+  rules: Ability[];
+  detachments: { name: string; rules: Ability[] }[];
+  enhancements: { name: string; cost: string; bearer: string; html: string }[];
+};
+
+/** Which exporter's format the list was read from, e.g. "New Recruit / GW app text". */
+export type ListFormat = { id: string; label: string };
+
 export type Army = {
   note?: string;
   faction: string;
   detachments: string[];
   disposition?: string;
   battleSize?: BattleSize;
+  format?: ListFormat;
   units: Datasheet[];
   groups: AttachedGroup[];
   stratagems: Stratagem[];
+  armyRules: ArmyRules;
+  /** The text of every rule the army's cards name: core abilities, faction rules, weapon keywords. */
+  glossary: Ability[];
   crossCheck: CrossCheckIssue[];
   warnings: string[];
   data: DataVersions;
