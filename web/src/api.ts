@@ -1,16 +1,16 @@
 import type { DataVersions } from "../../shared/types";
 import { DEFAULT_DECK_OPTIONS, type DeckOptions } from "./cards/printOrder";
-import { api } from "./client";
+import { api, read } from "./client";
 import type { ListSource } from "./engine";
 
 export type { ListSource };
 
 export async function fetchMeta(): Promise<DataVersions> {
-  return (await api.meta.$get()).json();
+  return read(await api.meta.$get());
 }
 
 export async function checkForUpdates(): Promise<DataVersions> {
-  return (await api.updates.check.$post()).json();
+  return read(await api.updates.check.$post());
 }
 
 export const DEMO_LIST_URL = "https://listhammer.info/list/b29e2c836943545e89";

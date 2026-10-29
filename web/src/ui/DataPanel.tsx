@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { LanAddress } from "../../../server/lan";
 import type { Army, DataVersions } from "../../../shared/types";
-import { api } from "../client";
+import { api, read } from "../client";
 
 export function DataPanel({
   army,
@@ -111,7 +111,7 @@ function OnYourNetwork() {
     if (onLan) return;
     api.lan
       .$get()
-      .then((response) => response.json())
+      .then(read)
       .then(setAddresses, () => setAddresses([]));
   }, [onLan]);
 

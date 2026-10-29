@@ -4,7 +4,7 @@ import { readList } from "../../../shared/list/formats";
 import { readRosz } from "../../../shared/list/roster";
 import { buildArmy } from "../../../shared/resolve/army";
 import type { Army } from "../../../shared/types";
-import { api, unwrap } from "../client";
+import { api, read, unwrap } from "../client";
 
 /** Pasted text, a Listhammer link, or a file (a .ros, .rosz, .json or .txt export). */
 export type ListSource =
@@ -22,7 +22,7 @@ const engine = {
     const text = await sourceText(source);
     const [{ list, format, bundle }, versions] = await Promise.all([
       readList(text, fetchBundle),
-      api.meta.$get().then((r) => r.json()),
+      api.meta.$get().then(read),
     ]);
     return { army: buildArmy(list, bundle, versions, format), text };
   },
@@ -32,7 +32,7 @@ async function sourceText(source: ListSource): Promise<string> {
   if ("text" in source) return source.text;
   if ("url" in source) {
     const response = await api.listhammer.$post({ json: { url: source.url } });
-    return unwrap(await response.json()).text;
+    return unwrap(await read(response)).text;
   }
   const bytes = new Uint8Array(source.file.bytes);
   // A .rosz is a zipped .ros; the XML inside is what gets read (and remembered).
@@ -42,7 +42,7 @@ async function sourceText(source: ListSource): Promise<string> {
 
 async function fetchBundle(faction: string): Promise<FactionBundle> {
   const response = await api.bundle.$get({ query: { faction } });
-  return unwrap(await response.json()).bundle;
+  return unwrap(await read(response)).bundle;
 }
 
 export type Engine = typeof engine;
