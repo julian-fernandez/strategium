@@ -116,6 +116,46 @@
     border: 1px solid var(--color-line);
   }
 
+  /* A rule name that opens its text: a dotted underline, nothing more, so cards still read as print. */
+  .rule-term {
+    display: inline;
+    padding: 0;
+    text-align: inherit;
+    text-decoration: underline dotted;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+    text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+    cursor: help;
+  }
+
+  .rule-term:hover,
+  .rule-term:focus-visible {
+    text-decoration-style: solid;
+    text-decoration-color: currentColor;
+    outline: none;
+  }
+
+  @media print {
+    .rule-term {
+      text-decoration: none;
+    }
+  }
+
+  /* Rules text in the reader: paragraphs and lists the sanitizer keeps. */
+  .rules-text p + p,
+  .rules-text ul {
+    margin-top: 0.6em;
+  }
+
+  .rules-text ul {
+    list-style: disc;
+    padding-left: 1.25em;
+  }
+
+  .rules-text b {
+    color: var(--color-ink);
+  }
+
   .key-hint {
     display: inline-flex;
     align-items: center;
