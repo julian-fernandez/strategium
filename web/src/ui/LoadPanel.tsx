@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type DragEvent, useRef, useState } from "react";
 import { DEMO_LIST_URL, type ListSource } from "../api";
 
 export function LoadPanel({
@@ -16,6 +16,17 @@ export function LoadPanel({
 }) {
   const [text, setText] = useState(initialText ?? "");
   const [url, setUrl] = useState("");
+  const [dragging, setDragging] = useState(false);
+  const picker = useRef<HTMLInputElement>(null);
+
+  const openFile = async (file: File | undefined) => {
+    if (file) onLoad({ file: { name: file.name, bytes: await file.arrayBuffer() } });
+  };
+  const onDrop = (event: DragEvent) => {
+    event.preventDefault();
+    setDragging(false);
+    void openFile(event.dataTransfer.files[0]);
+  };
 
   return (
     <div className="mx-auto grid max-w-[1100px] grid-cols-1 gap-4 lg:grid-cols-[1fr_340px] lg:gap-6">
@@ -35,7 +46,8 @@ export function LoadPanel({
             Paste your list
           </h2>
           <p className="mt-2 max-w-[60ch] text-[14px] leading-relaxed text-ink-dim">
-            Copy the text export from New Recruit or the Warhammer 40,000 app. Every weapon, model
+            The export from the Warhammer 40,000 app, New Recruit, ListForge, Warmind, WarOrgan,
+            Ironbuilt or 40k.app, or drop a roster file (.ros, .rosz, .json). Every weapon, model
             count and enhancement in it ends up on the cards.
           </p>
         </div>
@@ -49,16 +61,40 @@ export function LoadPanel({
           <textarea
             value={text}
             onChange={(event) => setText(event.target.value)}
+            // A roster file dropped here is opened rather than pasted in.
+            onDragOver={(event) => {
+              event.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={onDrop}
             spellCheck={false}
             placeholder={
-              "Adepta Sororitas\nChampions of Faith (2 Detachment Points)\nTake and Hold\nStrike Force (2,000 Points)\n\nCHARACTERS\n…"
+              "Adepta Sororitas\nChampions of Faith (2 Detachment Points)\nTake and Hold\nStrike Force (2,000 Points)\n\nCHARACTERS\n…\n\nor drop a .ros, .rosz or .json file here"
             }
-            className="h-[220px] w-full resize-none bg-panel-strong p-4 text-[13px] leading-relaxed text-ink placeholder:text-ink-faint hairline focus:border-line-strong focus:outline-none lg:h-[340px]"
+            className={`h-[220px] w-full resize-none bg-panel-strong p-4 text-[13px] leading-relaxed text-ink placeholder:text-ink-faint hairline transition-colors duration-150 focus:border-line-strong focus:outline-none lg:h-[340px] ${
+              dragging ? "border-ink" : ""
+            }`}
           />
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button type="submit" className="btn btn-action" disabled={loading || !text.trim()}>
               {loading ? "Loading…" : "Build cards"}
             </button>
+            <button
+              type="button"
+              className="btn"
+              disabled={loading}
+              onClick={() => picker.current?.click()}
+            >
+              Open a file
+            </button>
+            <input
+              ref={picker}
+              type="file"
+              accept=".ros,.rosz,.json,.txt"
+              className="hidden"
+              onChange={(event) => void openFile(event.target.files?.[0])}
+            />
           </div>
         </form>
       </section>
