@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import type { Army } from "../../../shared/types";
 import { FitToWidth } from "../ui/FitToWidth";
 import { ArmyRulesCard } from "./ArmyRulesCard";
@@ -9,6 +9,7 @@ import type { DeckPage } from "./printOrder";
 import { StratagemCard } from "./StratagemCard";
 import { type CardTheme, themeFor } from "./themes";
 import { UnitBackCard } from "./UnitBackCard";
+import type { SharedFit } from "./useFitText";
 
 /**
  * A5 landscape pages, as they print. Double-sided, each sheet shows one face
@@ -30,7 +31,23 @@ export function Deck({
   fontsReady: boolean;
 }) {
   const theme = themeFor(army.faction);
-  const faces = { army, numbers, theme, fontsReady };
+
+  // The pages of one card (the rules reference, a long army rules card) all take
+  // the smallest type size any of them needs, so a bound booklet's pages match.
+  const [fits, setFits] = useState<Record<string, number>>({});
+  const report = useCallback((id: string, size: number) => {
+    setFits((previous) => (previous[id] === size ? previous : { ...previous, [id]: size }));
+  }, []);
+  const sharedFor = (page: DeckPage): SharedFit | undefined => {
+    if ((page.kind !== "glossary" && page.kind !== "army-rules") || page.parts < 2)
+      return undefined;
+    const sizes = pages.filter((p) => p.kind === page.kind).map((p) => fits[fitId(p)]);
+    const cap = sizes.every((size) => size !== undefined)
+      ? Math.min(...(sizes as number[]))
+      : undefined;
+    return { cap, onFit: (size) => report(fitId(page), size) };
+  };
+  const faces = { army, numbers, theme, fontsReady, sharedFor };
   const sheets: { front: DeckPage; back?: DeckPage }[] = [];
   for (let i = 0; i < pages.length; i += duplex ? 2 : 1) {
     const front = pages[i];
@@ -46,7 +63,22 @@ export function Deck({
   );
 }
 
-type Faces = { army: Army; numbers: Map<string, number>; theme: CardTheme; fontsReady: boolean };
+type Faces = {
+  army: Army;
+  numbers: Map<string, number>;
+  theme: CardTheme;
+  fontsReady: boolean;
+  sharedFor: (page: DeckPage) => SharedFit | undefined;
+};
+
+/** A page's identity for its shared type size: its place and what it holds, so another list starts afresh. */
+function fitId(page: DeckPage): string {
+  if (page.kind === "glossary") return `${page.key}|${page.rules.map((r) => r.name).join(",")}`;
+  if (page.kind === "army-rules") {
+    return `${page.key}|${page.sections.map((s) => `${s.title}:${s.rules.map((r) => r.name)}`).join(";")}`;
+  }
+  return page.key;
+}
 
 /**
  * One sheet of paper: its front, and its back behind it. Both stay laid out
@@ -103,6 +135,7 @@ function Face({
   numbers,
   theme,
   fontsReady,
+  sharedFor,
 }: { page: DeckPage; visible: boolean } & Faces) {
   return (
     <div
@@ -137,6 +170,7 @@ function Face({
           parts={page.parts}
           theme={theme}
           fontsReady={fontsReady}
+          shared={sharedFor(page)}
         />
       ) : null}
       {page.kind === "glossary" ? (
@@ -147,6 +181,7 @@ function Face({
           parts={page.parts}
           theme={theme}
           fontsReady={fontsReady}
+          shared={sharedFor(page)}
         />
       ) : null}
       {page.kind === "stratagems" ? (

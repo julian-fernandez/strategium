@@ -3,7 +3,7 @@ import { CardShell } from "./DatasheetCard";
 import { Emblem } from "./Glyphs";
 import { Rich } from "./parts";
 import type { CardTheme } from "./themes";
-import { useFitText } from "./useFitText";
+import { type SharedFit, useFitText } from "./useFitText";
 
 /**
  * A rules reference page: the full text of every core ability, faction rule
@@ -16,6 +16,7 @@ export function GlossaryCard({
   parts,
   theme,
   fontsReady,
+  shared,
 }: {
   army: Army;
   rules: Ability[];
@@ -23,8 +24,10 @@ export function GlossaryCard({
   parts: number;
   theme: CardTheme;
   fontsReady: boolean;
+  /** Held to the same type size as the card's other pages. */
+  shared?: SharedFit;
 }) {
-  const body = useFitText<HTMLDivElement>(6.4, 4.6, rules, fontsReady);
+  const body = useFitText<HTMLDivElement>(6.4, 4.6, rules, fontsReady, undefined, shared);
 
   return (
     <CardShell

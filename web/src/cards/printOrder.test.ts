@@ -112,11 +112,48 @@ describe("buildDeck", () => {
   });
 });
 
+describe("the stratagem deck", () => {
+  const many = {
+    ...army,
+    stratagems: Array.from({ length: 9 }, (_, i) => stratagem(`s${i}`, ["Mortifiers"])),
+  } as Army;
+  const deck = (options: DeckOptions) =>
+    buildDeck(many, options)
+      .map((page) => page.kind)
+      .filter((kind, index, all) => kind === "stratagems" || all[index - 1] === "stratagems");
+
+  it("backs its pages onto each other for a booklet, with one blank to finish the sheet", () => {
+    // Nine stratagems, four to a page: three pages, the last sheet's back blank.
+    expect(deck({ ...UNITS_ONLY, unitStratagems: false })).toEqual([
+      "stratagems",
+      "stratagems",
+      "stratagems",
+      "blank",
+    ]);
+  });
+
+  it("leaves every page a blank back when printed for cutting out", () => {
+    expect(deck({ ...UNITS_ONLY, unitStratagems: false, stratagemsBothSides: false })).toEqual([
+      "stratagems",
+      "blank",
+      "stratagems",
+      "blank",
+      "stratagems",
+      "blank",
+    ]);
+  });
+});
+
 describe("paginate", () => {
   const sizes = (pages: number[][]) => pages.map((page) => page.join("+"));
 
   it("packs items in order and starts a page when the next would overflow", () => {
     expect(sizes(paginate([3, 4, 2, 5, 1], (n) => n, 7))).toEqual(["3+4", "2+5", "1"]);
+  });
+
+  it("spreads items evenly over the pages it needs", () => {
+    // Packed greedily these would be 4+4+4+4 and a lone 4.
+    expect(sizes(paginate([4, 4, 4, 4, 4], (n) => n, 16))).toEqual(["4+4+4", "4+4"]);
   });
 
   it("gives an item bigger than a page a page of its own", () => {
