@@ -5,6 +5,9 @@ import type { ListItem, ListUnit } from "../list/types";
 import type { Datasheet, StatLine, WeaponRow } from "../types";
 import { comparable } from "../wahapedia";
 import { looseName, matchEnhancement, matchItem, matchModel, soleModel } from "./match";
+import { unitPoints } from "./points";
+import { unitSwaps } from "./swaps";
+import { addCount, emptyTally } from "./tally";
 
 /** The GW app's own complaints, which can land among a unit's lines. */
 const IGNORED_LINES = /^invalid wargear/i;
@@ -38,12 +41,22 @@ export function findUnit(bundle: FactionBundle, name: string): UnitData | undefi
 /**
  * One unit's card: only the weapons and wargear the list took, with how many
  * models carry each, and any changes those selections make to the profiles.
+ * Also what the unit costs, and the swaps each of its models could make.
+ * `copiesBefore` counts the same datasheet earlier in the army, which can cost more.
  */
-export function resolveDatasheet(bundle: FactionBundle, unit: ListUnit, id: string): Datasheet {
+export function resolveDatasheet(
+  bundle: FactionBundle,
+  unit: ListUnit,
+  id: string,
+  copiesBefore = 0,
+): Datasheet {
   const sheet: Datasheet = {
     id,
     name: unit.name,
     points: unit.points,
+    listedPoints: unit.points,
+    pointsExact: false,
+    extras: [],
     models: [],
     modelCount: 0,
     stats: [],
@@ -83,6 +96,7 @@ export function resolveDatasheet(bundle: FactionBundle, unit: ListUnit, id: stri
   const carriers = new Map<WeaponRow, Map<Carrier | undefined, number>>();
   // A combined option the list names part by part ("Particle caster", "Voidblade") counts once per group.
   const countedParts = new Set<string>();
+  const tally = emptyTally();
 
   const addModel = (name: string, count: number, items: ListItem[]) => {
     const match =
@@ -93,7 +107,10 @@ export function resolveDatasheet(bundle: FactionBundle, unit: ListUnit, id: stri
       ) ?? soleModel(data);
     const model = match?.model;
     selected.add(normalizeName(name));
-    if (match) selected.add(match.key);
+    if (match) {
+      selected.add(match.key);
+      addCount(tally.models, match.key, count);
+    }
     if (!model) {
       sheet.warnings.push(`BSData has no model named "${name}" in ${sheet.name}.`);
     } else {
@@ -106,7 +123,7 @@ export function resolveDatasheet(bundle: FactionBundle, unit: ListUnit, id: stri
       }
     }
     sheet.models.push({ name, count });
-    const carrier: Carrier = { name, count, model };
+    const carrier: Carrier = { name, count, model, key: match?.key };
     groups.push(carrier);
     for (const item of items) addItem(item, model?.items, carrier);
   };
@@ -133,6 +150,14 @@ export function resolveDatasheet(bundle: FactionBundle, unit: ListUnit, id: stri
     const key = match.key.split(":")[0] ?? match.key;
     const owners = carrier ? [carrier] : groups.filter((g) => g.model?.items[key]);
     const owner = owners.length === 1 ? owners[0] : undefined;
+    addCount(tally.items, key, count);
+    if (owner?.key) {
+      const carried = tally.carried.get(owner.key) ?? new Map<string, number>();
+      addCount(carried, key, count);
+      tally.carried.set(owner.key, carried);
+    } else {
+      addCount(tally.loose, key, count);
+    }
     for (const [profiles, melee] of [
       [found.ranged, false],
       [found.melee, true],
@@ -146,6 +171,7 @@ export function resolveDatasheet(bundle: FactionBundle, unit: ListUnit, id: stri
         count,
         melee,
       );
+      row.key = key;
       const byCarrier = carriers.get(row) ?? new Map<Carrier | undefined, number>();
       byCarrier.set(owner, (byCarrier.get(owner) ?? 0) + count);
       carriers.set(row, byCarrier);
@@ -169,7 +195,14 @@ export function resolveDatasheet(bundle: FactionBundle, unit: ListUnit, id: stri
   }
   for (const item of gear) addItem(item);
 
-  if (sheet.models.length === 0) sheet.models.push({ name: data.name, count: 1 });
+  if (sheet.models.length === 0) {
+    sheet.models.push({ name: data.name, count: 1 });
+    // For points: the models it must have, or else one of its default model.
+    for (const [key, model] of Object.entries(data.models)) {
+      if (model.min > 0) addCount(tally.models, key, model.min);
+    }
+    if (!tally.models.size && data.defaultModel) addCount(tally.models, data.defaultModel, 1);
+  }
   // A squad listed by its wargear alone still needs its models' stat line: the
   // one they share, or each model it must have plus its trooper.
   if (sheet.stats.length === 0) {
@@ -224,12 +257,29 @@ export function resolveDatasheet(bundle: FactionBundle, unit: ListUnit, id: stri
     }
   }
 
+  tally.modelCount = sheet.modelCount;
+  sheet.points = unitPoints(bundle, data, tally, sheet.enhancement?.name, copiesBefore);
+  sheet.pointsExact = data.points.exact;
+  const swaps = unitSwaps(data, tally, (model) => modelLabel(model, unit.name));
+  for (const row of [...sheet.ranged, ...sheet.melee]) {
+    const offered = row.key ? swaps.byItem.get(row.key) : undefined;
+    if (offered?.length) row.swaps = offered;
+  }
+  // Swaps away from wargear that isn't a weapon (a Simulacrum, a Null Rod) go with the additions.
+  const weapons = new Set([...sheet.ranged, ...sheet.melee].map((row) => row.key));
+  sheet.extras = [
+    ...swaps.extras,
+    ...[...swaps.byItem.values()]
+      .flat()
+      .filter((swap) => !swap.remove.some((item) => weapons.has(normalizeName(item.name))))
+      .filter((swap, index, all) => all.indexOf(swap) === index),
+  ];
+
   return sheet;
 }
 
-/** Adds one option's profiles of one type. The count is per option, not per profile. */
 /** One of the list's model groups: "1x Celestian Insidiant Superior" and the BSData model it is. */
-type Carrier = { name: string; count: number; model?: ModelData };
+type Carrier = { name: string; count: number; model?: ModelData; key?: string };
 
 /** The one-per-squad model in a squad of several: a Superior, Sergeant, Exarch, Nob. */
 function isSquadLeader(carrier: Carrier, modelCount: number): boolean {

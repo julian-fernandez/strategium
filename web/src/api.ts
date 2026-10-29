@@ -1,4 +1,4 @@
-import type { DataVersions } from "../../shared/types";
+import type { DataVersions, Edit } from "../../shared/types";
 import { DEFAULT_DECK_OPTIONS, type DeckOptions } from "./cards/printOrder";
 import { api, read } from "./client";
 import type { ListSource } from "./engine";
@@ -32,6 +32,29 @@ export function saveSource(source: ListSource | undefined): void {
     else localStorage.removeItem(STORAGE_KEY);
   } catch {
     // Storage can be unavailable; the list just won't be remembered.
+  }
+}
+
+const EDITS_KEY = "army-cards:edits";
+
+/** Swaps made to a list, with the list text they were made to, so they're only replayed on that list. */
+export type SavedEdits = { text: string; edits: Edit[] };
+
+export function loadSavedEdits(): SavedEdits | undefined {
+  try {
+    const raw = localStorage.getItem(EDITS_KEY);
+    return raw ? (JSON.parse(raw) as SavedEdits) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function saveEdits(saved: SavedEdits | undefined): void {
+  try {
+    if (saved?.edits.length) localStorage.setItem(EDITS_KEY, JSON.stringify(saved));
+    else localStorage.removeItem(EDITS_KEY);
+  } catch {
+    // Storage can be unavailable; the edits just won't be remembered.
   }
 }
 

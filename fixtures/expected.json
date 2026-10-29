@@ -9,10 +9,12 @@
     "battleSize": 2000,
     "units": 17,
     "models": 61,
-    "points": 2000,
+    "points": 1980,
     "attachedGroups": 4,
     "stratagems": 16,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 1,980."
+    ],
     "crossCheck": []
   },
   "lists/adeptus-custodes.txt": {
@@ -24,7 +26,7 @@
     "battleSize": 2000,
     "units": 17,
     "models": 29,
-    "points": 2390,
+    "points": 2965,
     "attachedGroups": 5,
     "stratagems": 14,
     "warnings": [
@@ -32,7 +34,8 @@
       "BSData has no unit named \"Vigilators\".",
       "BSData has no enhancement named \"Fierce Conqueror\" for Shield-Captain on Dawneagle Jetbike.",
       "BSData has no enhancement named \"Admonimortis\" for Shield-Captain in Allarus Terminator Armour.",
-      "BSData has no unit named \"Prosecutors\"."
+      "BSData has no unit named \"Prosecutors\".",
+      "The list adds up to 2,390 pts; at the current points it's 2,965."
     ],
     "crossCheck": [
       "Blade Champion: ➤ Vaultswords - Hurricanis AP -1 / -2"
@@ -101,10 +104,12 @@
     "battleSize": 2000,
     "units": 15,
     "models": 32,
-    "points": 2000,
+    "points": 1950,
     "attachedGroups": 3,
     "stratagems": 20,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 1,950."
+    ],
     "crossCheck": []
   },
   "lists/blood-angels.txt": {
@@ -118,10 +123,12 @@
     "battleSize": 2000,
     "units": 13,
     "models": 47,
-    "points": 2000,
+    "points": 2045,
     "attachedGroups": 5,
     "stratagems": 20,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 2,045."
+    ],
     "crossCheck": []
   },
   "lists/chaos-daemons.txt": {
@@ -223,7 +230,7 @@
     "battleSize": 2000,
     "units": 11,
     "models": 68,
-    "points": 1985,
+    "points": 2150,
     "attachedGroups": 2,
     "stratagems": 15,
     "warnings": [
@@ -238,7 +245,8 @@
       "BSData has no wargear named \"Deathwatch thunder hammer\" in Deathwatch Veterans.",
       "BSData has no wargear named \"Close combat weapon\" in Talonstrike Kill Team.",
       "BSData has no wargear named \"Close combat weapon\" in Talonstrike Kill Team.",
-      "BSData has no wargear named \"Close combat weapon\" in Talonstrike Kill Team."
+      "BSData has no wargear named \"Close combat weapon\" in Talonstrike Kill Team.",
+      "The list adds up to 1,985 pts; at the current points it's 2,150."
     ],
     "crossCheck": []
   },
@@ -286,12 +294,13 @@
     "battleSize": 2000,
     "units": 19,
     "models": 63,
-    "points": 2000,
+    "points": 1990,
     "attachedGroups": 3,
     "stratagems": 19,
     "warnings": [
       "BSData has no wargear named \"Leader’s cult weapons\" in Hybrid Metamorphs.",
-      "BSData has no wargear named \"Leader’s cult weapons\" in Hybrid Metamorphs."
+      "BSData has no wargear named \"Leader’s cult weapons\" in Hybrid Metamorphs.",
+      "The list adds up to 2,000 pts; at the current points it's 1,990."
     ],
     "crossCheck": []
   },
@@ -305,10 +314,12 @@
     "battleSize": 2000,
     "units": 12,
     "models": 43,
-    "points": 2000,
+    "points": 1975,
     "attachedGroups": 2,
     "stratagems": 20,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 1,975."
+    ],
     "crossCheck": [
       "Strike Squad: Close combat weapon S 5 / 4"
     ]
@@ -323,7 +334,7 @@
     "battleSize": 2000,
     "units": 16,
     "models": 82,
-    "points": 2000,
+    "points": 2060,
     "attachedGroups": 4,
     "stratagems": 22,
     "warnings": [
@@ -332,7 +343,8 @@
       "BSData has no wargear named \"Astartes shield\" in Deathwatch Kill Team.",
       "BSData has no wargear named \"Deathwatch thunder hammer\" in Deathwatch Kill Team.",
       "BSData has no wargear named \"Rejuvenat Adept\" in Rogue Trader Entourage.",
-      "BSData has no wargear named \"Simulacrum Imperialis\" in Sisters of Battle Squad."
+      "BSData has no wargear named \"Simulacrum Imperialis\" in Sisters of Battle Squad.",
+      "The list adds up to 2,000 pts; at the current points it's 2,060."
     ],
     "crossCheck": []
   },
@@ -346,10 +358,12 @@
     "battleSize": 2000,
     "units": 13,
     "models": 47,
-    "points": 2000,
+    "points": 2025,
     "attachedGroups": 3,
     "stratagems": 20,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 2,025."
+    ],
     "crossCheck": []
   },
   "lists/imperial-knights.txt": {
@@ -379,10 +393,12 @@
     "battleSize": 2000,
     "units": 16,
     "models": 37,
-    "points": 2000,
+    "points": 1990,
     "attachedGroups": 2,
     "stratagems": 19,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 1,990."
+    ],
     "crossCheck": []
   },
   "lists/leagues-of-votann.txt": {
@@ -395,11 +411,12 @@
     "battleSize": 2000,
     "units": 15,
     "models": 77,
-    "points": 1995,
+    "points": 1970,
     "attachedGroups": 2,
     "stratagems": 18,
     "warnings": [
-      "BSData has no enhancement named \"Dêlvewerke Navigator\" for Memnyr Strategist."
+      "BSData has no enhancement named \"Dêlvewerke Navigator\" for Memnyr Strategist.",
+      "The list adds up to 1,995 pts; at the current points it's 1,970."
     ],
     "crossCheck": []
   },
@@ -413,10 +430,12 @@
     "battleSize": 2000,
     "units": 21,
     "models": 80,
-    "points": 2000,
+    "points": 2010,
     "attachedGroups": 3,
     "stratagems": 18,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 2,010."
+    ],
     "crossCheck": []
   },
   "lists/orks.txt": {
@@ -446,10 +465,12 @@
     "battleSize": 2000,
     "units": 13,
     "models": 61,
-    "points": 2000,
+    "points": 2020,
     "attachedGroups": 2,
     "stratagems": 19,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 2,020."
+    ],
     "crossCheck": [
       "Apothecary Biologis: Apothecary Biologis OC 3 / 1"
     ]
@@ -464,10 +485,12 @@
     "battleSize": 2000,
     "units": 14,
     "models": 43,
-    "points": 1990,
+    "points": 1980,
     "attachedGroups": 2,
     "stratagems": 20,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 1,990 pts; at the current points it's 1,980."
+    ],
     "crossCheck": [
       "Invader ATVs: Twin Bolt Rifle BS/WS 3+ / 2"
     ]
@@ -482,10 +505,12 @@
     "battleSize": 2000,
     "units": 13,
     "models": 49,
-    "points": 2000,
+    "points": 2020,
     "attachedGroups": 3,
     "stratagems": 20,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 2,020."
+    ],
     "crossCheck": [
       "Venerable Dreadnought: Venerable Dreadnought M 8\" / 6\""
     ]
@@ -499,10 +524,12 @@
     "battleSize": 2000,
     "units": 16,
     "models": 57,
-    "points": 2000,
+    "points": 1955,
     "attachedGroups": 3,
     "stratagems": 17,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 1,955."
+    ],
     "crossCheck": [
       "Commander in Enforcer Battlesuit: Missile pod BS/WS 5+ / 3",
       "Crisis Fireknife Battlesuits: Missile pod BS/WS 5+ / 4"
@@ -517,10 +544,12 @@
     "battleSize": 2000,
     "units": 14,
     "models": 49,
-    "points": 2000,
+    "points": 2105,
     "attachedGroups": 3,
     "stratagems": 17,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 2,105."
+    ],
     "crossCheck": [
       "Exalted Sorcerer: Force weapon A 4 / 5",
       "Sorcerer in Terminator Armour: Force weapon A 4 / 5"
@@ -536,12 +565,13 @@
     "battleSize": 2000,
     "units": 13,
     "models": 24,
-    "points": 2000,
+    "points": 1990,
     "attachedGroups": 1,
     "stratagems": 19,
     "warnings": [
       "BSData has no wargear named \"Toxinjector Harpoon\" in Norn Assimilator.",
-      "BSData has no wargear named \"Toxinjector Harpoon\" in Norn Assimilator."
+      "BSData has no wargear named \"Toxinjector Harpoon\" in Norn Assimilator.",
+      "The list adds up to 2,000 pts; at the current points it's 1,990."
     ],
     "crossCheck": []
   },
@@ -556,13 +586,14 @@
     "battleSize": 2000,
     "units": 12,
     "models": 46,
-    "points": 2000,
+    "points": 2045,
     "attachedGroups": 2,
     "stratagems": 21,
     "warnings": [
       "BSData has no wargear named \"Dainal Komelius\" in Wardens of Ultramar.",
       "BSData has no wargear named \"Master-crafted Power Sword\" in Bladeguard Veteran Squad.",
-      "BSData has no wargear named \"Master-crafted Power Sword\" in Bladeguard Veteran Squad."
+      "BSData has no wargear named \"Master-crafted Power Sword\" in Bladeguard Veteran Squad.",
+      "The list adds up to 2,000 pts; at the current points it's 2,045."
     ],
     "crossCheck": [
       "Marneus Calgar: Marneus Calgar InSv  / 4",
@@ -582,10 +613,12 @@
     "battleSize": 2000,
     "units": 18,
     "models": 45,
-    "points": 2000,
+    "points": 1990,
     "attachedGroups": 2,
     "stratagems": 20,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 1,990."
+    ],
     "crossCheck": [
       "Suboden Khan: Onslaught Gatling Cannon AP -1 / 0",
       "Invader ATVs: Twin Bolt Rifle BS/WS 3+ / 2"
@@ -618,10 +651,12 @@
     "battleSize": 2000,
     "units": 13,
     "models": 34,
-    "points": 2000,
+    "points": 1975,
     "attachedGroups": 3,
     "stratagems": 16,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 1,975."
+    ],
     "crossCheck": []
   },
   "formats/battlebase.chaos-daemons.txt": {
@@ -667,10 +702,12 @@
     "battleSize": 2000,
     "units": 9,
     "models": 9,
-    "points": 1995,
+    "points": 2005,
     "attachedGroups": 0,
     "stratagems": 16,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 1,995 pts; at the current points it's 2,005."
+    ],
     "crossCheck": []
   },
   "formats/gwapp-nested.adeptus-mechanicus.txt": {
@@ -733,10 +770,12 @@
     "battleSize": 2000,
     "units": 14,
     "models": 50,
-    "points": 2000,
+    "points": 2030,
     "attachedGroups": 4,
     "stratagems": 20,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 2,030."
+    ],
     "crossCheck": []
   },
   "formats/listforge-short.adeptus-custodes.txt": {
@@ -769,10 +808,12 @@
     "battleSize": 2000,
     "units": 16,
     "models": 60,
-    "points": 2000,
+    "points": 2110,
     "attachedGroups": 2,
     "stratagems": 20,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 2,110."
+    ],
     "crossCheck": []
   },
   "formats/listforge-wtc.tyranids.txt": {
@@ -819,10 +860,12 @@
     "battleSize": 2000,
     "units": 14,
     "models": 47,
-    "points": 2000,
+    "points": 2090,
     "attachedGroups": 3,
     "stratagems": 16,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 2,000 pts; at the current points it's 2,090."
+    ],
     "crossCheck": [
       "Sorcerer in Terminator Armour: Force weapon A 4 / 5"
     ]
@@ -850,10 +893,12 @@
     "battleSize": 2000,
     "units": 18,
     "models": 69,
-    "points": 1995,
+    "points": 1980,
     "attachedGroups": 2,
     "stratagems": 10,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 1,995 pts; at the current points it's 1,980."
+    ],
     "crossCheck": [
       "Hearthkyn Warriors: Hearthkyn Warriors InSv 5+ / -"
     ]
@@ -884,10 +929,12 @@
     "battleSize": 2000,
     "units": 6,
     "models": 6,
-    "points": 1995,
+    "points": 1980,
     "attachedGroups": 0,
     "stratagems": 18,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 1,995 pts; at the current points it's 1,980."
+    ],
     "crossCheck": [
       "Knight Destrier: Titanic feet S 7 / 8"
     ]
@@ -961,11 +1008,12 @@
     "battleSize": 2000,
     "units": 12,
     "models": 63,
-    "points": 1995,
+    "points": 2055,
     "attachedGroups": 5,
     "stratagems": 18,
     "warnings": [
-      "Couldn't match \"Combat Blade (Wolf Scouts)\" to anything in BSData."
+      "Couldn't match \"Combat Blade (Wolf Scouts)\" to anything in BSData.",
+      "The list adds up to 1,995 pts; at the current points it's 2,055."
     ],
     "crossCheck": [
       "Lieutenant in Phobos Armour: Master-crafted Bolt Carbine S 5 / 4",
@@ -998,10 +1046,12 @@
     "battleSize": 2000,
     "units": 11,
     "models": 13,
-    "points": 1910,
+    "points": 1890,
     "attachedGroups": 0,
     "stratagems": 20,
-    "warnings": [],
+    "warnings": [
+      "The list adds up to 1,910 pts; at the current points it's 1,890."
+    ],
     "crossCheck": []
   }
 }
