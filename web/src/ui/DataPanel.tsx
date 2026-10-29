@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import type { LanAddress } from "../../../server/lan";
 import type { Army, DataVersions } from "../../../shared/types";
+import { api } from "../client";
 
 export function DataPanel({
   army,
@@ -23,6 +25,7 @@ export function DataPanel({
           </h2>
         </div>
         <dl className="flex flex-col px-6 py-2 text-[13px]">
+          {army.format ? <Row label="List read as">{army.format.label}</Row> : null}
           <Row label="BSData commit">
             {versions.bsdataSha ? (
               <a
@@ -99,8 +102,6 @@ export function DataPanel({
   );
 }
 
-type LanAddress = { adapter: string; url: string; reachable: boolean; qrSvg: string };
-
 /** How to open the app on a phone or tablet on the same Wi-Fi, with a QR code to scan. */
 function OnYourNetwork() {
   const [addresses, setAddresses] = useState<LanAddress[]>();
@@ -108,8 +109,9 @@ function OnYourNetwork() {
 
   useEffect(() => {
     if (onLan) return;
-    fetch("/api/lan")
-      .then((response) => response.json() as Promise<LanAddress[]>)
+    api.lan
+      .$get()
+      .then((response) => response.json())
       .then(setAddresses, () => setAddresses([]));
   }, [onLan]);
 

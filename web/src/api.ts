@@ -1,27 +1,16 @@
-import type { Army, DataVersions } from "../../shared/types";
+import type { DataVersions } from "../../shared/types";
 import { DEFAULT_DECK_OPTIONS, type DeckOptions } from "./cards/printOrder";
+import { api } from "./client";
+import type { ListSource } from "./engine";
 
-export type ListSource = { text: string } | { url: string };
-
-export async function fetchArmy(source: ListSource): Promise<{ army: Army; text: string }> {
-  const response = await fetch("/api/army", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(source),
-  });
-  const body = (await response.json()) as { army: Army; text: string } | { error: string };
-  if ("error" in body) throw new Error(body.error);
-  return body;
-}
+export type { ListSource };
 
 export async function fetchMeta(): Promise<DataVersions> {
-  const response = await fetch("/api/meta");
-  return (await response.json()) as DataVersions;
+  return (await api.meta.$get()).json();
 }
 
 export async function checkForUpdates(): Promise<DataVersions> {
-  const response = await fetch("/api/updates/check", { method: "POST" });
-  return (await response.json()) as DataVersions;
+  return (await api.updates.check.$post()).json();
 }
 
 export const DEMO_LIST_URL = "https://listhammer.info/list/b29e2c836943545e89";
