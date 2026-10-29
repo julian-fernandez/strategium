@@ -8,7 +8,7 @@ import { z } from "zod";
  * Bump COMPILER_VERSION whenever the shape or the compile rules change, so
  * cached bundles are rebuilt.
  */
-export const COMPILER_VERSION = 8;
+export const COMPILER_VERSION = 9;
 
 export const weaponProfileSchema = z.object({
   name: z.string(),
@@ -76,6 +76,27 @@ export const itemSchema = z.object({
   abilities: z.array(abilitySchema),
 });
 
+export const countedSchema = z.object({ name: z.string(), count: z.number() });
+
+/** One way to fill a slot: what it puts in the model's hands ("2 Bolt Pistols" is 2× Bolt pistol), and its points. */
+export const choiceSchema = z.object({
+  name: z.string(),
+  items: z.array(countedSchema),
+  cost: z.number(),
+});
+
+/**
+ * A pick-one group on a model ("Dominion Special Weapon"): exactly one choice,
+ * or at most one when `min` is 0. Groups that allow several picks aren't slots.
+ */
+export const slotSchema = z.object({
+  name: z.string(),
+  min: z.number(),
+  /** The choice a model has unless the list says otherwise. */
+  default: z.string().optional(),
+  choices: z.array(choiceSchema),
+});
+
 export const modelSchema = z.object({
   name: z.string(),
   stats: z.array(statLineSchema),
@@ -83,14 +104,53 @@ export const modelSchema = z.object({
   factionKeywords: z.array(z.string()),
   /** Options under this model, by normalized name. Looked up before the unit's. */
   items: z.record(z.string(), itemSchema),
-  /** How many of this model a unit must and may have. */
+  /** How many of this model a unit must and may have; a `max` of 0 sets no limit. */
   min: z.number(),
   max: z.number(),
   /**
    * What one of these models carries when a list doesn't say: wargear it must
    * take and each choice's default. For formats that leave wargear out.
    */
-  defaults: z.array(z.object({ name: z.string(), count: z.number() })),
+  defaults: z.array(countedSchema),
+  /** Wargear every one of these models carries, whatever its choices, in its parts. */
+  fixed: z.array(countedSchema),
+  slots: z.array(slotSchema),
+  /**
+   * The squad group it shares with other model types ("Dominions"): a model
+   * can become another type in its group, as a Dominion takes a special weapon.
+   */
+  group: z.string().optional(),
+  /** Points for each one of these models, on top of the unit's. */
+  cost: z.number(),
+});
+
+/** A count in a points rule: the unit's models, some model types (a squad group's), or one option. */
+export const pointsCountSchema = z.object({
+  compare: z.enum(["atLeast", "greaterThan", "atMost", "lessThan", "equalTo", "notEqualTo"]),
+  value: z.number(),
+  /** Model types by normalized name, counted together; with neither this nor `item`, every model. */
+  models: z.array(z.string()).optional(),
+  /** An option by normalized name. */
+  item: z.string().optional(),
+});
+
+/**
+ * A unit's points: its base cost, the rules that change it by squad size
+ * (applied in order, each when all of its counts hold), and what a copy costs
+ * extra once the army already has `after` of the same datasheet before it.
+ * `exact` is false when BSData had a rule this can't read.
+ */
+export const pointsSchema = z.object({
+  base: z.number(),
+  rules: z.array(
+    z.object({
+      op: z.enum(["set", "increment", "decrement", "multiply"]),
+      value: z.number(),
+      when: z.array(pointsCountSchema),
+    }),
+  ),
+  repeat: z.object({ after: z.number(), value: z.number() }).optional(),
+  exact: z.boolean(),
 });
 
 export const crossCheckIssueSchema = z.object({
@@ -115,6 +175,9 @@ export const unitSchema = z.object({
   items: z.record(z.string(), itemSchema),
   /** The model that makes up the numbers (the trooper, not the sergeant), by normalized name. */
   defaultModel: z.string().optional(),
+  points: pointsSchema,
+  /** Points for one of each option that costs any (wargear, enhancements), by normalized name. */
+  costs: z.record(z.string(), z.number()),
   modifiers: z.array(modifierSchema),
   wahapedia: z
     .object({ id: z.string(), legend: z.string(), stratagemIds: z.array(z.string()) })
@@ -164,6 +227,11 @@ export const factionBundleSchema = z.object({
 export type WeaponProfileData = z.infer<typeof weaponProfileSchema>;
 export type ItemData = z.infer<typeof itemSchema>;
 export type ModelData = z.infer<typeof modelSchema>;
+export type Counted = z.infer<typeof countedSchema>;
+export type ChoiceData = z.infer<typeof choiceSchema>;
+export type SlotData = z.infer<typeof slotSchema>;
+export type PointsData = z.infer<typeof pointsSchema>;
+export type PointsCount = z.infer<typeof pointsCountSchema>;
 export type UnitData = z.infer<typeof unitSchema>;
 export type ModifierData = z.infer<typeof modifierSchema>;
 export type ProfileField = z.infer<typeof profileFieldSchema>;

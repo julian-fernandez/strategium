@@ -30,6 +30,8 @@ const entourage: UnitData = {
   keywords: ["Infantry"],
   factionKeywords: ["Imperium"],
   models: {},
+  points: { base: 0, rules: [], exact: true },
+  costs: {},
   items: {
     "monomolecular cane-rapier": rapier,
     "deadly combatant": { name: "Deadly combatant", ranged: [], melee: [], abilities: [] },

@@ -47,6 +47,16 @@ const node: z.ZodType<BsNode> = z.lazy(() =>
     description: z.string().optional(),
     importRootEntries: z.boolean().optional(),
     characteristics: z.array(characteristic).optional(),
+    costs: z
+      .array(
+        z.looseObject({
+          name: z.string().optional(),
+          typeId: z.string().optional(),
+          value: z.number().optional(),
+        }),
+      )
+      .optional(),
+    costTypes: z.array(z.looseObject({ id: z.string(), name: z.string() })).optional(),
     modifiers: z.array(modifier).optional(),
     profiles: z.array(node).optional(),
     rules: z.array(node).optional(),

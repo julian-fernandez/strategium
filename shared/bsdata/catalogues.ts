@@ -40,6 +40,9 @@ export type BsNode = {
   description?: string;
   importRootEntries?: boolean;
   characteristics?: BsCharacteristic[];
+  /** What taking it costs, one entry per cost type (points, Crusade points…). */
+  costs?: { name?: string; typeId?: string; value?: number }[];
+  costTypes?: { id: string; name: string }[];
   modifiers?: BsModifier[];
   constraints?: BsConstraint[];
   /** In a choice group: the entry a model takes unless the list says otherwise. */
@@ -105,6 +108,19 @@ export class Catalogues {
   /** The faction catalogue: the first non-game-system file. */
   get faction(): CatalogueFile | undefined {
     return this.files.find((file) => !file.isGameSystem);
+  }
+
+  /** The cost type points are kept in, which `pts` modifiers name as their field. */
+  get pointsType(): string {
+    const system = this.files.find((file) => file.isGameSystem);
+    return system?.root.costTypes?.find((type) => type.name === "pts")?.id ?? "pts";
+  }
+
+  /** What taking an entry costs in points. */
+  points(node: BsNode): number {
+    const type = this.pointsType;
+    const cost = node.costs?.find((c) => c.typeId === type || c.name === "pts");
+    return Number(cost?.value ?? 0) || 0;
   }
 
   lookup(id: string | undefined): Indexed | undefined {
