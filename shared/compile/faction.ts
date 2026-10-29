@@ -1,4 +1,5 @@
 import {
+  type BsCondition,
   type BsModifier,
   type BsNode,
   type Catalogues,
@@ -7,14 +8,18 @@ import {
 } from "../bsdata/catalogues";
 import {
   COMPILER_VERSION,
+  type Counted,
   type FactionBundle,
   factionBundleSchema,
   type ItemData,
   type ModelData,
   type ModifierData,
   type ModifierOp,
+  type PointsCount,
+  type PointsData,
   type ProfileField,
   ruleKey,
+  type SlotData,
   type StratagemData,
   type UnitData,
   type WeaponProfileData,
@@ -160,6 +165,8 @@ class UnitCompiler {
       items: {},
       modifiers: [],
       crossCheck: [],
+      points: this.points(root),
+      costs: {},
     };
 
     for (const profile of this.catalogues.profiles(root)) {
@@ -180,27 +187,244 @@ class UnitCompiler {
     }
     addCategories(this.catalogues.categories(root), unit);
 
-    // A single-model unit is its own model.
+    // A single-model unit is its own model, and its points are the unit's.
     if (root.type === "model") {
       const model = this.model(root, context, unit.modifiers);
-      unit.models[normalizeName(root.name)] = { ...model, min: 1, max: 1 };
+      unit.models[normalizeName(root.name)] = { ...model, min: 1, max: 1, cost: 0 };
       for (const [key, item] of Object.entries(model.items)) unit.items[key] ??= item;
     }
     for (const node of this.descendants(root)) {
       const key = normalizeName(node.name);
       if (node.type === "model") {
         unit.models[key] ??= this.model(node, context, unit.modifiers);
-      } else if (!unit.items[key]) {
+        continue;
+      }
+      if (!unit.items[key]) {
         const item = this.item(node, context, unit.modifiers);
         if (item) unit.items[key] = item;
       }
+      const cost = this.catalogues.points(node);
+      if (cost && unit.costs[key] === undefined) unit.costs[key] = cost;
     }
     // The unit's index covers its models' own options too, such as a weapon drawn on a model.
     for (const model of Object.values(unit.models)) {
       for (const [key, item] of Object.entries(model.items)) unit.items[key] ??= item;
+      // A costed choice of one weapon ("2x Inferno Pistols") prices each of its parts.
+      for (const choice of model.slots.flatMap((slot) => slot.choices)) {
+        const [part] = choice.items;
+        if (!choice.cost || choice.items.length !== 1 || !part) continue;
+        unit.costs[normalizeName(part.name)] ??= choice.cost / part.count;
+      }
+    }
+    for (const [group, keys] of this.squadGroups(root)) {
+      for (const key of keys) {
+        const model = unit.models[key];
+        // The squad's leader is never swapped for a trooper.
+        if (model && !(model.min === 1 && model.max === 1)) model.group = group;
+      }
     }
     unit.defaultModel = this.defaultModel(root, unit);
     return unit;
+  }
+
+  /**
+   * A unit's points: its cost, and the modifiers on it that BSData keys to
+   * squad size (or to an option taken). A modifier that only depends on which
+   * army the unit is in ("not in an Agents army") is decided here, for this
+   * faction; one that needs anything else makes the result inexact.
+   */
+  private points(root: BsNode): PointsData {
+    const type = this.catalogues.pointsType;
+    const points: PointsData = { base: this.catalogues.points(root), rules: [], exact: true };
+    for (const modifier of root.modifiers ?? []) {
+      if (modifier.field !== type) continue;
+      const op = modifier.type;
+      const value = Number(modifier.value);
+      if (!isPointsOp(op) || !Number.isFinite(value)) {
+        points.exact = false;
+        continue;
+      }
+      // "A copy costs more once N of this datasheet come before it": counted over the army.
+      const after = op === "increment" ? copiesBefore(modifier, root) : undefined;
+      if (after !== undefined) {
+        points.repeat = { after, value };
+        continue;
+      }
+      const when = this.pointsCounts(modifier, root);
+      if (when === "never") continue;
+      if (when === "unknown") points.exact = false;
+      else points.rules.push({ op, value, when });
+    }
+    return points;
+  }
+
+  private pointsCounts(modifier: BsModifier, root: BsNode): PointsCount[] | "never" | "unknown" {
+    const conditions = [...(modifier.conditions ?? [])];
+    for (const group of (modifier.conditionGroups ?? []) as BsConditionGroup[]) {
+      const single = (group.conditions?.length ?? 0) === 1;
+      if (group.conditionGroups?.length || group.localConditionGroups?.length) return "unknown";
+      if (group.type !== "and" && !single) return "unknown";
+      conditions.push(...(group.conditions ?? []));
+    }
+    const counts: PointsCount[] = [];
+    for (const condition of conditions) {
+      const read = this.pointsCount(condition, root);
+      if (read === "always") continue;
+      if (read === "never" || read === "unknown") return read;
+      counts.push(read);
+    }
+    return counts;
+  }
+
+  private pointsCount(
+    condition: BsCondition,
+    root: BsNode,
+  ): PointsCount | "always" | "never" | "unknown" {
+    const { type, scope, childId } = condition;
+    if ((type === "instanceOf" || type === "notInstanceOf") && scope === "primary-catalogue") {
+      const inThisFaction = childId === this.catalogues.faction?.root.id;
+      return (type === "instanceOf") === inThisFaction ? "always" : "never";
+    }
+    const own = scope === root.id || scope === "self" || scope === "unit-self";
+    if (condition.field !== "selections" || !own || !isCompare(type)) return "unknown";
+    const value = Number(condition.value);
+    if (childId === "model") return { compare: type, value };
+    const child = this.catalogues.lookup(childId)?.node;
+    if (!child?.name) return "unknown";
+    if (child.type === "model")
+      return { compare: type, value, models: [normalizeName(child.name)] };
+    // A group of the unit's models ("Terminators"): the models in it, counted together.
+    const models = this.modelsIn(child);
+    if (models.length) return { compare: type, value, models };
+    return { compare: type, value, item: normalizeName(child.name) };
+  }
+
+  /** The model types anywhere inside a group, by normalized name. */
+  private modelsIn(group: BsNode): string[] {
+    const out = new Set<string>();
+    const queue = [group];
+    while (queue.length) {
+      const node = queue.shift();
+      if (!node) continue;
+      for (const option of [...(node.selectionEntries ?? []), ...(node.entryLinks ?? [])]) {
+        const entry = this.catalogues.resolve(option);
+        if (entry.type === "model") out.add(normalizeName(entry.name));
+      }
+      queue.push(...this.groupsOf(node));
+    }
+    return [...out];
+  }
+
+  /** Groups holding two or more model types, which a squad's models move between. */
+  private squadGroups(root: BsNode): Map<string, string[]> {
+    const out = new Map<string, string[]>();
+    const queue = this.groupsOf(root);
+    while (queue.length) {
+      const group = queue.shift();
+      if (!group || SKIPPED_GROUPS.test(group.name ?? "")) continue;
+      const models = [...(group.selectionEntries ?? []), ...(group.entryLinks ?? [])]
+        .map((option) => this.catalogues.resolve(option))
+        .filter((entry) => entry.type === "model")
+        .map((entry) => normalizeName(entry.name));
+      if (models.length >= 2) out.set(group.name ?? "", models);
+      queue.push(...this.groupsOf(group));
+    }
+    return out;
+  }
+
+  /** A node's choice groups, its own and the ones it links to. */
+  private groupsOf(node: BsNode): BsNode[] {
+    return [
+      ...(node.selectionEntryGroups ?? []),
+      ...(node.entryLinks ?? [])
+        .filter((link) => link.type === "selectionEntryGroup")
+        .map((link) => this.catalogues.resolve(link)),
+    ];
+  }
+
+  /**
+   * A model's pick-one groups, and the wargear it carries whatever it picks:
+   * mandatory options outside any group, in their parts. Groups with no limit
+   * ("Wargear") only hold others; groups that allow several picks are left out.
+   */
+  private loadout(node: BsNode): { fixed: Counted[]; slots: SlotData[] } {
+    const fixed: Counted[] = [];
+    const slots: SlotData[] = [];
+    const isModel = (entry: BsNode) => entry.type === "model" || entry.type === "unit";
+    const skipped = (name = "") => SKIPPED_GROUPS.test(name) || /enhancement/i.test(name);
+
+    const visit = (parent: BsNode) => {
+      for (const option of [
+        ...(parent.selectionEntries ?? []),
+        ...(parent.entryLinks ?? []).filter((link) => link.type !== "selectionEntryGroup"),
+      ]) {
+        const entry = this.catalogues.resolve(option);
+        const min = limit(entry, "min");
+        if (isModel(entry) || min <= 0 || /^warlord$/i.test(entry.name ?? "")) continue;
+        for (const part of this.parts(entry)) addCounted(fixed, part.name, part.count * min);
+      }
+      for (const group of this.groupsOf(parent)) {
+        if (skipped(group.name)) continue;
+        const max = limit(group, "max");
+        const options = [
+          ...(group.selectionEntries ?? []),
+          ...(group.entryLinks ?? []).filter((link) => link.type !== "selectionEntryGroup"),
+        ]
+          .map((option) => ({ option, entry: this.catalogues.resolve(option) }))
+          .filter(({ entry }) => !isModel(entry) && entry.name);
+        if (max === 1 && options.length && !this.groupsOf(group).length) {
+          const min = limit(group, "min");
+          const wanted = group.defaultSelectionEntryId;
+          const chosen = wanted
+            ? options.find(({ option }) => option.id === wanted || option.targetId === wanted)
+            : undefined;
+          slots.push({
+            name: group.name ?? "",
+            min,
+            // An optional group's default isn't taken unless the list says so.
+            default: min > 0 ? (chosen ?? options[0])?.entry.name : undefined,
+            choices: options.map(({ entry }) => ({
+              name: entry.name ?? "",
+              items: this.parts(entry),
+              cost: this.optionCost(entry),
+            })),
+          });
+        } else if (max === 0) {
+          visit(group);
+        }
+      }
+    };
+    visit(node);
+    return { fixed, slots };
+  }
+
+  /**
+   * What an option puts in a model's hands: itself when it's a weapon or
+   * wargear, else what it's made of ("2 Bolt Pistols" is 2× Bolt pistol).
+   */
+  private parts(entry: BsNode): Counted[] {
+    const own = this.catalogues
+      .profiles(entry)
+      .some((profile) => isWeapon(profile) || profile.typeName === "Abilities");
+    if (!own) {
+      const parts: Counted[] = [];
+      for (const child of this.catalogues.children(entry)) {
+        const min = limit(child, "min");
+        if (child.type === "model" || min <= 0) continue;
+        for (const part of this.parts(child)) addCounted(parts, part.name, part.count * min);
+      }
+      if (parts.length) return parts;
+    }
+    return [{ name: entry.name ?? "", count: 1 }];
+  }
+
+  /** An option's points, with what it must take along. */
+  private optionCost(entry: BsNode): number {
+    let cost = this.catalogues.points(entry);
+    for (const child of this.catalogues.children(entry)) {
+      cost += this.catalogues.points(child) * limit(child, "min");
+    }
+    return cost;
   }
 
   private model(node: BsNode, context: Set<string>, modifiers: ModifierData[]): ModelData {
@@ -213,6 +437,8 @@ class UnitCompiler {
       min: limit(node, "min"),
       max: limit(node, "max"),
       defaults: this.defaults(node),
+      ...this.loadout(node),
+      cost: this.catalogues.points(node),
     };
     for (const profile of this.catalogues.profiles(node)) {
       if (profile.typeName === "Unit") {
@@ -462,6 +688,50 @@ class UnitCompiler {
     }
     return out;
   }
+}
+
+type BsConditionGroup = {
+  type?: string;
+  value?: number;
+  conditions?: BsCondition[];
+  conditionGroups?: unknown[];
+  localConditionGroups?: BsConditionGroup[];
+};
+
+/**
+ * New Recruit's repeat surcharge: a count, over the army, of selections that
+ * come before this one and are the same datasheet. Returns how many there
+ * must be for the surcharge to apply, if the modifier is that.
+ */
+function copiesBefore(modifier: BsModifier, root: BsNode): number | undefined {
+  const groups = (modifier.conditionGroups ?? []) as BsConditionGroup[];
+  const local = groups.flatMap((group) => group.localConditionGroups ?? []);
+  const [count] = local;
+  if (local.length !== 1 || !count || modifier.conditions?.length) return undefined;
+  const before = count.conditions?.some((c) => c.type === "before");
+  const same = count.conditions?.some((c) => c.type === "instanceOf" && c.childId === root.id);
+  return before && same ? Number(count.value ?? 0) : undefined;
+}
+
+function isPointsOp(op: string | undefined): op is PointsData["rules"][number]["op"] {
+  return op === "set" || op === "increment" || op === "decrement" || op === "multiply";
+}
+
+function isCompare(type: string | undefined): type is PointsCount["compare"] {
+  return (
+    type === "atLeast" ||
+    type === "greaterThan" ||
+    type === "atMost" ||
+    type === "lessThan" ||
+    type === "equalTo" ||
+    type === "notEqualTo"
+  );
+}
+
+function addCounted(list: Counted[], name: string, count: number): void {
+  const existing = list.find((entry) => normalizeName(entry.name) === normalizeName(name));
+  if (existing) existing.count += count;
+  else list.push({ name, count });
 }
 
 /** A per-parent limit from an entry's constraints: how many each model or unit must (min) or may (max) take. */
