@@ -261,7 +261,7 @@ export function CompositionBlock({ sheet }: { sheet: Datasheet }) {
 }
 
 export function Rich({ html }: { html: string }) {
-  // Sanitized on the server: only b, br, p, ul, li and keyword spans survive.
+  // Sanitized on the server: only b, u, br, p, ul, li and keyword spans survive.
   // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized rules text.
   return <span dangerouslySetInnerHTML={{ __html: html }} />;
 }

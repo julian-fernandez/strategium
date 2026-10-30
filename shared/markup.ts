@@ -20,13 +20,16 @@ const KEYWORD = '<span class="kw">$1</span>';
 
 /**
  * BSData text to HTML: `^^Keyword^^` becomes a keyword span, `**x**` becomes
- * bold. The markers are sometimes interleaved (`^^**[Precision]^^**`), so a
- * match never runs across another marker. Some rules are hard-wrapped mid
- * sentence; a break that ends without punctuation and carries on in lower
- * case is joined back up, while list lines and paragraphs keep theirs.
+ * bold, and `<ins>x</ins>`, the one HTML tag BSData writes, an underline (the
+ * official cards underline "Or:"). The markers are sometimes interleaved
+ * (`^^**[Precision]^^**`), so a match never runs across another marker. Some
+ * rules are hard-wrapped mid sentence; a break that ends without punctuation
+ * and carries on in lower case is joined back up, while list lines and
+ * paragraphs keep theirs. Anything else in angle brackets (`<FACTION>`) stays text.
  */
 export function bsdataToHtml(text: string): string {
   return escapeHtml(text.trim().replace(/([^\s.:;!?)])[ \t]*\n(?=[a-z(])/g, "$1 "))
+    .replace(/&lt;ins&gt;([^<\n]*?)&lt;\/ins&gt;/g, "<u>$1</u>")
     .replace(/(?:\*\*\^\^|\^\^\*\*)([^*^]+?)(?:\*\*\^\^|\^\^\*\*)/g, KEYWORD)
     .replace(/\^\^([^*^]+?)\^\^/g, KEYWORD)
     .replace(/\*\*([^*]+?)\*\*/g, "<b>$1</b>")
