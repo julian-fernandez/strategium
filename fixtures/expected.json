@@ -32,7 +32,6 @@
     "warnings": [
       "BSData has no enhancement named \"Fierce Conqueror\" for Shield-Captain on Dawneagle Jetbike.",
       "BSData has no unit named \"Vigilators\".",
-      "BSData has no enhancement named \"Fierce Conqueror\" for Shield-Captain on Dawneagle Jetbike.",
       "BSData has no enhancement named \"Admonimortis\" for Shield-Captain in Allarus Terminator Armour.",
       "BSData has no unit named \"Prosecutors\".",
       "The list adds up to 2,390 pts; at the current points it's 2,965."
@@ -235,16 +234,9 @@
     "stratagems": 15,
     "warnings": [
       "BSData has no wargear named \"Astartes shield\" in Deathwatch Veterans.",
-      "BSData has no wargear named \"Astartes shield\" in Deathwatch Veterans.",
       "BSData has no wargear named \"Close combat weapon\" in Deathwatch Veterans.",
       "BSData has no wargear named \"Deathwatch thunder hammer\" in Deathwatch Veterans.",
       "BSData has no wargear named \"Close combat weapon\" in Lieutenant.",
-      "BSData has no wargear named \"Astartes shield\" in Deathwatch Veterans.",
-      "BSData has no wargear named \"Astartes shield\" in Deathwatch Veterans.",
-      "BSData has no wargear named \"Close combat weapon\" in Deathwatch Veterans.",
-      "BSData has no wargear named \"Deathwatch thunder hammer\" in Deathwatch Veterans.",
-      "BSData has no wargear named \"Close combat weapon\" in Talonstrike Kill Team.",
-      "BSData has no wargear named \"Close combat weapon\" in Talonstrike Kill Team.",
       "BSData has no wargear named \"Close combat weapon\" in Talonstrike Kill Team.",
       "The list adds up to 1,985 pts; at the current points it's 2,150."
     ],
@@ -299,7 +291,6 @@
     "stratagems": 19,
     "warnings": [
       "BSData has no wargear named \"Leader’s cult weapons\" in Hybrid Metamorphs.",
-      "BSData has no wargear named \"Leader’s cult weapons\" in Hybrid Metamorphs.",
       "The list adds up to 2,000 pts; at the current points it's 1,990."
     ],
     "crossCheck": []
@@ -338,8 +329,6 @@
     "attachedGroups": 4,
     "stratagems": 22,
     "warnings": [
-      "BSData has no wargear named \"Astartes shield\" in Deathwatch Kill Team.",
-      "BSData has no wargear named \"Deathwatch thunder hammer\" in Deathwatch Kill Team.",
       "BSData has no wargear named \"Astartes shield\" in Deathwatch Kill Team.",
       "BSData has no wargear named \"Deathwatch thunder hammer\" in Deathwatch Kill Team.",
       "BSData has no wargear named \"Rejuvenat Adept\" in Rogue Trader Entourage.",
@@ -570,7 +559,6 @@
     "stratagems": 19,
     "warnings": [
       "BSData has no wargear named \"Toxinjector Harpoon\" in Norn Assimilator.",
-      "BSData has no wargear named \"Toxinjector Harpoon\" in Norn Assimilator.",
       "The list adds up to 2,000 pts; at the current points it's 1,990."
     ],
     "crossCheck": []
@@ -591,7 +579,6 @@
     "stratagems": 21,
     "warnings": [
       "BSData has no wargear named \"Dainal Komelius\" in Wardens of Ultramar.",
-      "BSData has no wargear named \"Master-crafted Power Sword\" in Bladeguard Veteran Squad.",
       "BSData has no wargear named \"Master-crafted Power Sword\" in Bladeguard Veteran Squad.",
       "The list adds up to 2,000 pts; at the current points it's 2,045."
     ],
