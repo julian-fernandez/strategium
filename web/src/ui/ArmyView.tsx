@@ -61,14 +61,15 @@ export function ArmyView({
             </span>
             {army.disposition ? ` · ${army.disposition}` : ""}
           </p>
-          {army.note ? (
-            <p className="hidden max-w-[50ch] truncate text-[13px] italic text-ink-dim md:block">
-              “{army.note}”
-            </p>
-          ) : null}
           <button type="button" className="btn md:hidden" onClick={onChangeList}>
             Change list
           </button>
+          {army.note ? (
+            // A line of its own, in full: it's the player's own note on the list.
+            <p className="basis-full text-[13px] italic leading-relaxed text-ink-dim">
+              “{army.note}”
+            </p>
+          ) : null}
         </div>
 
         <ArmyRulesPanel army={army} />
@@ -237,8 +238,8 @@ function Inspector({
   return (
     <aside className="flex flex-col lg:sticky lg:top-6">
       <div className="bg-faction px-5 py-4">
-        <p className="flex items-baseline justify-between gap-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-ink/75">
-          <span className="truncate">{unit.keywords.slice(0, 3).join(" · ")}</span>
+        <p className="flex items-baseline justify-between gap-3 text-[11px] font-semibold uppercase leading-relaxed tracking-[0.24em] text-ink/75">
+          <span>{unit.keywords.slice(0, 3).join(" · ")}</span>
           <span
             className="shrink-0 text-[13px] tracking-[0.12em] text-ink"
             title={unit.pointsExact ? undefined : "This unit has a points rule the app can't read"}

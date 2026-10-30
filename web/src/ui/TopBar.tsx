@@ -68,10 +68,10 @@ export function TopBar({
             <Emblem className="h-7 w-7 text-ink md:h-9 md:w-9" />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-[18px] font-extrabold uppercase leading-none tracking-[0.04em] md:text-[22px]">
+            <h1 className="text-[18px] font-extrabold uppercase leading-tight tracking-[0.04em] md:text-[22px]">
               {army ? army.faction : "Strategium"}
             </h1>
-            <p className="micro mt-2 truncate">
+            <p className="micro mt-1.5 leading-relaxed">
               {army
                 ? `// ${army.battleSize?.name ?? "Unknown size"} · ${points.toLocaleString()} pts · ${army.detachments.join(" + ") || "No detachment"}`
                 : "// Datasheets for the army you actually brought"}

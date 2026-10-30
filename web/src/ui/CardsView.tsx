@@ -1,8 +1,12 @@
+import { useCallback, useState } from "react";
 import type { Army } from "../../../shared/types";
 import { Deck } from "../cards/Deck";
-import { buildDeck, type DeckOptions } from "../cards/printOrder";
+import { buildDeck, type DeckOptions, type Squeeze } from "../cards/printOrder";
 import { ReadableDeck } from "../cards/ReadableDeck";
 import { READABLE_CARD_WIDTH, useWidth } from "./layout";
+
+/** The least of a budget a rules page is held to, so a rule too long for any page can't split forever. */
+const MIN_SQUEEZE = 0.4;
 
 const OPTIONS: { key: keyof DeckOptions; label: string; hint: string }[] = [
   {
@@ -19,11 +23,6 @@ const OPTIONS: { key: keyof DeckOptions; label: string; hint: string }[] = [
     key: "stratagems",
     label: "Stratagem deck",
     hint: "Four stratagem cards per page, after the datasheets.",
-  },
-  {
-    key: "stratagemsBothSides",
-    label: "Stratagems both sides",
-    hint: "Stratagem pages back onto each other, for a bound booklet; off leaves blank backs for cutting out.",
   },
   {
     key: "armyRules",
@@ -55,56 +54,57 @@ export function CardsView({
   onOptions: (options: DeckOptions) => void;
   fontsReady: boolean;
 }) {
-  const pages = buildDeck(army, options);
+  // A rules page that still spills at its smallest type is split again on a
+  // smaller budget until every page fits. Measured afresh for each army, and
+  // once the real fonts are in.
+  const [squeezed, setSqueezed] = useState({ army, fontsReady, squeeze: {} as Squeeze });
+  const onSpill = useCallback(
+    (kind: keyof Squeeze) =>
+      setSqueezed((previous) => {
+        const current =
+          previous.army === army && previous.fontsReady === fontsReady ? previous.squeeze : {};
+        const share = Math.max(MIN_SQUEEZE, (current[kind] ?? 1) * 0.9);
+        return share === current[kind]
+          ? previous
+          : { army, fontsReady, squeeze: { ...current, [kind]: share } };
+      }),
+    [army, fontsReady],
+  );
+  const squeeze =
+    squeezed.army === army && squeezed.fontsReady === fontsReady ? squeezed.squeeze : {};
+  const pages = buildDeck(army, options, squeeze);
   const sheets = options.duplex ? Math.ceil(pages.length / 2) : pages.length;
   const [area, width] = useWidth<HTMLDivElement>();
   // On a phone the A5 cards would be too small to read, so they're reflowed instead.
   const readable = width > 0 && width < READABLE_CARD_WIDTH;
-  // Paper-only choices mean nothing on a phone, and both-sides stratagems need
-  // double-sided pages and a stratagem deck. They stay in place, greyed out.
-  const unavailable = (key: keyof DeckOptions): string | undefined => {
-    if (readable && (key === "duplex" || key === "stratagemsBothSides")) {
-      return "Print from a computer";
-    }
-    if (key === "stratagemsBothSides" && !options.duplex) return "Needs double-sided";
-    if (key === "stratagemsBothSides" && !options.stratagems) return "Needs the stratagem deck";
-    return undefined;
-  };
+  // Double-sided means nothing on a phone; it stays in place, greyed out.
+  const unavailable = (key: keyof DeckOptions): boolean => readable && key === "duplex";
 
   return (
     <div ref={area} className="flex flex-col gap-6 md:gap-8">
       <div className="no-print grid grid-cols-2 gap-2 md:flex md:flex-wrap md:items-stretch">
-        {OPTIONS.map((option) => {
-          const reason = unavailable(option.key);
-          return (
-            <button
-              key={option.key}
-              type="button"
-              disabled={Boolean(reason)}
-              onClick={() => onOptions({ ...options, [option.key]: !options[option.key] })}
-              className="flex min-w-0 items-start gap-3 bg-panel p-3 text-left hairline transition duration-150 enabled:hover:border-line-strong disabled:cursor-default disabled:opacity-45 md:min-w-[220px] md:flex-1 md:p-4"
-              aria-pressed={options[option.key]}
-            >
-              <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center border border-line-strong">
-                {options[option.key] ? <span className="h-2 w-2 bg-ink" /> : null}
+        {OPTIONS.map((option) => (
+          <button
+            key={option.key}
+            type="button"
+            disabled={unavailable(option.key)}
+            onClick={() => onOptions({ ...options, [option.key]: !options[option.key] })}
+            className="flex min-w-0 items-start gap-3 bg-panel p-3 text-left hairline transition duration-150 enabled:hover:border-line-strong disabled:cursor-default disabled:opacity-45 md:min-w-[220px] md:flex-1 md:p-4"
+            aria-pressed={options[option.key]}
+          >
+            <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center border border-line-strong">
+              {options[option.key] ? <span className="h-2 w-2 bg-ink" /> : null}
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] md:text-[13px] md:tracking-[0.16em]">
+                {option.label}
               </span>
-              <span className="min-w-0">
-                <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] md:text-[13px] md:tracking-[0.16em]">
-                  {option.label}
-                </span>
-                <span className="mt-1 hidden text-[12px] leading-relaxed text-ink-dim md:block">
-                  {option.hint}
-                </span>
-                {reason ? (
-                  <span className="micro mt-2 hidden md:block">
-                    {"// "}
-                    {reason}
-                  </span>
-                ) : null}
+              <span className="mt-1 hidden text-[12px] leading-relaxed text-ink-dim md:block">
+                {option.hint}
               </span>
-            </button>
-          );
-        })}
+            </span>
+          </button>
+        ))}
         {readable ? null : (
           <div className="flex w-[180px] flex-col justify-center bg-panel-strong px-4 hairline">
             <span className="micro">{"// "}Paper</span>
@@ -124,6 +124,7 @@ export function CardsView({
           numbers={numbers}
           duplex={options.duplex}
           fontsReady={fontsReady}
+          onSpill={onSpill}
         />
       )}
     </div>

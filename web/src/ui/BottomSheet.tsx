@@ -72,7 +72,7 @@ export function BottomSheet({
                 {eyebrow}
               </p>
             ) : null}
-            <h2 className="truncate text-[15px] font-extrabold uppercase tracking-[0.04em]">
+            <h2 className="text-[15px] font-extrabold uppercase leading-tight tracking-[0.04em]">
               {title}
             </h2>
           </div>

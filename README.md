@@ -47,20 +47,21 @@ The Cards tab shows the deck as it will print: A5 landscape, one card per page.
 Printed double-sided, each sheet is one card with its back. On screen, each
 sheet has a flip button to show its back. Every option is on by default:
 
-| Option                | What it does                                                                                                   |
-| --------------------- | -------------------------------------------------------------------------------------------------------------- |
-| Leaders on the back   | A character's datasheet prints on the back of the unit it joins.                                               |
-| Double-sided          | Every card gets a back, so each stays on its own sheet. Flip on the short edge.                                |
-| Stratagem deck        | Four stratagem cards per page, after the datasheets.                                                           |
-| Stratagems both sides | Stratagem pages back onto each other, for a spiral-bound booklet. Off, each gets a blank back for cutting out. |
-| Army rules card       | The army rule, detachment rules and enhancements taken, on the first card.                                     |
-| Rules reference       | Every core ability and weapon keyword the cards name, in full, at the end. Its pages back onto each other.     |
-| Number repeats        | Units that share a name become #1, #2, #3, easy to call out mid-game.                                          |
+| Option              | What it does                                                                                               |
+| ------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Leaders on the back | A character's datasheet prints on the back of the unit it joins.                                           |
+| Double-sided        | Every card gets a back, so each stays on its own sheet. Flip on the short edge.                            |
+| Stratagem deck      | Four stratagem cards per page, after the datasheets. Its pages back onto each other.                       |
+| Army rules card     | The army rule, detachment rules and enhancements taken, on the first card.                                 |
+| Rules reference     | Every core ability and weapon keyword the cards name, in full, at the end. Its pages back onto each other. |
+| Number repeats      | Units that share a name become #1, #2, #3, easy to call out mid-game.                                      |
 
-An option that doesn't apply stays visible but greyed out, with the reason:
-"Stratagems both sides" needs double-sided printing and the stratagem deck.
-On a phone the cards are reflowed for reading instead, and the paper-only
-options are greyed out.
+On a phone the cards are reflowed for reading instead, and Double-sided, which
+only means something on paper, stays visible but greyed out.
+
+No text is cut short. Long text shrinks to fit its card, and an army rules
+card or rules reference that still doesn't fit at its smallest size takes
+another page.
 
 ## List formats
 

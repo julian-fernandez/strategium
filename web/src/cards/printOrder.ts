@@ -6,12 +6,8 @@ export type DeckOptions = {
   leadersOnBack: boolean;
   /** Print double-sided: every card gets a back, so each stays on its own sheet. */
   duplex: boolean;
+  /** Four stratagem cards to a page, after the datasheets; double-sided, the pages back onto each other. */
   stratagems: boolean;
-  /**
-   * Double-sided, stratagem pages back onto each other instead of onto blank
-   * pages: a bound booklet rather than cards to cut out.
-   */
-  stratagemsBothSides: boolean;
   /** "Paragon Warsuits #1, #2, #3" for units that share a name. */
   numberDuplicates: boolean;
   /** A first card with the army rule, the detachment rules and the enhancements taken. */
@@ -24,7 +20,6 @@ export const DEFAULT_DECK_OPTIONS: DeckOptions = {
   leadersOnBack: true,
   duplex: true,
   stratagems: true,
-  stratagemsBothSides: true,
   numberDuplicates: true,
   armyRules: true,
   glossary: true,
@@ -49,13 +44,20 @@ const ARMY_RULES_BUDGET = 5200;
 const GLOSSARY_BUDGET = 7600;
 
 /**
+ * The share of a budget to fill, per card, once one of its pages was seen to
+ * spill at its smallest type: characters are only an estimate of the lines a
+ * rule takes, so the screen corrects it.
+ */
+export type Squeeze = Partial<Record<"army-rules" | "glossary", number>>;
+
+/**
  * The print order: the army rules card, each datasheet followed by its back,
  * the stratagem deck, then the rules reference. Every unit, characters
  * included, prints on the same full datasheet. An attached unit's characters
  * follow it, the first on its back. Double-sided, a unit with nothing behind it
  * gets a blank back.
  */
-export function buildDeck(army: Army, options: DeckOptions): DeckPage[] {
+export function buildDeck(army: Army, options: DeckOptions, squeeze: Squeeze = {}): DeckPage[] {
   const pages: DeckPage[] = [];
   const byId = new Map(army.units.map((unit) => [unit.id, unit]));
   const groupFor = (unit: Datasheet): AttachedGroup | undefined =>
@@ -71,7 +73,11 @@ export function buildDeck(army: Army, options: DeckOptions): DeckPage[] {
   };
 
   if (options.armyRules) {
-    const parts = paginate(armyRulesSections(army), sectionLength, ARMY_RULES_BUDGET);
+    const parts = paginate(
+      armyRulesSections(army),
+      sectionLength,
+      ARMY_RULES_BUDGET * (squeeze["army-rules"] ?? 1),
+    );
     parts.forEach((sections, index) => {
       const key = `army-rules-${index}`;
       pages.push({ kind: "army-rules", key, sections, part: index + 1, parts: parts.length });
@@ -102,10 +108,10 @@ export function buildDeck(army: Army, options: DeckOptions): DeckPage[] {
         key,
         stratagems: army.stratagems.slice(i, i + STRATAGEMS_PER_PAGE),
       });
-      if (!options.stratagemsBothSides) pushBlank(key);
     }
+    // The pages back onto each other; a blank finishes an odd last sheet.
     const count = Math.ceil(army.stratagems.length / STRATAGEMS_PER_PAGE);
-    if (options.stratagemsBothSides && count % 2) pushBlank("stratagems");
+    if (count % 2) pushBlank("stratagems");
   }
 
   if (options.glossary) {
@@ -113,7 +119,7 @@ export function buildDeck(army: Army, options: DeckOptions): DeckPage[] {
     const onArmyCard = new Set(options.armyRules ? army.armyRules.rules.map((r) => r.name) : []);
     const rules = army.glossary.filter((rule) => !onArmyCard.has(rule.name));
     // Reference pages are read as a booklet, so double-sided they back onto each other.
-    const parts = paginate(rules, ruleLength, GLOSSARY_BUDGET);
+    const parts = paginate(rules, ruleLength, GLOSSARY_BUDGET * (squeeze.glossary ?? 1));
     parts.forEach((part, index) => {
       pages.push({
         kind: "glossary",
