@@ -24,7 +24,8 @@ export function StatBadges({
   stats: StatLine[];
   size?: "full" | "small";
 }) {
-  const box = size === "full" ? "h-[9mm] w-[9mm] text-[13pt]" : "h-[6mm] w-[6.4mm] text-[9pt]";
+  const height = size === "full" ? "h-[9mm]" : "h-[6mm]";
+  const box = size === "full" ? `${height} w-[9mm] text-[13pt]` : `${height} w-[6.4mm] text-[9pt]`;
   const label = size === "full" ? "text-[6.5pt]" : "text-[5pt]";
   const multiple = stats.length > 1;
   const inline = multiple || size === "small";
@@ -34,7 +35,10 @@ export function StatBadges({
       {stats.map((line, index) => (
         <div key={line.name} className="flex items-end gap-[1.6mm]">
           {multiple ? (
-            <div className="w-[16mm] self-center text-[6pt] font-semibold uppercase leading-tight text-white/90">
+            // As tall as the boxes and level with them: the first row's column titles sit above both.
+            <div
+              className={`${height} flex w-[16mm] items-center text-[6pt] font-semibold uppercase leading-tight text-white/90`}
+            >
               {line.name}
             </div>
           ) : null}
