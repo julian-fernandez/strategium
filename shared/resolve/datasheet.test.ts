@@ -32,6 +32,7 @@ const entourage: UnitData = {
   models: {},
   points: { base: 0, rules: [], exact: true },
   costs: {},
+  aliases: {},
   items: {
     "monomolecular cane-rapier": rapier,
     "deadly combatant": { name: "Deadly combatant", ranged: [], melee: [], abilities: [] },

@@ -33,10 +33,13 @@ import { buildArmy } from "../shared/resolve/army";
 import { findUnit } from "../shared/resolve/datasheet";
 
 const write = process.argv.includes("--write");
+const POINTS_DRIFT = /^The list adds up to /;
 const used = new Map<string, { bundle: FactionBundle; keys: Set<string> }>();
 const expected: Record<string, FixtureSummary> = {};
 let errors = 0;
 let clean = 0;
+// Clean but for points: the list was exported before the current points, which is no fault of the reader.
+let cleanButPoints = 0;
 let total = 0;
 
 for (const [dir, label] of [
@@ -58,6 +61,7 @@ for (const [dir, label] of [
         ),
       ];
       if (!problems.length) clean++;
+      else if (problems.every((p) => POINTS_DRIFT.test(p))) cleanButPoints++;
       console.log(
         `${problems.length ? "!" : "✓"} ${id}: ${format.label} · ${army.faction} · ` +
           `${summary.units} units, ${summary.points} pts, ${summary.stratagems} stratagems`,
@@ -93,7 +97,8 @@ if (write) {
 }
 
 console.log(
-  `${clean} of ${total} lists resolved with no warnings and no cross-check differences` +
+  `${clean} of ${total} lists resolved with no warnings and no cross-check differences, ` +
+    `and ${cleanButPoints} more but for points that changed since they were exported` +
     (errors ? `; ${errors} couldn't be read.` : "."),
 );
 process.exitCode = errors ? 1 : 0;

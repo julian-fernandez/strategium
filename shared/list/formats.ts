@@ -3,6 +3,7 @@ import { detectFaction, findFaction } from "../factions";
 import type { ListFormat } from "../types";
 import { parseGuided } from "./guided";
 import { parseGwText } from "./gw";
+import { splitStrayUnits } from "./repair";
 import { isRosterJson, isRosterXml, parseRosterJson, parseRosterXml } from "./roster";
 import { cleanText, parseWtcHeader } from "./text";
 import type { ArmyList } from "./types";
@@ -107,7 +108,12 @@ export async function readList(
     if (!list.faction)
       throw new Error(list.warnings[0] ?? "Couldn't tell which faction this list is for.");
     const faction = findFaction(list.faction)?.name ?? list.faction;
-    return { list: { ...list, faction }, format: parser.format, bundle: await loadBundle(faction) };
+    const bundle = await loadBundle(faction);
+    return {
+      list: splitStrayUnits({ ...list, faction }, bundle),
+      format: parser.format,
+      bundle,
+    };
   }
 
   const faction = listFaction(text);
@@ -118,7 +124,7 @@ export async function readList(
   }
   const bundle = await loadBundle(faction);
   const list = parser.guided ? parser.guided(text, bundle) : parseGuided(text, bundle);
-  return { list, format: parser.format, bundle };
+  return { list: splitStrayUnits(list, bundle), format: parser.format, bundle };
 }
 
 /** A free-form list's faction: a WTC header's, else the first faction named near the top, else anywhere. */

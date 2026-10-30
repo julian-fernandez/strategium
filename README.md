@@ -96,6 +96,24 @@ lists on Listhammer (October 2026).
   defaults. So write `10 Dominion Squad (110 pts): 10 Bolt pistol, 6 Boltgun,
   4 Meltagun, 10 Close combat weapon`, not just `4 Meltagun`.
 
+**Names that don't quite match.** Exports and the data don't always spell
+things the same way, so the reader also takes:
+
+- a slip of a letter or two in a longer name, on either side
+  (`Chirurgeon’s tools` for BSData's `Chirugeon's tools`), when only one name
+  is that close;
+- a weapon by its official name where BSData calls it something else
+  (`Master-crafted Power Sword` for `Master-crafted power weapon`). Wahapedia's
+  wargear table gives the official name, and the BSData weapon with the same
+  profile is the one meant;
+- a model named with a word left out (`Deathshroud Champion`), and a unit
+  without its "Squad" (`Vigilators`);
+- a unit whose name line the export lost: its models' lines are read as that
+  unit, with a warning.
+
+`pnpm coverage` counts the lists that resolve cleanly, and separately those
+whose only warning is points that changed since they were exported.
+
 **Known limits:**
 
 - BSData only has English names. Japanese, Korean, French and Italian exports
