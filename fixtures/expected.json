@@ -24,17 +24,17 @@
       "Lions of the Emperor"
     ],
     "battleSize": 2000,
-    "units": 17,
-    "models": 29,
-    "points": 2965,
+    "units": 18,
+    "models": 46,
+    "points": 3245,
     "attachedGroups": 5,
     "stratagems": 14,
     "warnings": [
+      "The list has Custodian Wardens models after Vigilators with no unit line of their own; they're read as a unit of Custodian Wardens.",
       "BSData has no enhancement named \"Fierce Conqueror\" for Shield-Captain on Dawneagle Jetbike.",
-      "BSData has no unit named \"Vigilators\".",
       "BSData has no enhancement named \"Admonimortis\" for Shield-Captain in Allarus Terminator Armour.",
-      "BSData has no unit named \"Prosecutors\".",
-      "The list adds up to 2,390 pts; at the current points it's 2,965."
+      "BSData has no wargear named \"Close combat weapon\" in Prosecutors.",
+      "The list adds up to 2,390 pts; at the current points it's 3,245."
     ],
     "crossCheck": [
       "Blade Champion: ➤ Vaultswords - Hurricanis AP -1 / -2"
@@ -87,9 +87,7 @@
     "points": 1995,
     "attachedGroups": 3,
     "stratagems": 19,
-    "warnings": [
-      "BSData has no wargear named \"Zealot’s vindictor\" in Ministorum Priest."
-    ],
+    "warnings": [],
     "crossCheck": []
   },
   "lists/black-templars.txt": {
@@ -143,9 +141,7 @@
     "points": 1995,
     "attachedGroups": 2,
     "stratagems": 18,
-    "warnings": [
-      "BSData has no wargear named \"Attendants' hellblades\" in Rendmaster on Blood Throne."
-    ],
+    "warnings": [],
     "crossCheck": []
   },
   "lists/chaos-knights.txt": {
@@ -208,13 +204,11 @@
     ],
     "battleSize": 2000,
     "units": 16,
-    "models": 52,
+    "models": 53,
     "points": 2000,
     "attachedGroups": 4,
     "stratagems": 20,
-    "warnings": [
-      "BSData has no wargear named \"Deathshroud Champion\" in Deathshroud Terminators."
-    ],
+    "warnings": [],
     "crossCheck": [
       "Lord of Poxes: ➤ Plasma pistol - standard BS/WS 3+ / 2",
       "Lord of Poxes: ➤ Plasma pistol - supercharge BS/WS 3+ / 2"
@@ -324,15 +318,13 @@
     ],
     "battleSize": 2000,
     "units": 16,
-    "models": 82,
+    "models": 83,
     "points": 2060,
     "attachedGroups": 4,
     "stratagems": 22,
     "warnings": [
       "BSData has no wargear named \"Astartes shield\" in Deathwatch Kill Team.",
       "BSData has no wargear named \"Deathwatch thunder hammer\" in Deathwatch Kill Team.",
-      "BSData has no wargear named \"Rejuvenat Adept\" in Rogue Trader Entourage.",
-      "BSData has no wargear named \"Simulacrum Imperialis\" in Sisters of Battle Squad.",
       "The list adds up to 2,000 pts; at the current points it's 2,060."
     ],
     "crossCheck": []
@@ -400,13 +392,10 @@
     "battleSize": 2000,
     "units": 15,
     "models": 77,
-    "points": 1970,
+    "points": 1995,
     "attachedGroups": 2,
     "stratagems": 18,
-    "warnings": [
-      "BSData has no enhancement named \"Dêlvewerke Navigator\" for Memnyr Strategist.",
-      "The list adds up to 1,995 pts; at the current points it's 1,970."
-    ],
+    "warnings": [],
     "crossCheck": []
   },
   "lists/necrons.txt": {
@@ -558,7 +547,6 @@
     "attachedGroups": 1,
     "stratagems": 19,
     "warnings": [
-      "BSData has no wargear named \"Toxinjector Harpoon\" in Norn Assimilator.",
       "The list adds up to 2,000 pts; at the current points it's 1,990."
     ],
     "crossCheck": []
@@ -573,13 +561,11 @@
     ],
     "battleSize": 2000,
     "units": 12,
-    "models": 46,
+    "models": 47,
     "points": 2045,
     "attachedGroups": 2,
     "stratagems": 21,
     "warnings": [
-      "BSData has no wargear named \"Dainal Komelius\" in Wardens of Ultramar.",
-      "BSData has no wargear named \"Master-crafted Power Sword\" in Bladeguard Veteran Squad.",
       "The list adds up to 2,000 pts; at the current points it's 2,045."
     ],
     "crossCheck": [
@@ -659,9 +645,7 @@
     "points": 1995,
     "attachedGroups": 2,
     "stratagems": 18,
-    "warnings": [
-      "BSData has no wargear named \"Attendants' hellblades\" in Rendmaster on Blood Throne."
-    ],
+    "warnings": [],
     "crossCheck": []
   },
   "formats/gwapp-flat.adepta-sororitas.txt": {
@@ -726,9 +710,7 @@
     "points": 1990,
     "attachedGroups": 3,
     "stratagems": 17,
-    "warnings": [
-      "BSData has no wargear named \"Chirurgeon’s tools\" in Hospitaller."
-    ],
+    "warnings": [],
     "crossCheck": []
   },
   "formats/ironbuilt.tau-empire.txt": {

@@ -27,7 +27,13 @@ import { findFaction as findKnownFaction } from "../factions";
 import { bsdataToHtml, sanitizeWahapediaHtml, stripTags } from "../markup";
 import { isCoreStratagem, latestByName, whenLine } from "../stratagems";
 import type { Ability, CrossCheckIssue, StatLine } from "../types";
-import { comparable, findDatasheet, findFaction, type Wahapedia } from "../wahapedia";
+import {
+  comparable,
+  findDatasheet,
+  findFaction,
+  type Wahapedia,
+  type WahapediaWeapon,
+} from "../wahapedia";
 
 const NOT_KEYWORDS = new Set(["warlord", "configuration"]);
 const FACTION_PREFIX = /^Faction: /;
@@ -116,6 +122,7 @@ export function compileFaction(input: {
         ),
       };
       unit.crossCheck = crossCheckUnit(wahapedia, sheet.id, unit);
+      unit.aliases = weaponAliases(unit, wahapedia.wargear.get(sheet.id) ?? []);
     }
     units[key] = unit;
     stats.units++;
@@ -165,6 +172,7 @@ class UnitCompiler {
       modifiers: [],
       crossCheck: [],
       points: this.points(root),
+      aliases: {},
       costs: {},
     };
 
@@ -188,7 +196,7 @@ class UnitCompiler {
 
     // A single-model unit is its own model, and its points are the unit's.
     if (root.type === "model") {
-      const model = this.model(root, context, unit.modifiers);
+      const model = this.model(root, context, unit.modifiers, false);
       unit.models[normalizeName(root.name)] = { ...model, min: 1, max: 1, cost: 0 };
       for (const [key, item] of Object.entries(model.items)) unit.items[key] ??= item;
     }
@@ -339,7 +347,18 @@ class UnitCompiler {
     return [{ name: entry.name ?? "", count: 1 }];
   }
 
-  private model(node: BsNode, context: Set<string>, modifiers: ModifierData[]): ModelData {
+  /**
+   * One model type. `inSquad` is false for a single-model unit, whose own
+   * abilities are the unit's; a squad's model type can carry an ability that
+   * is really wargear (a Battle Sister w/ Simulacrum Imperialis), which lists
+   * name like any option.
+   */
+  private model(
+    node: BsNode,
+    context: Set<string>,
+    modifiers: ModifierData[],
+    inSquad = true,
+  ): ModelData {
     const model: ModelData = {
       name: node.name ?? "",
       stats: [],
@@ -365,6 +384,15 @@ class UnitCompiler {
         const weapon = this.weapon(profile, context, modifiers);
         (profile.typeName === "Ranged Weapons" ? item.ranged : item.melee).push(weapon);
         model.items[normalizeName(profile.name)] = item;
+      } else if (inSquad && profile.typeName === "Abilities" && profile.name) {
+        const ability: Ability[] = [];
+        pushAbility(ability, profile);
+        model.items[normalizeName(profile.name)] ??= {
+          name: profile.name,
+          ranged: [],
+          melee: [],
+          abilities: ability,
+        };
       }
     }
     addCategories(this.catalogues.categories(node), model);
@@ -862,16 +890,56 @@ function pushStats(list: StatLine[], line: StatLine): void {
 
 /** `5+` and `5`, `6"` and `6`, `N/A` and an empty cell all mean the same thing. */
 function sameValue(a: string | undefined, b: string | undefined): boolean {
-  const clean = (value: string | undefined) => {
-    const v = (value ?? "")
-      .toLowerCase()
-      // Footnote marks and qualifiers ("5+*", "5+ (Ranged)") aren't part of the value.
-      .replace(/\(.*?\)|\*/g, "")
-      .replace(/[+"\s]/g, "")
-      .replace(/[–−]/g, "-");
-    return v === "n/a" || v === "-" ? "" : v;
-  };
-  return clean(a) === clean(b);
+  return cleanValue(a) === cleanValue(b);
+}
+
+function cleanValue(value: string | undefined): string {
+  const v = (value ?? "")
+    .toLowerCase()
+    // Footnote marks and qualifiers ("5+*", "5+ (Ranged)") aren't part of the value.
+    .replace(/\(.*?\)|\*/g, "")
+    .replace(/[+"\s]/g, "")
+    .replace(/[–−]/g, "-");
+  return v === "n/a" || v === "-" ? "" : v;
+}
+
+/**
+ * The unit's weapons as Wahapedia names them, which is how the official app's
+ * lists name them, where BSData spells or names them differently ("Zealot's
+ * vindictor" for "Zealot's vindicator", "Master-crafted Power Sword" for
+ * "Master-crafted power weapon"): each official name to the BSData option
+ * whose profile has the same numbers. Only an option that's that one weapon
+ * counts, and only when one does, so a combined option never stands in.
+ */
+function weaponAliases(unit: UnitData, weapons: WahapediaWeapon[]): Record<string, string> {
+  const items = [
+    ...Object.entries(unit.items),
+    ...Object.values(unit.models).flatMap((model) => Object.entries(model.items)),
+  ];
+  const profile = (type: string, w: Omit<WahapediaWeapon, "name" | "type">) =>
+    [type, w.range, w.attacks, w.skill, w.strength, w.ap, w.damage].map(cleanValue).join("|");
+  const bySignature = new Map<string, Set<string>>();
+  for (const [key, item] of items) {
+    if (item.ranged.length + item.melee.length !== 1) continue;
+    const [type, weapon] = item.ranged[0] ? ["ranged", item.ranged[0]] : ["melee", item.melee[0]];
+    if (!weapon) continue;
+    const signature = profile(type, weapon);
+    bySignature.set(signature, (bySignature.get(signature) ?? new Set()).add(key));
+  }
+  const known = new Set(
+    items.flatMap(([key, item]) => [
+      key,
+      ...[...item.ranged, ...item.melee].map((p) => normalizeName(stripArrow(p.name))),
+    ]),
+  );
+  const aliases: Record<string, string> = {};
+  for (const weapon of weapons) {
+    const name = normalizeName(weapon.name);
+    if (!name || name.includes(" - ") || known.has(name)) continue;
+    const [only, ...others] = bySignature.get(profile(weapon.type.toLowerCase(), weapon)) ?? [];
+    if (only && !others.length) aliases[name] = only;
+  }
+  return aliases;
 }
 
 function stripArrow(name: string): string {

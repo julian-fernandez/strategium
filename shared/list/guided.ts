@@ -400,6 +400,7 @@ function readMention(
   const item = matchItem(
     [group ? draft.data.models[normalizeName(group.name)]?.items : undefined, draft.data.items],
     name,
+    draft.data.aliases,
   );
   if (item && (item.exact || !model?.exact)) {
     const enhancement =

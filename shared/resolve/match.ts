@@ -57,6 +57,24 @@ export function matchModel(
     );
   });
   if (!candidates.length) {
+    // A word left out ("Deathshroud Champion" for "Deathshroud Terminator Champion"),
+    // or a slip of a letter or two ("Dainal Komelius" for "Dainal Kornelius").
+    const words = loose.split(" ");
+    const shorter = Object.entries(unit.models).filter(([, model]) => {
+      const theirs = looseName(model.name).split(" ");
+      return theirs.length === words.length + 1 && inOrder(words, theirs);
+    });
+    const [onlyShorter] = shorter;
+    if (onlyShorter && shorter.length === 1) {
+      return { key: onlyShorter[0], model: onlyShorter[1], exact: false };
+    }
+    const near = nearest(
+      Object.entries(unit.models).map(([key, model]) => [key, looseName(model.name)]),
+      loose,
+    );
+    const nearModel = near ? unit.models[near] : undefined;
+    if (near && nearModel) return { key: near, model: nearModel, exact: false };
+
     // Named after the unit itself ("Chaos Terminator" in Chaos Terminator Squad), where
     // BSData names the models by loadout only: the unit's default model.
     const unitBase = looseName(unit.name);
@@ -99,15 +117,27 @@ export type ItemMatch = {
   part: boolean;
 };
 
-/** An option a list names, searched in each scope in turn (a model's own options, then the unit's). */
+/**
+ * An option a list names, searched in each scope in turn (a model's own
+ * options, then the unit's). `aliases` maps official weapon names BSData
+ * spells differently to its own (see the compiler's weapon aliases).
+ */
 export function matchItem(
   scopes: (Record<string, ItemData> | undefined)[],
   name: string,
+  aliases?: Record<string, string>,
 ): ItemMatch | undefined {
   const key = normalizeName(name);
   for (const scope of scopes) {
     const item = scope?.[key];
     if (item) return { key, item, exact: true, part: false };
+  }
+  const alias = aliases?.[key];
+  if (alias) {
+    for (const scope of scopes) {
+      const item = scope?.[alias];
+      if (item) return { key: alias, item, exact: false, part: false };
+    }
   }
   const loose = looseName(name);
   if (!loose) return undefined;
@@ -159,7 +189,67 @@ export function matchItem(
   if (only && close.every(([key]) => key === only[0])) {
     return { key: only[0], item: only[1], exact: false, part: false };
   }
-  return undefined;
+
+  // A slip of a letter or two, on either side ("Chirurgeon's tools", BSData's "Chirugeon's tools").
+  const near = nearest(
+    entries.map(([key, item]) => [key, looseName(item.name)]),
+    loose,
+  );
+  const nearItem = near ? entries.find(([key]) => key === near)?.[1] : undefined;
+  return near && nearItem ? { key: near, item: nearItem, exact: false, part: false } : undefined;
+}
+
+/**
+ * The one candidate within a slip of `wanted`: a letter for a name of seven
+ * letters or more, two from fourteen, none below. A tie means no match.
+ * Candidates are `[key, loose name]`.
+ */
+export function nearest(candidates: [string, string][], wanted: string): string | undefined {
+  const allowed = wanted.length >= 14 ? 2 : wanted.length >= 7 ? 1 : 0;
+  if (!allowed) return undefined;
+  let best: string | undefined;
+  let bestDistance = allowed + 1;
+  let tied = false;
+  for (const [key, name] of candidates) {
+    if (key === best) continue;
+    const found = distance(name, wanted, allowed);
+    if (found < bestDistance) {
+      best = key;
+      bestDistance = found;
+      tied = false;
+    } else if (found === bestDistance && found <= allowed) {
+      tied = true;
+    }
+  }
+  return best && !tied ? best : undefined;
+}
+
+/** Edits between two names, counting a swap of neighbours as one; past `limit`, anything over it. */
+function distance(a: string, b: string, limit: number): number {
+  if (Math.abs(a.length - b.length) > limit) return limit + 1;
+  let before: number[] = [];
+  let previous = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const current = [i];
+    let rowMin = i;
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      let value = Math.min(
+        (previous[j] ?? 0) + 1,
+        (current[j - 1] ?? 0) + 1,
+        (previous[j - 1] ?? 0) + cost,
+      );
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
+        value = Math.min(value, (before[j - 2] ?? 0) + 1);
+      }
+      current.push(value);
+      rowMin = Math.min(rowMin, value);
+    }
+    if (rowMin > limit) return limit + 1;
+    before = previous;
+    previous = current;
+  }
+  return previous[b.length] ?? limit + 1;
 }
 
 /**
@@ -178,9 +268,21 @@ export function matchEnhancement(
   const plain = (value: string) =>
     comparable(value.replace(/\s*\([^)]*\)\s*$/, "")).replace(/^the /, "");
   const wanted = plain(name);
-  for (const detachment of bundle.detachments) {
-    const found = detachment.enhancements.find((e) => plain(e.name) === wanted);
-    if (found) return { name: found.name, html: found.html };
-  }
-  return undefined;
+  const all = bundle.detachments.flatMap((detachment) => detachment.enhancements);
+  const found = all.find((e) => plain(e.name) === wanted);
+  if (found) return { name: found.name, html: found.html };
+  // A slip of a letter: "Dêlvewerke Navigator" is the data's "Dêlvwerke Navigator".
+  const near = nearest(
+    all.map((e) => [e.name, plain(e.name)]),
+    wanted,
+  );
+  const close = all.find((e) => e.name === near);
+  return close ? { name: close.name, html: close.html } : undefined;
+}
+
+/** Every word of `some`, in order, among `all`. */
+function inOrder(some: string[], all: string[]): boolean {
+  let at = 0;
+  for (const word of all) if (word === some[at]) at++;
+  return at === some.length;
 }

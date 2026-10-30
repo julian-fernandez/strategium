@@ -24,7 +24,9 @@ export function findUnit(bundle: FactionBundle, name: string): UnitData | undefi
   const loose = looseName(name);
   const found =
     units.find((unit) => comparable(unit.name) === key) ??
-    units.find((unit) => looseName(unit.name) === loose);
+    units.find((unit) => looseName(unit.name) === loose) ??
+    // Without its "Squad": "Vigilators" is the Vigilator Squad.
+    units.find((unit) => looseName(unit.name) === `${loose} squad`);
   // Only a renamed unit gets the prefix rule: two words or more, one word added.
   if (found || key.split(" ").length < 2) return found;
   const legends = /legends/i.test(name);
@@ -130,7 +132,7 @@ export function resolveDatasheet(
 
   const addItem = (item: ListItem, scope?: Record<string, ItemData>, carrier?: Carrier) => {
     selected.add(normalizeName(item.name));
-    const match = matchItem([scope, data.items], item.name);
+    const match = matchItem([scope, data.items], item.name, data.aliases);
     if (!match) {
       if (!IGNORED_LINES.test(item.name)) {
         sheet.warnings.push(`BSData has no wargear named "${item.name}" in ${sheet.name}.`);
@@ -185,7 +187,7 @@ export function resolveDatasheet(
   // Models first, so the gear can be traced to the model that carries it.
   const gear: ListItem[] = [];
   for (const item of unit.items) {
-    const asItem = matchItem([data.items], item.name);
+    const asItem = matchItem([data.items], item.name, data.aliases);
     const asModel = asItem?.exact ? undefined : matchModel(data, item.name);
     if (asModel) addModel(item.name, item.count, []);
     else gear.push(item);

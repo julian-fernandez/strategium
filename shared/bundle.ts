@@ -8,7 +8,7 @@ import { z } from "zod";
  * Bump COMPILER_VERSION whenever the shape or the compile rules change, so
  * cached bundles are rebuilt.
  */
-export const COMPILER_VERSION = 12;
+export const COMPILER_VERSION = 13;
 
 export const weaponProfileSchema = z.object({
   name: z.string(),
@@ -151,6 +151,12 @@ export const unitSchema = z.object({
   points: pointsSchema,
   /** Points for one of each option that costs any (wargear, enhancements), by normalized name. */
   costs: z.record(z.string(), z.number()),
+  /**
+   * Official weapon names (Wahapedia's, which the official app's lists use)
+   * that BSData spells or names differently, each to the BSData option with
+   * the same profile: "master-crafted power sword" to "master-crafted power weapon".
+   */
+  aliases: z.record(z.string(), z.string()),
   modifiers: z.array(modifierSchema),
   wahapedia: z
     .object({ id: z.string(), legend: z.string(), stratagemIds: z.array(z.string()) })
