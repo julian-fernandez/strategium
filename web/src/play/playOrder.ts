@@ -1,7 +1,13 @@
 import type { Army, Datasheet, Stratagem } from "../../../shared/types";
 
 export type Phase = "all" | "command" | "movement" | "shooting" | "charge" | "fight";
-export type Turn = "mine" | "theirs";
+export type Turn = "mine" | "theirs" | "both";
+
+export const TURNS: { id: Turn; label: string }[] = [
+  { id: "mine", label: "My turn" },
+  { id: "theirs", label: "Their turn" },
+  { id: "both", label: "Both" },
+];
 
 /** `short` is for a phone's phase bar, where "Movement" doesn't fit. */
 export const PHASES: { id: Phase; numeral: string; label: string; short?: string }[] = [
@@ -45,6 +51,13 @@ export function playEntries(army: Army): PlayEntry[] {
     });
 }
 
+/** The entry a unit is on: its own, or the one of the unit it leads. */
+export function entryFor(entries: PlayEntry[], unitId: string): PlayEntry | undefined {
+  return entries.find(
+    (entry) => entry.unit.id === unitId || entry.characters.some((c) => c.id === unitId),
+  );
+}
+
 /**
  * Whether a stratagem can be used in this phase and turn. "Any phase"
  * stratagems fit every phase; ones with no turn, or either player's turn, fit both.
@@ -54,6 +67,7 @@ export function usableNow(stratagem: Stratagem, phase: Phase, turn: Turn): boole
   const turnText = stratagem.turn.toLowerCase();
   const phaseOk = phase === "all" || phaseText.includes(phase) || phaseText.includes("any");
   const turnOk =
+    turn === "both" ||
     turnText === "" ||
     turnText.includes("either") ||
     (turn === "mine" ? turnText.includes("your") : turnText.includes("opponent"));

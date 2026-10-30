@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Army, Datasheet, Stratagem } from "../../../shared/types";
-import { playEntries, usableNow } from "./playOrder";
+import { entryFor, playEntries, usableNow } from "./playOrder";
 
 function unit(id: string, name: string): Datasheet {
   return { id, name } as Datasheet;
@@ -34,6 +34,13 @@ describe("playEntries", () => {
     expect(zephyrim?.stratagems.map((s) => s.id)).toEqual(["led", "orders"]);
     expect(immolator?.stratagems.map((s) => s.id)).toEqual(["smoke", "orders"]);
   });
+
+  it("finds a leader on the entry of the unit it leads", () => {
+    const entries = playEntries(army);
+    expect(entryFor(entries, "u1")?.unit.name).toBe("Zephyrim Squad");
+    expect(entryFor(entries, "u3")?.unit.name).toBe("Immolator");
+    expect(entryFor(entries, "gone")).toBeUndefined();
+  });
 });
 
 describe("usableNow", () => {
@@ -52,5 +59,6 @@ describe("usableNow", () => {
     expect(usableNow(smokescreen, "shooting", "theirs")).toBe(true);
     expect(usableNow(smokescreen, "shooting", "mine")).toBe(false);
     expect(usableNow(stratagem("d", "Command phase", "Your turn"), "all", "theirs")).toBe(false);
+    expect(usableNow(smokescreen, "shooting", "both")).toBe(true);
   });
 });

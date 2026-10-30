@@ -2,38 +2,44 @@ import type { CSSProperties } from "react";
 import type { Army } from "../../../shared/types";
 import { Emblem } from "../cards/Glyphs";
 
-export type Tab = "army" | "play" | "cards" | "stratagems" | "data";
+export type Tab = "army" | "play" | "cards" | "stratagems" | "rules" | "data";
 
 export const TABS: { id: Tab; label: string }[] = [
   { id: "army", label: "Army" },
   { id: "play", label: "Play" },
   { id: "cards", label: "Cards" },
   { id: "stratagems", label: "Stratagems" },
+  { id: "rules", label: "Rules" },
   { id: "data", label: "Data" },
 ];
 
-/** On phones the tabs sit at the bottom, within reach of a thumb. */
+/** What a game needs, in thumb's reach; the cards and the data are for before it, under Army. */
+const GAME_TABS: Tab[] = ["play", "stratagems", "rules", "army"];
+const UNDER_ARMY: Tab[] = ["cards", "data"];
+
+/** On phones and tablets the tabs sit at the bottom, within reach of a thumb. */
 export function BottomNav({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void }) {
+  const current = UNDER_ARMY.includes(tab) ? "army" : tab;
   return (
     <nav
-      className="no-print fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-panel-strong pb-[env(safe-area-inset-bottom)] backdrop-blur-sm md:hidden"
+      className="no-print fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-panel-strong pb-[env(safe-area-inset-bottom)] backdrop-blur-sm lg:hidden"
       aria-label="Sections"
     >
-      {TABS.map((item) => (
+      {GAME_TABS.map((id) => (
         <button
-          key={item.id}
+          key={id}
           type="button"
-          onClick={() => onTab(item.id)}
+          onClick={() => onTab(id)}
           className={`relative flex h-14 flex-1 flex-col items-center justify-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${
-            tab === item.id ? "text-ink" : "text-ink-faint"
+            current === id ? "text-ink" : "text-ink-faint"
           }`}
-          aria-current={tab === item.id ? "page" : undefined}
+          aria-current={current === id ? "page" : undefined}
         >
           <span
-            className={`h-1.5 w-1.5 rotate-45 ${tab === item.id ? "bg-faction" : "border border-ink-faint"}`}
+            className={`h-1.5 w-1.5 rotate-45 ${current === id ? "bg-faction" : "border border-ink-faint"}`}
           />
-          {item.label}
-          {tab === item.id ? <span className="absolute inset-x-4 top-0 h-[2px] bg-ink" /> : null}
+          {TABS.find((item) => item.id === id)?.label}
+          {current === id ? <span className="absolute inset-x-4 top-0 h-[2px] bg-ink" /> : null}
         </button>
       ))}
     </nav>
@@ -80,7 +86,7 @@ export function TopBar({
         </div>
 
         {army ? (
-          <nav className="ml-auto hidden items-stretch gap-1 md:flex" aria-label="Sections">
+          <nav className="ml-auto hidden items-stretch gap-1 lg:flex" aria-label="Sections">
             <span className="key-hint self-center">Q</span>
             {TABS.map((item) => (
               <button
@@ -103,7 +109,7 @@ export function TopBar({
         ) : null}
 
         {army ? (
-          <div className="hidden items-center gap-3 py-4 md:flex">
+          <div className="hidden items-center gap-3 py-4 lg:flex">
             <button type="button" className="btn" onClick={onChangeList}>
               Change list
             </button>

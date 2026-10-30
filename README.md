@@ -127,15 +127,30 @@ whose only warning is points that changed since they were exported.
 
 ## Playing from a phone or tablet
 
-The **Play** tab is for keeping the army digital during a game:
+On a phone or tablet the tabs sit at the bottom: Play, Stratagems, Rules and
+Army. The cards and the data are for before the game, under Army.
 
-- **One unit at a time:** page through units with the arrows, a swipe, or the
-  unit strip. Leaders come along with the unit they lead.
-- **Usable now:** pick the phase and whose turn it is, and the unit's
-  stratagems narrow to those it can use right then. Tap one for its full text.
-- **Datasheet sized to the screen:** the printed card, scaled to fit, on
-  tablets and larger; a reflowed version of it on phones.
-- **All units:** every stratagem usable now, and the army rules.
+- **Find anything (Play):** one search box for units (by name, number such as
+  "ogryn 2", model, or the character leading them), stratagems and rules, by
+  name and then by text. A unit opens in Play; a stratagem or rule opens over
+  the page, so you keep your place. On a keyboard, `/` jumps to it.
+- **Units (Play):** tap the unit's name for every unit in a list, each with its
+  main stats and any leaders; on a tablet the list stays beside the datasheet.
+  The arrows and a swipe still step through them in list order.
+- **Datasheet first (Play):** the unit's card, scaled to fit on a tablet or
+  reflowed on a phone. Its stratagems usable right now are one tap above it:
+  pick the phase and whose turn it is (or both turns).
+- **Stratagems:** every stratagem the army can use, narrowed by search, phase
+  and turn (the same setting as Play), the unit using it and its cost. Rows to
+  tap on a phone or tablet, the printed cards on a wider screen.
+- **Rules:** every rule the army uses, alphabetically: the army and detachment
+  rules, enhancements, core abilities, weapon keywords and each unit's
+  abilities, with the units that have it. Tap a unit to open it in Play.
+
+The app remembers the tab, the unit and the phase across reloads, and keeps
+the screen from dimming in Play, Stratagems and Rules. Phones only allow that
+on a secure (https) page, so it works once the app is hosted, not over
+`dev:lan`.
 
 To open it on a phone or tablet on the same Wi-Fi, start the app with:
 
@@ -151,8 +166,7 @@ allow Node.js on private networks.
 Strategium is a reference, the same cards on paper or on a screen. Tracking a
 game is out of scope: no wound counters, command points, victory points,
 turn or round tracking, or army state shared between players. The phase and
-turn picker in Play only filters which stratagems show; it doesn't record
-anything.
+turn picker only filters which stratagems show; it doesn't record anything.
 
 ## How it works
 
