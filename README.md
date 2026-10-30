@@ -18,14 +18,13 @@ that army needs:
   those names to read it.
 - **Points:** every unit priced from the current data: its size, wargear that
   costs extra (a meltagun, a multi-melta), its enhancement, and the surcharge on
-  a repeated datasheet. A list whose own total differs says so.
-- **Wargear swaps:** in the Army tab, click a weapon to swap it on one model:
-  another choice in its slot, or a trooper taking a special weapon, within the
-  squad's limits and with the points it costs. Swaps are kept with the list,
-  with undo and revert.
+  a repeated datasheet. When the list's own total differs, the army says so.
 
 The cards follow the official 11th-edition datasheet layout and print one per
 A5 landscape page.
+
+Strategium reads lists; it doesn't build or edit them. Change a list in the
+app you built it with, then load it again.
 
 A personal tool. It reproduces Games Workshop's rules text, so don't host it
 publicly.
@@ -40,6 +39,27 @@ pnpm dev         # API on :8787, app on http://localhost:5173
 
 Paste a list, open a roster file, or paste a Listhammer link (for example
 `https://listhammer.info/list/b29e2c836943545e89`, the demo list).
+
+## Printing
+
+The Cards tab shows the deck as it will print: A5 landscape, one card per page.
+Printed double-sided, each sheet is one card with its back. On screen, each
+sheet has a flip button to show its back. Every option is on by default:
+
+| Option                | What it does                                                                                                   |
+| --------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Leaders on the back   | A character's datasheet prints on the back of the unit it joins.                                               |
+| Double-sided          | Every card gets a back, so each stays on its own sheet. Flip on the short edge.                                |
+| Stratagem deck        | Four stratagem cards per page, after the datasheets.                                                           |
+| Stratagems both sides | Stratagem pages back onto each other, for a spiral-bound booklet. Off, each gets a blank back for cutting out. |
+| Army rules card       | The army rule, detachment rules and enhancements taken, on the first card.                                     |
+| Rules reference       | Every core ability and weapon keyword the cards name, in full, at the end. Its pages back onto each other.     |
+| Number repeats        | Units that share a name become #1, #2, #3, easy to call out mid-game.                                          |
+
+An option that doesn't apply stays visible but greyed out, with the reason:
+"Stratagems both sides" needs double-sided printing and the stratagem deck.
+On a phone the cards are reflowed for reading instead, and the paper-only
+options are greyed out.
 
 ## List formats
 
@@ -62,6 +82,18 @@ unit, model, wargear and enhancement names rather than a fixed grammar, so
 
 The formats and how common each is come from a survey of about 2,000 tournament
 lists on Listhammer (October 2026).
+
+**Writing a list by hand.** The reader takes any layout, as long as:
+
+- the faction is named near the top (`Adepta Sororitas`);
+- every unit line carries points (`Canoness (60 pts)`), since that's how it
+  tells a unit from its wargear;
+- units use their full names (`Dominion Squad`, not `Dominion`);
+- a leader joins its unit with `+` (`Morvenn Vahl + 3 Paragon Warsuits (380 pts)`);
+- wargear is named in full or not at all. A unit given only a model count gets
+  its default loadout, but naming some of its wargear drops the rest of the
+  defaults. So write `10 Dominion Squad (110 pts): 10 Bolt pistol, 6 Boltgun,
+  4 Meltagun, 10 Close combat weapon`, not just `4 Meltagun`.
 
 **Known limits:**
 
@@ -116,6 +148,9 @@ browser: Web Worker ─ detect format ─ read list ─ resolve units ─► Arm
   catalogue and linked libraries plus Wahapedia's export become one bundle:
   - every unit's stats, models, options, abilities and keywords;
   - each model's default loadout and how many of it a unit takes;
+  - each unit's points: its base cost, the rules that change it by squad
+    size, the surcharge on a repeated datasheet, and what each costed option
+    adds;
   - detachments, enhancements, stratagems and which units can use them;
   - the text of every rule.
 
@@ -135,12 +170,17 @@ browser: Web Worker ─ detect format ─ read list ─ resolve units ─► Arm
   Wahapedia's numbers, and differences show on the Data tab. They are usually
   places where the two sources disagree, or a BSData modifier the compiler
   doesn't apply yet.
+- **Points.** Each unit is priced from its bundle, so the total always reflects
+  the current data, whatever points the list was exported with. The list's
+  own points are kept, and a difference in the total shows as a warning on
+  the Army tab. A unit with a points rule the compiler can't read is marked
+  `≈`.
 
 ## Where the data comes from
 
 | What                                                                                  | Source                                                                                          |
 | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Datasheets: stats, weapons, abilities, keywords, default loadouts                     | [BSData/wh40k-11e](https://github.com/BSData/wh40k-11e), the data New Recruit builds lists from |
+| Datasheets: stats, weapons, abilities, keywords, default loadouts, points             | [BSData/wh40k-11e](https://github.com/BSData/wh40k-11e), the data New Recruit builds lists from |
 | Stratagems, detachment rules, enhancements, which units can use them, background text | [Wahapedia's data export](https://wahapedia.ru/wh40k11ed/the-rules/data-export/)                |
 
 The server checks both sources on start and every six hours, syncs anything

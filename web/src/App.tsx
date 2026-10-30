@@ -1,15 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { META_POLL_MS } from "../../shared/config";
 import { duplicateNumbers } from "../../shared/labels";
-import type { Army, DataVersions, Edit } from "../../shared/types";
+import type { Army, DataVersions } from "../../shared/types";
 import {
   checkForUpdates,
   fetchMeta,
-  loadSavedEdits,
   loadSavedOptions,
   loadSavedSource,
-  type SavedEdits,
-  saveEdits,
   saveOptions,
   saveSource,
 } from "./api";
@@ -38,31 +35,15 @@ export function App() {
   const [options, setOptions] = useState<DeckOptions>(loadSavedOptions);
   const [meta, setMeta] = useState<DataVersions>();
   const [checking, setChecking] = useState(false);
-  // Wargear swaps made to the list here, replayed on it in order.
-  const [edits, setEdits] = useState<Edit[]>([]);
-  const [notice, setNotice] = useState<string>();
   const fontsReady = useFontsReady();
 
-  /** Loads a list; `saved` swaps are kept if the list is still the one they were made to. */
-  const load = useCallback(async (next: ListSource, saved?: SavedEdits) => {
+  const load = useCallback(async (next: ListSource) => {
     setLoading(true);
     setError(undefined);
-    setNotice(undefined);
     try {
-      const result = await engine.build(next, saved);
+      const result = await engine.build(next);
       setArmy(result.army);
       setListText(result.text);
-      setEdits(result.edits);
-      saveEdits({ text: result.text, edits: result.edits });
-      if (result.dropped) {
-        setNotice(
-          `The list changed where it came from, so ${plural(result.dropped, "wargear change")} made here ${result.dropped === 1 ? "was" : "were"} dropped.`,
-        );
-      } else if (result.skipped) {
-        setNotice(
-          `${plural(result.skipped, "wargear change")} no longer fit the list and were skipped.`,
-        );
-      }
       // A file is remembered as the text read from it, so a reload rebuilds the same list.
       const kept = "file" in next ? { text: result.text } : next;
       setSource(kept);
@@ -75,33 +56,12 @@ export function App() {
     }
   }, []);
 
-  /** Rebuilds the list with a new set of swaps: one more, one fewer (undo), or none (revert). */
-  const changeEdits = useCallback(
-    async (next: Edit[]) => {
-      if (!listText) return;
-      setLoading(true);
-      setNotice(undefined);
-      try {
-        const result = await engine.rebuild(listText, next);
-        setArmy(result.army);
-        setEdits(next);
-        saveEdits({ text: listText, edits: next });
-        if (result.skipped) setNotice("That change no longer fits the list, so it was skipped.");
-      } catch (cause) {
-        setNotice(cause instanceof Error ? cause.message : String(cause));
-      } finally {
-        setLoading(false);
-      }
-    },
-    [listText],
-  );
-
   // Reload the last list on start. A linked list is fetched again, so edits there show up.
   const started = useRef(false);
   useEffect(() => {
     if (started.current || !source) return;
     started.current = true;
-    void load(source, loadSavedEdits());
+    void load(source);
   }, [source, load]);
 
   useEffect(() => {
@@ -176,7 +136,7 @@ export function App() {
               <button
                 type="button"
                 className="btn"
-                onClick={() => void load(source, listText ? { text: listText, edits } : undefined)}
+                onClick={() => void load(source)}
                 disabled={loading}
               >
                 Rebuild cards
@@ -204,12 +164,6 @@ export function App() {
               onSelect={setSelectedId}
               onOpenCards={() => setTab("cards")}
               onChangeList={() => setShowLoader(true)}
-              edits={edits.length}
-              busy={loading}
-              notice={notice}
-              onEdit={(edit) => void changeEdits([...edits, edit])}
-              onUndo={() => void changeEdits(edits.slice(0, -1))}
-              onRevert={() => void changeEdits([])}
             />
           ) : null}
           {army && !showLoader && tab === "play" ? (
@@ -250,10 +204,6 @@ export function App() {
 }
 
 const NO_RULES: Army["glossary"] = [];
-
-function plural(count: number, noun: string): string {
-  return `${count} ${noun}${count === 1 ? "" : "s"}`;
-}
 
 /** Text fitting needs the real fonts, so cards measure again once they load. */
 function useFontsReady(): boolean {

@@ -22,16 +22,12 @@ const SUPPORTED_SIZES = [
   { name: "Strike Force", points: 2000 },
 ];
 
-/**
- * Builds an army from a parsed list and its faction's bundle. Runs in the browser.
- * `checkPoints: false` skips comparing the list's points with the data's, for a list that's been edited.
- */
+/** Builds an army from a parsed list and its faction's bundle. Runs in the browser. */
 export function buildArmy(
   list: ArmyList,
   bundle: FactionBundle,
   versions: DataVersions,
   format?: ListFormat,
-  options: { checkPoints?: boolean } = {},
 ): Army {
   const warnings = [...list.warnings];
   if (!bundle.wahapediaFactionId) {
@@ -45,7 +41,7 @@ export function buildArmy(
     );
   }
 
-  // A datasheet taken again costs more for each copy before it.
+  // A datasheet taken again can cost more, depending on how many copies come before it.
   const copies = new Map<string, number>();
   const units = list.units.map((unit, index) => {
     const name = findUnit(bundle, unit.name)?.name ?? unit.name;
@@ -63,7 +59,7 @@ export function buildArmy(
   // Lists carry the points their builder priced them at; a difference means either side is out of date.
   const listed = units.reduce((sum, unit) => sum + unit.listedPoints, 0);
   const priced = units.reduce((sum, unit) => sum + unit.points, 0);
-  if (listed && listed !== priced && options.checkPoints !== false) {
+  if (listed && listed !== priced) {
     warnings.push(
       `The list adds up to ${listed.toLocaleString("en")} pts; at the current points it's ${priced.toLocaleString("en")}.`,
     );
