@@ -28,23 +28,15 @@ export function trimBundle(bundle: FactionBundle, unitKeys: Iterable<string>): F
 }
 
 function trimUnit(unit: UnitData): UnitData {
-  const items = trimItems(unit.items);
-  // A model's option that's the same as the unit's is found there anyway, under the same name.
-  const ownItems = (modelItems: Record<string, ItemData>) =>
-    Object.fromEntries(
-      Object.entries(trimItems(modelItems)).filter(
-        ([key, item]) => JSON.stringify(items[key]) !== JSON.stringify(item),
-      ),
-    );
   return {
     ...unit,
     abilities: unit.abilities.map(stripHtml),
     attachTo: unit.attachTo ? stripHtml(unit.attachTo) : undefined,
-    items,
+    items: trimItems(unit.items),
     models: Object.fromEntries(
       Object.entries(unit.models).map(([key, model]) => [
         key,
-        { ...model, items: ownItems(model.items) },
+        { ...model, items: trimItems(model.items) },
       ]),
     ),
     wahapedia: unit.wahapedia ? { ...unit.wahapedia, legend: "" } : undefined,

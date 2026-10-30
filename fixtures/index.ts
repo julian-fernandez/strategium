@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { COMPILER_VERSION, type FactionBundle, factionBundleSchema } from "../shared/bundle";
+import { hydrateBundle, type StoredBundle } from "../shared/compact";
 import { findFaction } from "../shared/factions";
 import type { Army } from "../shared/types";
 import { comparable } from "../shared/wahapedia";
@@ -75,7 +76,7 @@ export function snapshotBundle(faction: string): FactionBundle {
             "Run `pnpm coverage --write` to recompile it.",
         );
       }
-      const bundle = factionBundleSchema.parse(json);
+      const bundle = factionBundleSchema.parse(hydrateBundle(json as StoredBundle));
       bundles.set(bundle.catalogue, bundle);
     }
   }

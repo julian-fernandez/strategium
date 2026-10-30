@@ -24,8 +24,9 @@ import {
   LISTS_DIR,
   summarize,
 } from "../fixtures";
-import { loadBundle } from "../server/data";
+import { loadFactionBundle } from "../server/data";
 import type { FactionBundle } from "../shared/bundle";
+import { compactBundle } from "../shared/compact";
 import { trimBundle } from "../shared/compile/trim";
 import { readList } from "../shared/list/formats";
 import { buildArmy } from "../shared/resolve/army";
@@ -46,7 +47,7 @@ for (const [dir, label] of [
     const id = `${label}/${file}`;
     total++;
     try {
-      const { list, format, bundle } = await readList(text, loadBundle);
+      const { list, format, bundle } = await readList(text, loadFactionBundle);
       const army = buildArmy(list, bundle, {}, format);
       const summary = summarize(army);
       expected[id] = summary;
@@ -82,7 +83,8 @@ if (write) {
   mkdirSync(BUNDLES_DIR, { recursive: true });
   for (const { bundle, keys } of used.values()) {
     const file = path.join(BUNDLES_DIR, bundleFileName(bundle));
-    writeFileSync(file, `${JSON.stringify(trimBundle(bundle, keys))}\n`);
+    // Stored compact, as the server stores bundles; the tests expand them again.
+    writeFileSync(file, `${JSON.stringify(compactBundle(trimBundle(bundle, keys)))}\n`);
   }
   writeFileSync(EXPECTED_FILE, `${JSON.stringify(expected, null, 2)}\n`);
   console.log(

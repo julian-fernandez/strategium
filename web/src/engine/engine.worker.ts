@@ -1,5 +1,6 @@
 import * as Comlink from "comlink";
 import type { FactionBundle } from "../../../shared/bundle";
+import { hydrateBundle } from "../../../shared/compact";
 import { readList } from "../../../shared/list/formats";
 import { readRosz } from "../../../shared/list/roster";
 import { buildArmy } from "../../../shared/resolve/army";
@@ -42,7 +43,7 @@ async function sourceText(source: ListSource): Promise<string> {
 
 async function fetchBundle(faction: string): Promise<FactionBundle> {
   const response = await api.bundle.$get({ query: { faction } });
-  return unwrap(await read(response)).bundle;
+  return hydrateBundle(unwrap(await read(response)).bundle);
 }
 
 export type Engine = typeof engine;
