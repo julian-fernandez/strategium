@@ -3,6 +3,7 @@ import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { type CatalogueFile, Catalogues } from "../shared/bsdata/catalogues";
 import { COMPILER_VERSION, type FactionBundle } from "../shared/bundle";
+import { compactBundle, hydrateBundle, type StoredBundle } from "../shared/compact";
 import { parseBsdataFile } from "../shared/compile/bsdataSchema";
 import { compileFaction } from "../shared/compile/faction";
 import { findFaction } from "../shared/factions";
@@ -28,15 +29,20 @@ const GAME_SYSTEM = "Warhammer 40,000";
 const BUNDLE_DIR = path.join(CACHE_DIR, "bundles");
 
 let wahapediaCache: { key: string; data: Wahapedia } | undefined;
-const bundleCache = new Map<string, Promise<FactionBundle>>();
+const bundleCache = new Map<string, Promise<StoredBundle>>();
 
 onDataChanged(() => {
   wahapediaCache = undefined;
   bundleCache.clear();
 });
 
-/** The compiled bundle for a faction, from memory, disk, or a fresh compile. */
-export function loadBundle(requested: string): Promise<FactionBundle> {
+/** A faction's bundle ready to build armies from, for scripts that resolve lists on the server. */
+export async function loadFactionBundle(requested: string): Promise<FactionBundle> {
+  return hydrateBundle(await loadBundle(requested));
+}
+
+/** The compiled bundle for a faction, as it's stored and sent: from memory, disk, or a fresh compile. */
+export function loadBundle(requested: string): Promise<StoredBundle> {
   // "T’au Empire", "Xenos - Tyranids" and "Imperial Agents" all name one bundle.
   const faction = findFaction(requested)?.name ?? requested.trim();
   const key = faction.toLowerCase();
@@ -51,7 +57,7 @@ export function loadBundle(requested: string): Promise<FactionBundle> {
   return pending;
 }
 
-async function buildBundle(faction: string): Promise<FactionBundle> {
+async function buildBundle(faction: string): Promise<StoredBundle> {
   const meta = await readMeta();
   const sha = meta.bsdata?.sha;
   if (!sha || !meta.wahapedia) throw new Error("No data yet. Run `pnpm sync-data` first.");
@@ -62,16 +68,17 @@ async function buildBundle(faction: string): Promise<FactionBundle> {
 
   const version = `v${COMPILER_VERSION}-${sha.slice(0, 12)}-${meta.wahapedia.dir}`;
   const file = path.join(BUNDLE_DIR, version, `${slug(catalogue)}.json`);
-  if (existsSync(file)) return JSON.parse(await readFile(file, "utf8")) as FactionBundle;
+  if (existsSync(file)) return JSON.parse(await readFile(file, "utf8")) as StoredBundle;
 
   const started = performance.now();
-  const { bundle, stats } = compileFaction({
+  const { bundle: compiled, stats } = compileFaction({
     faction,
     catalogue,
     catalogues: await loadCatalogues(sha, names, catalogue),
     wahapedia: await loadWahapedia(),
     bsdataSha: sha,
   });
+  const bundle = compactBundle(compiled);
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, JSON.stringify(bundle));
   await prune(BUNDLE_DIR, version);
@@ -151,14 +158,6 @@ export async function loadWahapedia(): Promise<Wahapedia> {
   const data = buildWahapedia(files);
   wahapediaCache = { key: current.dir, data };
   return data;
-}
-
-/** Every faction catalogue BSData has, for the coverage harness and the faction picker. */
-export async function listFactionCatalogues(): Promise<string[]> {
-  const meta = await readMeta();
-  if (!meta.bsdata) return [];
-  const names = await getBsdataCatalogueNames(meta.bsdata.sha);
-  return names.filter((name) => name !== GAME_SYSTEM && !/library/i.test(name));
 }
 
 /**

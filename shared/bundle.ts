@@ -8,7 +8,7 @@ import { z } from "zod";
  * Bump COMPILER_VERSION whenever the shape or the compile rules change, so
  * cached bundles are rebuilt.
  */
-export const COMPILER_VERSION = 10;
+export const COMPILER_VERSION = 11;
 
 export const weaponProfileSchema = z.object({
   name: z.string(),
@@ -208,7 +208,6 @@ export type ModifierData = z.infer<typeof modifierSchema>;
 export type ProfileField = z.infer<typeof profileFieldSchema>;
 export type ModifierOp = z.infer<typeof modifierOpSchema>;
 export type StratagemData = z.infer<typeof stratagemSchema>;
-export type DetachmentData = z.infer<typeof detachmentSchema>;
 export type FactionBundle = z.infer<typeof factionBundleSchema>;
 
 /**
