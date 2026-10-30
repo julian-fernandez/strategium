@@ -153,7 +153,7 @@ export function PlayView({
           <p className="micro">
             {selected ? `Unit ${entries.indexOf(selected) + 1} / ${count}` : `${count} units`}
           </p>
-          <h2 className="truncate text-[20px] font-extrabold uppercase tracking-[0.02em]">
+          <h2 className="text-balance text-[20px] font-extrabold uppercase leading-tight tracking-[0.02em]">
             {selected ? unitLabel(selected.unit, numbers) : "All units"}
           </h2>
         </div>
@@ -249,7 +249,7 @@ function UnitChip({
     >
       <span className="block text-[13px] font-semibold">{label}</span>
       {detail ? (
-        <span className="mt-0.5 block truncate text-[11px] font-medium text-ink-faint">
+        <span className="mt-0.5 block text-[11px] font-medium leading-snug text-ink-faint">
           {detail}
         </span>
       ) : null}

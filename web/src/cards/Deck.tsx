@@ -5,7 +5,7 @@ import { ArmyRulesCard } from "./ArmyRulesCard";
 import { DatasheetCard } from "./DatasheetCard";
 import { GlossaryCard } from "./GlossaryCard";
 import { FlipIcon } from "./Glyphs";
-import type { DeckPage } from "./printOrder";
+import type { DeckPage, Squeeze } from "./printOrder";
 import { StratagemCard } from "./StratagemCard";
 import { type CardTheme, themeFor } from "./themes";
 import type { SharedFit } from "./useFitText";
@@ -21,6 +21,7 @@ export function Deck({
   numbers,
   duplex,
   fontsReady,
+  onSpill,
 }: {
   army: Army;
   pages: DeckPage[];
@@ -28,6 +29,8 @@ export function Deck({
   /** Double-sided: every second page is the back of the one before. */
   duplex: boolean;
   fontsReady: boolean;
+  /** A rules page that doesn't fit even at its smallest type: its card needs more pages. */
+  onSpill: (kind: keyof Squeeze) => void;
 }) {
   const theme = themeFor(army.faction);
 
@@ -38,13 +41,19 @@ export function Deck({
     setFits((previous) => (previous[id] === size ? previous : { ...previous, [id]: size }));
   }, []);
   const sharedFor = (page: DeckPage): SharedFit | undefined => {
-    if ((page.kind !== "glossary" && page.kind !== "army-rules") || page.parts < 2)
-      return undefined;
+    if (page.kind !== "glossary" && page.kind !== "army-rules") return undefined;
     const sizes = pages.filter((p) => p.kind === page.kind).map((p) => fits[fitId(p)]);
-    const cap = sizes.every((size) => size !== undefined)
-      ? Math.min(...(sizes as number[]))
-      : undefined;
-    return { cap, onFit: (size) => report(fitId(page), size) };
+    const cap =
+      page.parts > 1 && sizes.every((size) => size !== undefined)
+        ? Math.min(...(sizes as number[]))
+        : undefined;
+    return {
+      cap,
+      onFit: (size, spills) => {
+        report(fitId(page), size);
+        if (spills) onSpill(page.kind);
+      },
+    };
   };
   const faces = { army, numbers, theme, fontsReady, sharedFor };
   const sheets: { front: DeckPage; back?: DeckPage }[] = [];

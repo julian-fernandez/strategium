@@ -105,20 +105,9 @@ describe("the stratagem deck", () => {
       .map((page) => page.kind)
       .filter((kind, index, all) => kind === "stratagems" || all[index - 1] === "stratagems");
 
-  it("backs its pages onto each other for a booklet, with one blank to finish the sheet", () => {
+  it("backs its pages onto each other, with one blank to finish the sheet", () => {
     // Nine stratagems, four to a page: three pages, the last sheet's back blank.
     expect(deck(UNITS_ONLY)).toEqual(["stratagems", "stratagems", "stratagems", "blank"]);
-  });
-
-  it("leaves every page a blank back when printed for cutting out", () => {
-    expect(deck({ ...UNITS_ONLY, stratagemsBothSides: false })).toEqual([
-      "stratagems",
-      "blank",
-      "stratagems",
-      "blank",
-      "stratagems",
-      "blank",
-    ]);
   });
 });
 

@@ -39,6 +39,14 @@ describe("bsdataToHtml line breaks", () => {
       "only a single dice can be substituted.<br><br>GAINING DICE<br>- At the start<br>■ Hit roll",
     );
   });
+
+  it("shrinks runs of blank lines, and keeps none before a list", () => {
+    expect(
+      bsdataToHtml(
+        "unit can:\n\n\n- Re-roll hit rolls of 1.\n- Re-roll wound rolls of 1.\n\n\n\nNext.",
+      ),
+    ).toBe("unit can:<br>- Re-roll hit rolls of 1.<br>- Re-roll wound rolls of 1.<br><br>Next.");
+  });
 });
 
 describe("whenLine", () => {

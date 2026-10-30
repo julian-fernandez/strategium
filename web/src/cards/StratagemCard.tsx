@@ -34,6 +34,7 @@ export function StratagemCard({
   fontsReady: boolean;
 }) {
   const body = useFitText<HTMLDivElement>(7, 4.8, stratagem, fontsReady);
+  const name = useFitText<HTMLHeadingElement>(10.5, 6.5, stratagem.name, fontsReady);
   const band = stratagem.detachment ? theme.header : CORE_COLOR;
 
   return (
@@ -49,10 +50,15 @@ export function StratagemCard({
           {phaseNumeral(stratagem.phase)}
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-condensed text-[10.5pt] font-extrabold uppercase leading-none">
+          {/* A long name shrinks to one line; the details wrap to a second if they need it. */}
+          <h3
+            ref={name}
+            className="overflow-hidden whitespace-nowrap font-condensed font-extrabold uppercase leading-tight"
+            style={{ fontSize: "calc(var(--fit) * 1pt)" }}
+          >
             {stratagem.name}
           </h3>
-          <p className="mt-[0.6mm] truncate font-condensed text-[5.8pt] font-semibold uppercase tracking-[0.08em] text-white/75">
+          <p className="mt-[0.2mm] font-condensed text-[5.8pt] font-semibold uppercase leading-tight tracking-[0.08em] text-white/75">
             {stratagem.detachment || "Core"} · {stratagem.phase} · {stratagem.turn}
           </p>
         </div>

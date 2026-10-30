@@ -18,9 +18,10 @@ export const CARD_SIZE = "h-[135mm] w-[200mm]";
 
 /**
  * Widths the abilities column may take. The official proportion comes first,
- * so it wins ties; 56 mm is for weapon-heavy cards whose left column overflows.
+ * so it wins ties; 56 mm is for weapon-heavy cards whose left column overflows,
+ * 104 and 116 mm for long abilities beside a short weapons list.
  */
-export const SIDE_WIDTHS = [68, 80, 92, 56];
+export const SIDE_WIDTHS = [68, 80, 92, 56, 104, 116];
 
 const HATCH =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M0 6L6 0' stroke='%23000' stroke-opacity='0.12' stroke-width='1'/%3E%3C/svg%3E\")";
@@ -47,8 +48,9 @@ export function CardShell({
       className={`${CARD_SIZE} flex flex-col overflow-hidden rounded-[2mm] bg-paper font-card text-card-ink`}
       style={style}
     >
+      {/* Grows past 38 mm only for a unit with more stat lines than fit; the body gives way. */}
       <header
-        className="relative flex h-[38mm] shrink-0 overflow-hidden text-white"
+        className="relative flex min-h-[38mm] shrink-0 overflow-hidden text-white"
         style={{ backgroundColor: theme.header, backgroundImage: HATCH }}
       >
         {header}
@@ -100,8 +102,9 @@ export function DatasheetCard({
   fontsReady: boolean;
 }) {
   const [title, suffix] = splitName(sheet.name);
-  const body = useFitText<HTMLDivElement>(7.6, 5.4, sheet, fontsReady, SIDE_WIDTHS);
+  const body = useFitText<HTMLDivElement>(7.6, 5.2, sheet, fontsReady, SIDE_WIDTHS);
   const name = useFitText<HTMLHeadingElement>(20, 11, `${sheet.name}#${number}`, fontsReady);
+  const legend = useFitText<HTMLParagraphElement>(6.4, 4.8, sheet.legend, fontsReady);
 
   return (
     <CardShell
@@ -113,19 +116,24 @@ export function DatasheetCard({
           <div className="relative z-10 flex w-[96mm] shrink-0 flex-col justify-between px-[4mm] py-[3mm]">
             <h2
               ref={name}
-              className="h-[9mm] overflow-hidden font-condensed font-extrabold uppercase leading-none"
+              className="h-[9mm] shrink-0 overflow-hidden font-condensed font-extrabold uppercase leading-none"
               style={{ fontSize: "calc(var(--fit) * 1pt)" }}
             >
               {title}
               {suffix ? <span className="ml-[1.5mm] text-[0.55em] font-bold">{suffix}</span> : null}
               {number ? <UnitNumber value={number} /> : null}
             </h2>
-            <StatBadges stats={sheet.stats} />
+            {/* Three stat lines at full size would push the name out of the band. */}
+            <StatBadges stats={sheet.stats} size={sheet.stats.length > 2 ? "small" : "full"} />
           </div>
           <div className="pointer-events-none absolute left-[96mm] top-0 flex h-full w-[42mm] items-center justify-center text-white/25">
             <Emblem className="h-[26mm] w-[26mm]" />
           </div>
-          <p className="absolute right-[3mm] top-[3mm] w-[58mm] text-right text-[6.4pt] italic leading-snug text-white/90 line-clamp-[9]">
+          <p
+            ref={legend}
+            className="absolute right-[3mm] top-[3mm] h-[32mm] w-[58mm] overflow-hidden text-right italic leading-snug text-white/90"
+            style={{ fontSize: "calc(var(--fit) * 1pt)" }}
+          >
             {sheet.legend}
           </p>
         </>

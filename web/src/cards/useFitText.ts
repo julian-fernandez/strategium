@@ -32,16 +32,19 @@ export function useFitText<T extends HTMLElement>(
 
     const top = Math.min(base, cap ?? base);
     const candidates = widths ? widths.split(",").map(Number) : [undefined];
-    let best = { size: -1, width: candidates[0] };
+    let best = { size: -1, over: Number.POSITIVE_INFINITY, width: candidates[0] };
     for (const width of candidates) {
       if (width) element.style.setProperty("--side", `${width}mm`);
       const size = shrink(element, top, min);
-      if (size > best.size) best = { size, width };
+      // When nothing fits even at the smallest size, the width that spills least wins.
+      const over = size <= min ? spill(element) : 0;
+      if (size > best.size || (size === best.size && over < best.over))
+        best = { size, over, width };
     }
     if (best.width) element.style.setProperty("--side", `${best.width}mm`);
     element.style.setProperty("--fit", String(best.size));
     element.dataset.fitReady = String(fontsReady);
-    report.current?.(best.size);
+    report.current?.(best.size, best.over > 0);
   }, [base, min, content, fontsReady, widths, cap]);
 
   return ref;
@@ -50,25 +53,28 @@ export function useFitText<T extends HTMLElement>(
 /**
  * For pages that must share one type size (the rules reference's pages):
  * each reports the size it fits at, and is held to `cap`, the smallest of them.
+ * `spills` is true when even the smallest size doesn't fit.
  */
-export type SharedFit = { cap?: number; onFit: (size: number) => void };
+export type SharedFit = { cap?: number; onFit: (size: number, spills: boolean) => void };
 
 function shrink(element: HTMLElement, base: number, min: number): number {
   let size = base;
   element.style.setProperty("--fit", String(size));
-  while (overflows(element) && size > min) {
+  while (spill(element) > 0 && size > min) {
     size = Math.max(min, size - STEP);
     element.style.setProperty("--fit", String(size));
   }
   return size;
 }
 
-function overflows(element: HTMLElement): boolean {
-  if (element.scrollHeight > element.clientHeight + 1) return true;
-  // CSS columns overflow sideways, into an extra column, rather than downwards.
-  if (element.scrollWidth > element.clientWidth + 1) return true;
-  for (const child of element.querySelectorAll<HTMLElement>("[data-fit-column]")) {
-    if (child.scrollHeight > child.clientHeight + 1) return true;
-  }
-  return false;
+/** How many pixels of text run past the box, or 0 when it all fits. */
+function spill(element: HTMLElement): number {
+  const columns = [...element.querySelectorAll<HTMLElement>("[data-fit-column]")];
+  const over = Math.max(
+    element.scrollHeight - element.clientHeight,
+    // CSS columns overflow sideways, into an extra column, rather than downwards.
+    element.scrollWidth - element.clientWidth,
+    ...columns.map((column) => column.scrollHeight - column.clientHeight),
+  );
+  return over > 1 ? over : 0;
 }

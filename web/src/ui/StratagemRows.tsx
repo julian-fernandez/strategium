@@ -36,17 +36,17 @@ export function StratagemRows({
               <button
                 type="button"
                 onClick={() => setOpen(open === stratagem.id ? undefined : stratagem.id)}
-                className="flex w-full items-center gap-3 px-4 py-3 text-left"
+                className="flex w-full items-start gap-3 px-4 py-3 text-left"
                 aria-expanded={open === stratagem.id}
               >
-                <span className="w-9 shrink-0 text-[12px] font-bold text-ink-faint">
+                <span className="mt-0.5 w-9 shrink-0 text-[12px] font-bold text-ink-faint">
                   {phaseNumeral(stratagem.phase)}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[14px] font-semibold uppercase tracking-[0.04em]">
+                  <span className="block text-[14px] font-semibold uppercase leading-snug tracking-[0.04em]">
                     {stratagem.name}
                   </span>
-                  <span className="block truncate text-[12px] text-ink-dim">
+                  <span className="mt-0.5 block text-[12px] leading-snug text-ink-dim">
                     {usersOf ? usersOf(stratagem) : stratagem.when}
                   </span>
                 </span>

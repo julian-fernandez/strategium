@@ -25,10 +25,17 @@ const KEYWORD = '<span class="kw">$1</span>';
  * (`^^**[Precision]^^**`), so a match never runs across another marker. Some
  * rules are hard-wrapped mid sentence; a break that ends without punctuation
  * and carries on in lower case is joined back up, while list lines and
- * paragraphs keep theirs. Anything else in angle brackets (`<FACTION>`) stays text.
+ * paragraphs keep theirs. Runs of blank lines shrink to one, and a list sits
+ * right under the line that leads into it. Anything else in angle brackets
+ * (`<FACTION>`) stays text.
  */
 export function bsdataToHtml(text: string): string {
-  return escapeHtml(text.trim().replace(/([^\s.:;!?)])[ \t]*\n(?=[a-z(])/g, "$1 "))
+  const lines = text
+    .trim()
+    .replace(/([^\s.:;!?)])[ \t]*\n(?=[a-z(])/g, "$1 ")
+    .replace(/\n(?:[ \t]*\n)+(?=[ \t]*[-■•] )/g, "\n")
+    .replace(/\n(?:[ \t]*\n){2,}/g, "\n\n");
+  return escapeHtml(lines)
     .replace(/&lt;ins&gt;([^<\n]*?)&lt;\/ins&gt;/g, "<u>$1</u>")
     .replace(/(?:\*\*\^\^|\^\^\*\*)([^*^]+?)(?:\*\*\^\^|\^\^\*\*)/g, KEYWORD)
     .replace(/\^\^([^*^]+?)\^\^/g, KEYWORD)
