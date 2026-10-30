@@ -17,6 +17,16 @@ describe("bsdataToHtml", () => {
       '<b>Bold</b> and <span class="kw">Infantry</span><br>&lt;script&gt;',
     );
   });
+
+  it("underlines BSData's <ins> and keeps other angle brackets as text", () => {
+    expect(
+      bsdataToHtml(
+        "- <ins>Or:</ins> With -2 to that **battle-shock roll** if this unit has 13+ models. Each <FACTION> unit.",
+      ),
+    ).toBe(
+      "- <u>Or:</u> With -2 to that <b>battle-shock roll</b> if this unit has 13+ models. Each &lt;FACTION&gt; unit.",
+    );
+  });
 });
 
 describe("bsdataToHtml line breaks", () => {
