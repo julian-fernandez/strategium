@@ -7,7 +7,7 @@ import { UnitSheet } from "../play/UnitSheet";
 import { ArmyRulesPanel } from "../rules/ArmyRulesPanel";
 import { AbilityTerm, RuleTerms } from "../rules/Rules";
 import { BottomSheet } from "./BottomSheet";
-import { WargearOptions, WeaponList } from "./Loadout";
+import { LoadoutEditor, WeaponList } from "./Loadout";
 import { useMediaQuery } from "./layout";
 import { toRoman } from "./roman";
 import { StratagemRows } from "./StratagemRows";
@@ -59,15 +59,24 @@ export function ArmyView({
     onSelect(id);
     if (!wide) setSheetId(id);
   };
+  // What the last swap did, said back beside the loadout it changed.
+  const [lastChange, setLastChange] = useState<{ unitId: string; text: string }>();
   // A unit's place in the army is its place in the list, which edits name it by.
-  const swap = (unit: Datasheet, chosen: Swap) =>
+  const swap = (unit: Datasheet, chosen: Swap, times: number) => {
+    setLastChange({ unitId: unit.id, text: describeSwap(chosen, times) });
     onEdit({
       unit: army.units.indexOf(unit),
       model: chosen.model,
       toModel: chosen.toModel,
       remove: chosen.remove,
       add: chosen.add,
+      times,
     });
+  };
+  const undo = () => {
+    setLastChange(undefined);
+    onUndo();
+  };
   const inexact = army.units.some((unit) => !unit.pointsExact);
 
   return (
@@ -90,10 +99,18 @@ export function ArmyView({
               <span className="micro text-gold">
                 {edits} {edits === 1 ? "change" : "changes"}
               </span>
-              <button type="button" className="btn min-h-8 px-3" onClick={onUndo} disabled={busy}>
+              <button type="button" className="btn min-h-8 px-3" onClick={undo} disabled={busy}>
                 Undo
               </button>
-              <button type="button" className="btn min-h-8 px-3" onClick={onRevert} disabled={busy}>
+              <button
+                type="button"
+                className="btn min-h-8 px-3"
+                onClick={() => {
+                  setLastChange(undefined);
+                  onRevert();
+                }}
+                disabled={busy}
+              >
                 Revert
               </button>
             </div>
@@ -181,7 +198,9 @@ export function ArmyView({
           unit={selected}
           label={unitLabel(selected, numbers)}
           busy={busy}
-          onSwap={(chosen) => swap(selected, chosen)}
+          lastChange={edits && lastChange?.unitId === selected.id ? lastChange.text : undefined}
+          onSwap={(chosen, times) => swap(selected, chosen, times)}
+          onUndo={undo}
           onOpenCards={onOpenCards}
         />
       ) : null}
@@ -276,13 +295,17 @@ function Inspector({
   unit,
   label,
   busy,
+  lastChange,
   onSwap,
+  onUndo,
   onOpenCards,
 }: {
   unit: Datasheet;
   label: string;
   busy: boolean;
-  onSwap: (swap: Swap) => void;
+  lastChange?: string;
+  onSwap: (swap: Swap, times: number) => void;
+  onUndo: () => void;
   onOpenCards: () => void;
 }) {
   const stats = unit.stats[0];
@@ -330,9 +353,15 @@ function Inspector({
           </div>
         ) : null}
 
-        <WeaponList title="Ranged" rows={unit.ranged} busy={busy} onSwap={onSwap} />
-        <WeaponList title="Melee" rows={unit.melee} busy={busy} onSwap={onSwap} />
-        <WargearOptions swaps={unit.extras} busy={busy} onSwap={onSwap} />
+        <LoadoutEditor
+          rows={unit.loadout}
+          busy={busy}
+          lastChange={lastChange}
+          onSwap={onSwap}
+          onUndo={onUndo}
+        />
+        <WeaponList title="Ranged" rows={unit.ranged} />
+        <WeaponList title="Melee" rows={unit.melee} />
 
         <div>
           <p className="micro">{"// "}Abilities</p>
@@ -380,4 +409,14 @@ function Inspector({
       </div>
     </aside>
   );
+}
+
+/** "Special Weapon: Ministorum Flamer → Meltagun · +5 pts", or "×4" when several models made it. */
+function describeSwap(swap: Swap, times: number): string {
+  const who = `${swap.modelLabel}${times > 1 ? ` ×${times}` : ""}`;
+  const what = swap.remove.length
+    ? `${swap.remove.map((item) => item.name).join(" + ")} → ${swap.label}`
+    : `added ${swap.label}`;
+  const cost = swap.cost * times;
+  return `${who}: ${what}${cost ? ` · ${cost > 0 ? "+" : "−"}${Math.abs(cost)} pts` : ""}`;
 }

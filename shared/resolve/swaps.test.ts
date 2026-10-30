@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { snapshotBundle } from "../../fixtures";
 import { parseGuided } from "../list/guided";
-import type { Datasheet, Edit, Swap } from "../types";
+import type { Datasheet, Edit, LoadoutPick, LoadoutRow, Swap } from "../types";
 import { buildArmy } from "./army";
 import { applyEdits } from "./edits";
+import { apartFrom } from "./swaps";
 
 /** Runs on the committed, trimmed bundle in fixtures/bundles: no synced data needed. */
 const bundle = snapshotBundle("Adepta Sororitas");
@@ -29,19 +30,37 @@ function unit(units: Datasheet[], name: string, nth = 0): Datasheet {
   return found;
 }
 
-function swapsFor(sheet: Datasheet, weapon: string): Swap[] {
-  return [...sheet.ranged, ...sheet.melee].find((row) => row.name === weapon)?.swaps ?? [];
+function row(sheet: Datasheet, label: string): LoadoutRow {
+  const found = sheet.loadout.find((r) => r.label === label);
+  if (!found) throw new Error(`no ${label} in ${sheet.loadout.map((r) => r.label)}`);
+  return found;
 }
 
-function asEdit(army: ReturnType<typeof build>, sheet: Datasheet, swap: Swap): Edit {
+function pick(found: LoadoutRow, name: string): LoadoutPick {
+  const picked = found.picks.find((p) => p.name === name);
+  if (!picked) throw new Error(`no ${name} in ${found.picks.map((p) => p.name)}`);
+  return picked;
+}
+
+function option(swaps: Swap[], label: string): Swap {
+  const found = swaps.find((s) => s.label === label);
+  if (!found) throw new Error(`no ${label} in ${swaps.map((s) => s.label)}`);
+  return found;
+}
+
+function asEdit(army: ReturnType<typeof build>, sheet: Datasheet, swap: Swap, times = 1): Edit {
   return {
     unit: army.units.indexOf(sheet),
     model: swap.model,
     toModel: swap.toModel,
     remove: swap.remove,
     add: swap.add,
+    times,
   };
 }
+
+const counts = (sheet: Datasheet) =>
+  Object.fromEntries([...sheet.ranged, ...sheet.melee].map((r) => [r.name, r.count]));
 
 describe("points", () => {
   const army = build();
@@ -64,110 +83,114 @@ describe("points", () => {
   });
 });
 
-describe("swaps", () => {
+describe("the loadout", () => {
   const army = build();
 
+  it("reads a squad by its models: the leader, the troopers, then each specialist and its limit", () => {
+    const dominions = unit(army.units, "Dominion Squad");
+    expect(
+      dominions.loadout.map((r) => `${r.label} ${r.max ? `${r.count}/${r.max}` : r.count}`),
+    ).toEqual(["Superior 1", "Dominion 5", "Simulacrum Imperialis 0/1", "Special Weapon 4/4"]);
+    expect(row(dominions, "Dominion").fixed.map((i) => i.name)).toEqual([
+      "Bolt pistol",
+      "Boltgun",
+      "Close combat weapon",
+    ]);
+  });
+
   it("offers a character the other choices in each of her slots", () => {
-    const canoness = unit(army.units, "Canoness");
-    expect(swapsFor(canoness, "Blessed blade").map((s) => s.label)).toEqual([
+    const canoness = unit(army.units, "Canoness").loadout[0];
+    if (!canoness) throw new Error("no loadout");
+    expect(pick(canoness, "Blessed blade").swaps.map((s) => s.label)).toEqual([
       "Power weapon",
       "Hallowed Chainsword",
     ]);
-    expect(canoness.extras.map((s) => s.label)).toEqual([
+    // Her optional slot is empty: each choice is an addition.
+    expect(pick(canoness, "").swaps.map((s) => s.label)).toEqual([
       "Null Rod",
       "Brazier of Holy Fire",
       "Rod of Office",
     ]);
   });
 
-  it("gives a trooper a special weapon by changing its type, within the squad's limit", () => {
+  it("swaps a specialist's weapon, or sends it back to being a trooper", () => {
+    const special = row(unit(army.units, "Dominion Squad"), "Special Weapon");
+    const melta = pick(special, "Meltagun");
+    expect(melta.count).toBe(4);
+    expect(option(melta.swaps, "Ministorum Flamer")).toMatchObject({ cost: -5 });
+    expect(option(melta.swaps, "Boltgun")).toMatchObject({ toLabel: "Dominion", cost: -5 });
+  });
+
+  it("lets a trooper become a specialist only while there's room", () => {
     const dominions = unit(army.units, "Dominion Squad");
-    const meltagun = swapsFor(dominions, "Boltgun").find(
-      (s) => s.label === "Meltagun" && s.toModel === "Dominion w/ Special Weapon",
-    );
-    expect(meltagun).toMatchObject({
-      cost: 5,
-      blocked: "The squad already has 4 of the 4 allowed.",
-    });
-    // The superior's own boltgun swaps within her slot, priced and unlimited.
-    expect(
-      swapsFor(dominions, "Boltgun")
-        .filter((s) => s.modelLabel === "Superior")
-        .map((s) => s.label),
-    ).toContain("Combi-weapon");
-    // A meltagun back to a boltgun frees a place and saves its points.
-    expect(swapsFor(dominions, "Meltagun").find((s) => s.toModel === "Dominion")).toMatchObject({
-      cost: -5,
-      blocked: undefined,
+    expect(row(dominions, "Special Weapon").full).toBe("All 4 places taken.");
+    expect(row(dominions, "Simulacrum Imperialis").full).toBeUndefined();
+    const seraphim = unit(army.units, "Seraphim Squad");
+    expect(row(seraphim, "Special Weapons")).toMatchObject({
+      count: 2,
+      max: 2,
+      full: "All 2 places taken.",
     });
   });
 
-  it("counts squads by what only one model type can carry", () => {
-    const seraphim = unit(army.units, "Seraphim Squad");
-    const flamers = swapsFor(seraphim, "Bolt pistol").filter(
-      (s) => s.toModel === "Seraphim with Special Weapons",
+  it("labels a model type by what sets it apart", () => {
+    expect(apartFrom("Dominion w/ Special Weapon", "Dominion")).toBe("Special Weapon");
+    expect(apartFrom("Celestian Insidiant w/ hand flamer", "Celestian Insidiant")).toBe(
+      "Hand flamer",
     );
-    expect(flamers.map((s) => s.blocked)).toEqual([
-      "The squad already has 2 of the 2 allowed.",
-      "The squad already has 2 of the 2 allowed.",
-    ]);
+    expect(
+      apartFrom("Celestian Sacresant (Hallowed Mace)", "Celestian Sacresant (Anointed Halberd)"),
+    ).toBe("Hallowed Mace");
   });
 });
 
 describe("edits", () => {
-  it("swaps a meltagun for a flamer, reprices the squad, and frees nothing", () => {
+  it("swaps all four meltaguns for flamers at once, and reprices the squad", () => {
     const before = build();
     const dominions = unit(before.units, "Dominion Squad");
-    const flamer = swapsFor(dominions, "Meltagun").find((s) => s.label === "Ministorum Flamer");
-    if (!flamer) throw new Error("no flamer swap");
-
-    const after = build([asEdit(before, dominions, flamer)]);
-    const edited = unit(after.units, "Dominion Squad");
-    expect(Object.fromEntries(edited.ranged.map((row) => [row.name, row.count]))).toMatchObject({
-      Meltagun: 3,
-      "Ministorum flamer": 1,
-      Boltgun: 6,
-    });
-    expect(edited.points).toBe(105);
-    // Still four special weapons: no fifth.
-    expect(swapsFor(edited, "Boltgun").find((s) => s.label === "Meltagun")?.blocked).toBe(
-      "The squad already has 4 of the 4 allowed.",
+    const flamer = option(
+      pick(row(dominions, "Special Weapon"), "Meltagun").swaps,
+      "Ministorum Flamer",
     );
+
+    const after = build([asEdit(before, dominions, flamer, 4)]);
+    const edited = unit(after.units, "Dominion Squad");
+    expect(counts(edited)).toMatchObject({ "Ministorum flamer": 4, Boltgun: 6 });
+    expect(counts(edited).Meltagun).toBeUndefined();
+    expect(edited.points).toBe(90);
+    expect(row(edited, "Special Weapon").full).toBe("All 4 places taken.");
     // An edited list's points aren't compared with what it said.
     expect(after.warnings.some((w) => w.includes("adds up to"))).toBe(false);
-  });
-
-  it("adds an option to a model, carried by it alone", () => {
-    const before = build();
-    const dominions = unit(before.units, "Dominion Squad");
-    const power = dominions.extras.find((s) => s.label === "Power weapon");
-    if (!power) throw new Error("no power weapon option");
-
-    const after = unit(build([asEdit(before, dominions, power)]).units, "Dominion Squad");
-    expect(after.melee.find((row) => row.name === "Power weapon")).toMatchObject({ count: 1 });
   });
 
   it("gives a Dominion the Simulacrum without adding a model, then allows no second", () => {
     const before = build();
     const dominions = unit(before.units, "Dominion Squad");
-    const simulacrum = dominions.extras.find(
-      (s) => s.toModel === "Dominion w/ Simulacrum Imperialis" && !s.remove.length,
-    );
-    expect(simulacrum).toMatchObject({ label: "Simulacrum Imperialis", blocked: undefined });
-    if (!simulacrum) throw new Error("no Simulacrum option");
+    const join = option(row(dominions, "Simulacrum Imperialis").joins, "Simulacrum Imperialis");
 
-    const after = unit(build([asEdit(before, dominions, simulacrum)]).units, "Dominion Squad");
+    const after = unit(build([asEdit(before, dominions, join)]).units, "Dominion Squad");
     expect(after.modelCount).toBe(10);
     expect(after.wargearAbilities.map((a) => a.name)).toContain("Simulacrum Imperialis");
-    // One per squad: a second is refused, and the one it has can be given up again.
+    const simulacrum = row(after, "Simulacrum Imperialis");
+    expect(simulacrum).toMatchObject({ count: 1, full: "Only one per squad." });
+    // The one it has can be given up again.
     expect(
-      after.extras.find(
-        (s) => s.toModel === "Dominion w/ Simulacrum Imperialis" && !s.remove.length,
-      )?.blocked,
-    ).toBe("The squad already has 1 of the 1 allowed.");
-    expect(after.extras.find((s) => s.label === "No Simulacrum Imperialis")).toMatchObject({
-      toModel: "Dominion",
+      option(pick(simulacrum, "Simulacrum Imperialis").swaps, "No Simulacrum Imperialis"),
+    ).toMatchObject({
+      toLabel: "Dominion",
       blocked: undefined,
+    });
+  });
+
+  it("adds an option to the Superior, carried by her alone", () => {
+    const before = build();
+    const dominions = unit(before.units, "Dominion Squad");
+    const power = option(pick(row(dominions, "Superior"), "").swaps, "Power weapon");
+
+    const after = unit(build([asEdit(before, dominions, power)]).units, "Dominion Squad");
+    expect(after.melee.find((r) => r.name === "Power weapon")).toMatchObject({
+      count: 1,
+      carrier: "Superior",
     });
   });
 

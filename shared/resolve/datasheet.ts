@@ -6,7 +6,7 @@ import type { Datasheet, StatLine, WeaponRow } from "../types";
 import { comparable } from "../wahapedia";
 import { looseName, matchEnhancement, matchItem, matchModel, soleModel } from "./match";
 import { unitPoints } from "./points";
-import { unitSwaps } from "./swaps";
+import { unitLoadout } from "./swaps";
 import { addCount, emptyTally } from "./tally";
 
 /** The GW app's own complaints, which can land among a unit's lines. */
@@ -41,7 +41,7 @@ export function findUnit(bundle: FactionBundle, name: string): UnitData | undefi
 /**
  * One unit's card: only the weapons and wargear the list took, with how many
  * models carry each, and any changes those selections make to the profiles.
- * Also what the unit costs, and the swaps each of its models could make.
+ * Also what the unit costs, and each kind of model with the swaps it could make.
  * `copiesBefore` counts the same datasheet earlier in the army, which can cost more.
  */
 export function resolveDatasheet(
@@ -56,7 +56,7 @@ export function resolveDatasheet(
     points: unit.points,
     listedPoints: unit.points,
     pointsExact: false,
-    extras: [],
+    loadout: [],
     models: [],
     modelCount: 0,
     stats: [],
@@ -260,20 +260,7 @@ export function resolveDatasheet(
   tally.modelCount = sheet.modelCount;
   sheet.points = unitPoints(bundle, data, tally, sheet.enhancement?.name, copiesBefore);
   sheet.pointsExact = data.points.exact;
-  const swaps = unitSwaps(data, tally, (model) => modelLabel(model, unit.name));
-  for (const row of [...sheet.ranged, ...sheet.melee]) {
-    const offered = row.key ? swaps.byItem.get(row.key) : undefined;
-    if (offered?.length) row.swaps = offered;
-  }
-  // Swaps away from wargear that isn't a weapon (a Simulacrum, a Null Rod) go with the additions.
-  const weapons = new Set([...sheet.ranged, ...sheet.melee].map((row) => row.key));
-  sheet.extras = [
-    ...swaps.extras,
-    ...[...swaps.byItem.values()]
-      .flat()
-      .filter((swap) => !swap.remove.some((item) => weapons.has(normalizeName(item.name))))
-      .filter((swap, index, all) => all.indexOf(swap) === index),
-  ];
+  sheet.loadout = unitLoadout(data, tally, (model) => modelLabel(model, unit.name));
 
   return sheet;
 }
