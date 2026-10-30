@@ -144,7 +144,12 @@ export function armyRulesSections(army: Army): RulesSection[] {
             rules: enhancements.map((e) => ({
               name: e.name,
               html: e.html,
-              note: [e.bearer, e.cost ? `${e.cost} pts` : ""].filter(Boolean).join(" · "),
+              note: [
+                e.bearer,
+                e.cost ? `${e.cost} pts${/, | ×\d/.test(e.bearer) ? " each" : ""}` : "",
+              ]
+                .filter(Boolean)
+                .join(" · "),
             })),
           },
         ]

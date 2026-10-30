@@ -101,6 +101,8 @@ export function buildArmy(
       .map((s) => s.id);
     if (!group.bodyguardId) warnings.push(`Attached unit ${group.id} has no bodyguard unit.`);
   }
+  // Two copies of a unit with the same problem make one warning.
+  const uniqueWarnings = [...new Set(warnings)];
 
   return {
     note: list.note,
@@ -115,7 +117,7 @@ export function buildArmy(
     armyRules: armyRules(bundle, detachments.matched, units),
     glossary: glossary(bundle, units),
     crossCheck: crossCheck(bundle, units),
-    warnings,
+    warnings: uniqueWarnings,
     data: {
       ...versions,
       bsdataSha: bundle.sources.bsdataSha,
@@ -187,20 +189,31 @@ function armyRules(
     .map((d) => bundle.detachments.find((data) => data.id === d.id))
     .filter((d): d is FactionBundle["detachments"][number] => Boolean(d));
 
-  const enhancements = units.flatMap((unit) => {
-    if (!unit.enhancement) return [];
-    const data = chosen
-      .flatMap((d) => d.enhancements)
-      .find((e) => comparable(e.name) === comparable(unit.enhancement?.name ?? ""));
-    return [
-      {
-        name: unit.enhancement.name,
-        cost: data?.cost ?? "",
-        bearer: unit.name,
-        html: unit.enhancement.html || data?.html || "",
-      },
-    ];
-  });
+  // An upgrade several units take (Tools of Dominion) is listed once, with all its bearers:
+  // "Immortals ×3", "Cryptek, Technomancer".
+  const enhancements: ArmyRules["enhancements"] = [];
+  const bearers = new Map<string, Map<string, number>>();
+  for (const unit of units) {
+    if (!unit.enhancement) continue;
+    const name = unit.enhancement.name;
+    const key = comparable(name);
+    const counts = bearers.get(key) ?? new Map<string, number>();
+    counts.set(unit.name, (counts.get(unit.name) ?? 0) + 1);
+    bearers.set(key, counts);
+    if (enhancements.some((e) => comparable(e.name) === key)) continue;
+    const data = chosen.flatMap((d) => d.enhancements).find((e) => comparable(e.name) === key);
+    enhancements.push({
+      name,
+      cost: data?.cost ?? "",
+      bearer: unit.name,
+      html: unit.enhancement.html || data?.html || "",
+    });
+  }
+  for (const enhancement of enhancements) {
+    enhancement.bearer = [...(bearers.get(comparable(enhancement.name)) ?? [])]
+      .map(([bearer, count]) => (count > 1 ? `${bearer} ×${count}` : bearer))
+      .join(", ");
+  }
 
   return {
     rules,

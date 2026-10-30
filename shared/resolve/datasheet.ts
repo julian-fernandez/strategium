@@ -94,6 +94,8 @@ export function resolveDatasheet(
   const carriers = new Map<WeaponRow, Map<Carrier | undefined, number>>();
   // A combined option the list names part by part ("Particle caster", "Voidblade") counts once per group.
   const countedParts = new Set<string>();
+  // The options each carrier lists, by carrier and option key.
+  const listed = new Set<string>();
   const tally = emptyTally();
 
   const addModel = (name: string, count: number, items: ListItem[]) => {
@@ -148,6 +150,11 @@ export function resolveDatasheet(
     const key = match.key.split(":")[0] ?? match.key;
     const owners = carrier ? [carrier] : groups.filter((g) => g.model?.items[key]);
     const owner = owners.length === 1 ? owners[0] : undefined;
+    // The official app can list an option and then the weapon inside it ("Psychic Gifts",
+    // then "Psychic Shock Wave"): that weapon is the option's own, already counted.
+    const listedBy = `${carrier?.name ?? "unit"}:`;
+    if (match.key.includes(":") && listed.has(listedBy + key)) return;
+    listed.add(listedBy + match.key);
     addCount(tally.items, key, count);
     for (const [profiles, melee] of [
       [found.ranged, false],
@@ -250,6 +257,8 @@ export function resolveDatasheet(
   tally.modelCount = sheet.modelCount;
   sheet.points = unitPoints(bundle, data, tally, sheet.enhancement?.name, copiesBefore);
   sheet.pointsExact = data.points.exact;
+  // A squad that lists an unknown item on two lines says so once.
+  sheet.warnings = [...new Set(sheet.warnings)];
 
   return sheet;
 }

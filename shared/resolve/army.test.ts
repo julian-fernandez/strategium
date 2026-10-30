@@ -157,3 +157,23 @@ describe("buildArmy on the demo list", () => {
     expect(new Set(names).size).toBe(names.length);
   });
 });
+
+describe("an upgrade several characters take", () => {
+  it("is listed once in the army rules, its bearers counted", () => {
+    const list = parseArmyList(readFixture(LISTS_DIR, "necrons.txt"));
+    const army = buildArmy(list, snapshotBundle(list.faction), {});
+    const tools = army.armyRules.enhancements.filter((e) => e.name === "Tools of Dominion");
+    expect(tools).toHaveLength(1);
+    expect(tools[0]?.bearer).toBe("Immortals ×3");
+  });
+});
+
+describe("an option listed with the weapon inside it", () => {
+  it("prints that weapon once", () => {
+    const list = parseArmyList(readFixture(LISTS_DIR, "imperial-agents.txt"));
+    const army = buildArmy(list, snapshotBundle(list.faction), {});
+    const inquisitor = army.units.find((u) => u.name === "Inquisitor");
+    // The official app lists "Psychic Gifts" and then its "Psychic Shock Wave".
+    expect(inquisitor?.ranged.filter((r) => r.name === "Psychic Shock Wave")).toHaveLength(1);
+  });
+});
