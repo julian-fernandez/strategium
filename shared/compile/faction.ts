@@ -19,7 +19,6 @@ import {
   type PointsData,
   type ProfileField,
   ruleKey,
-  type SlotData,
   type StratagemData,
   type UnitData,
   type WeaponProfileData,
@@ -204,24 +203,19 @@ class UnitCompiler {
         if (item) unit.items[key] = item;
       }
       const cost = this.catalogues.points(node);
-      if (cost && unit.costs[key] === undefined) unit.costs[key] = cost;
+      if (!cost) continue;
+      unit.costs[key] ??= cost;
+      // A costed option of one weapon ("2x Inferno Pistols") prices each of its parts,
+      // which is how most lists name it.
+      const parts = this.parts(node);
+      const [part] = parts;
+      if (parts.length === 1 && part && normalizeName(part.name) !== key) {
+        unit.costs[normalizeName(part.name)] ??= cost / part.count;
+      }
     }
     // The unit's index covers its models' own options too, such as a weapon drawn on a model.
     for (const model of Object.values(unit.models)) {
       for (const [key, item] of Object.entries(model.items)) unit.items[key] ??= item;
-      // A costed choice of one weapon ("2x Inferno Pistols") prices each of its parts.
-      for (const choice of model.slots.flatMap((slot) => slot.choices)) {
-        const [part] = choice.items;
-        if (!choice.cost || choice.items.length !== 1 || !part) continue;
-        unit.costs[normalizeName(part.name)] ??= choice.cost / part.count;
-      }
-    }
-    for (const [group, keys] of this.squadGroups(root)) {
-      for (const key of keys) {
-        const model = unit.models[key];
-        // The squad's leader is never swapped for a trooper.
-        if (model && !(model.min === 1 && model.max === 1)) model.group = group;
-      }
     }
     unit.defaultModel = this.defaultModel(root, unit);
     return unit;
@@ -315,23 +309,6 @@ class UnitCompiler {
     return [...out];
   }
 
-  /** Groups holding two or more model types, which a squad's models move between. */
-  private squadGroups(root: BsNode): Map<string, string[]> {
-    const out = new Map<string, string[]>();
-    const queue = this.groupsOf(root);
-    while (queue.length) {
-      const group = queue.shift();
-      if (!group || SKIPPED_GROUPS.test(group.name ?? "")) continue;
-      const models = [...(group.selectionEntries ?? []), ...(group.entryLinks ?? [])]
-        .map((option) => this.catalogues.resolve(option))
-        .filter((entry) => entry.type === "model")
-        .map((entry) => normalizeName(entry.name));
-      if (models.length >= 2) out.set(group.name ?? "", models);
-      queue.push(...this.groupsOf(group));
-    }
-    return out;
-  }
-
   /** A node's choice groups, its own and the ones it links to. */
   private groupsOf(node: BsNode): BsNode[] {
     return [
@@ -343,64 +320,8 @@ class UnitCompiler {
   }
 
   /**
-   * A model's pick-one groups, and the wargear it carries whatever it picks:
-   * mandatory options outside any group, in their parts. Groups with no limit
-   * ("Wargear") only hold others; groups that allow several picks are left out.
-   */
-  private loadout(node: BsNode): { fixed: Counted[]; slots: SlotData[] } {
-    const fixed: Counted[] = [];
-    const slots: SlotData[] = [];
-    const isModel = (entry: BsNode) => entry.type === "model" || entry.type === "unit";
-    const skipped = (name = "") => SKIPPED_GROUPS.test(name) || /enhancement/i.test(name);
-
-    const visit = (parent: BsNode) => {
-      for (const option of [
-        ...(parent.selectionEntries ?? []),
-        ...(parent.entryLinks ?? []).filter((link) => link.type !== "selectionEntryGroup"),
-      ]) {
-        const entry = this.catalogues.resolve(option);
-        const min = limit(entry, "min");
-        if (isModel(entry) || min <= 0 || /^warlord$/i.test(entry.name ?? "")) continue;
-        for (const part of this.parts(entry)) addCounted(fixed, part.name, part.count * min);
-      }
-      for (const group of this.groupsOf(parent)) {
-        if (skipped(group.name)) continue;
-        const max = limit(group, "max");
-        const options = [
-          ...(group.selectionEntries ?? []),
-          ...(group.entryLinks ?? []).filter((link) => link.type !== "selectionEntryGroup"),
-        ]
-          .map((option) => ({ option, entry: this.catalogues.resolve(option) }))
-          .filter(({ entry }) => !isModel(entry) && entry.name);
-        if (max === 1 && options.length && !this.groupsOf(group).length) {
-          const min = limit(group, "min");
-          const wanted = group.defaultSelectionEntryId;
-          const chosen = wanted
-            ? options.find(({ option }) => option.id === wanted || option.targetId === wanted)
-            : undefined;
-          slots.push({
-            name: group.name ?? "",
-            min,
-            // An optional group's default isn't taken unless the list says so.
-            default: min > 0 ? (chosen ?? options[0])?.entry.name : undefined,
-            choices: options.map(({ entry }) => ({
-              name: entry.name ?? "",
-              items: this.parts(entry),
-              cost: this.optionCost(entry),
-            })),
-          });
-        } else if (max === 0) {
-          visit(group);
-        }
-      }
-    };
-    visit(node);
-    return { fixed, slots };
-  }
-
-  /**
-   * What an option puts in a model's hands: itself when it's a weapon or
-   * wargear, else what it's made of ("2 Bolt Pistols" is 2× Bolt pistol).
+   * What an option is made of: itself when it's a weapon or wargear, else
+   * its parts ("2x Inferno Pistols" is 2× Inferno Pistol).
    */
   private parts(entry: BsNode): Counted[] {
     const own = this.catalogues
@@ -418,15 +339,6 @@ class UnitCompiler {
     return [{ name: entry.name ?? "", count: 1 }];
   }
 
-  /** An option's points, with what it must take along. */
-  private optionCost(entry: BsNode): number {
-    let cost = this.catalogues.points(entry);
-    for (const child of this.catalogues.children(entry)) {
-      cost += this.catalogues.points(child) * limit(child, "min");
-    }
-    return cost;
-  }
-
   private model(node: BsNode, context: Set<string>, modifiers: ModifierData[]): ModelData {
     const model: ModelData = {
       name: node.name ?? "",
@@ -437,7 +349,6 @@ class UnitCompiler {
       min: limit(node, "min"),
       max: limit(node, "max"),
       defaults: this.defaults(node),
-      ...this.loadout(node),
       cost: this.catalogues.points(node),
     };
     for (const profile of this.catalogues.profiles(node)) {

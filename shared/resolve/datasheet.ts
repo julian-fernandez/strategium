@@ -6,7 +6,6 @@ import type { Datasheet, StatLine, WeaponRow } from "../types";
 import { comparable } from "../wahapedia";
 import { looseName, matchEnhancement, matchItem, matchModel, soleModel } from "./match";
 import { unitPoints } from "./points";
-import { unitLoadout } from "./swaps";
 import { addCount, emptyTally } from "./tally";
 
 /** The GW app's own complaints, which can land among a unit's lines. */
@@ -41,7 +40,7 @@ export function findUnit(bundle: FactionBundle, name: string): UnitData | undefi
 /**
  * One unit's card: only the weapons and wargear the list took, with how many
  * models carry each, and any changes those selections make to the profiles.
- * Also what the unit costs, and each kind of model with the swaps it could make.
+ * Also what the unit costs.
  * `copiesBefore` counts the same datasheet earlier in the army, which can cost more.
  */
 export function resolveDatasheet(
@@ -56,7 +55,6 @@ export function resolveDatasheet(
     points: unit.points,
     listedPoints: unit.points,
     pointsExact: false,
-    loadout: [],
     models: [],
     modelCount: 0,
     stats: [],
@@ -123,7 +121,7 @@ export function resolveDatasheet(
       }
     }
     sheet.models.push({ name, count });
-    const carrier: Carrier = { name, count, model, key: match?.key };
+    const carrier: Carrier = { name, count, model };
     groups.push(carrier);
     for (const item of items) addItem(item, model?.items, carrier);
   };
@@ -151,13 +149,6 @@ export function resolveDatasheet(
     const owners = carrier ? [carrier] : groups.filter((g) => g.model?.items[key]);
     const owner = owners.length === 1 ? owners[0] : undefined;
     addCount(tally.items, key, count);
-    if (owner?.key) {
-      const carried = tally.carried.get(owner.key) ?? new Map<string, number>();
-      addCount(carried, key, count);
-      tally.carried.set(owner.key, carried);
-    } else {
-      addCount(tally.loose, key, count);
-    }
     for (const [profiles, melee] of [
       [found.ranged, false],
       [found.melee, true],
@@ -171,7 +162,6 @@ export function resolveDatasheet(
         count,
         melee,
       );
-      row.key = key;
       const byCarrier = carriers.get(row) ?? new Map<Carrier | undefined, number>();
       byCarrier.set(owner, (byCarrier.get(owner) ?? 0) + count);
       carriers.set(row, byCarrier);
@@ -260,13 +250,12 @@ export function resolveDatasheet(
   tally.modelCount = sheet.modelCount;
   sheet.points = unitPoints(bundle, data, tally, sheet.enhancement?.name, copiesBefore);
   sheet.pointsExact = data.points.exact;
-  sheet.loadout = unitLoadout(data, tally, (model) => modelLabel(model, unit.name));
 
   return sheet;
 }
 
 /** One of the list's model groups: "1x Celestian Insidiant Superior" and the BSData model it is. */
-type Carrier = { name: string; count: number; model?: ModelData; key?: string };
+type Carrier = { name: string; count: number; model?: ModelData };
 
 /** The one-per-squad model in a squad of several: a Superior, Sergeant, Exarch, Nob. */
 function isSquadLeader(carrier: Carrier, modelCount: number): boolean {

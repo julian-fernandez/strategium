@@ -8,7 +8,7 @@ import { z } from "zod";
  * Bump COMPILER_VERSION whenever the shape or the compile rules change, so
  * cached bundles are rebuilt.
  */
-export const COMPILER_VERSION = 9;
+export const COMPILER_VERSION = 10;
 
 export const weaponProfileSchema = z.object({
   name: z.string(),
@@ -78,25 +78,6 @@ export const itemSchema = z.object({
 
 export const countedSchema = z.object({ name: z.string(), count: z.number() });
 
-/** One way to fill a slot: what it puts in the model's hands ("2 Bolt Pistols" is 2× Bolt pistol), and its points. */
-export const choiceSchema = z.object({
-  name: z.string(),
-  items: z.array(countedSchema),
-  cost: z.number(),
-});
-
-/**
- * A pick-one group on a model ("Dominion Special Weapon"): exactly one choice,
- * or at most one when `min` is 0. Groups that allow several picks aren't slots.
- */
-export const slotSchema = z.object({
-  name: z.string(),
-  min: z.number(),
-  /** The choice a model has unless the list says otherwise. */
-  default: z.string().optional(),
-  choices: z.array(choiceSchema),
-});
-
 export const modelSchema = z.object({
   name: z.string(),
   stats: z.array(statLineSchema),
@@ -104,7 +85,7 @@ export const modelSchema = z.object({
   factionKeywords: z.array(z.string()),
   /** Options under this model, by normalized name. Looked up before the unit's. */
   items: z.record(z.string(), itemSchema),
-  /** How many of this model a unit must and may have; a `max` of 0 sets no limit. */
+  /** How many of this model a unit must and may have. */
   min: z.number(),
   max: z.number(),
   /**
@@ -112,14 +93,6 @@ export const modelSchema = z.object({
    * take and each choice's default. For formats that leave wargear out.
    */
   defaults: z.array(countedSchema),
-  /** Wargear every one of these models carries, whatever its choices, in its parts. */
-  fixed: z.array(countedSchema),
-  slots: z.array(slotSchema),
-  /**
-   * The squad group it shares with other model types ("Dominions"): a model
-   * can become another type in its group, as a Dominion takes a special weapon.
-   */
-  group: z.string().optional(),
   /** Points for each one of these models, on top of the unit's. */
   cost: z.number(),
 });
@@ -228,8 +201,6 @@ export type WeaponProfileData = z.infer<typeof weaponProfileSchema>;
 export type ItemData = z.infer<typeof itemSchema>;
 export type ModelData = z.infer<typeof modelSchema>;
 export type Counted = z.infer<typeof countedSchema>;
-export type ChoiceData = z.infer<typeof choiceSchema>;
-export type SlotData = z.infer<typeof slotSchema>;
 export type PointsData = z.infer<typeof pointsSchema>;
 export type PointsCount = z.infer<typeof pointsCountSchema>;
 export type UnitData = z.infer<typeof unitSchema>;

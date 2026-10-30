@@ -1,22 +1,20 @@
 import { useState } from "react";
 import { unitLabel } from "../../../shared/labels";
-import type { Army, Datasheet, Edit, Swap } from "../../../shared/types";
+import type { Army, Datasheet, WeaponRow } from "../../../shared/types";
 import { Rich } from "../cards/parts";
 import { themeFor } from "../cards/themes";
 import { UnitSheet } from "../play/UnitSheet";
 import { ArmyRulesPanel } from "../rules/ArmyRulesPanel";
 import { AbilityTerm, RuleTerms } from "../rules/Rules";
 import { BottomSheet } from "./BottomSheet";
-import { LoadoutEditor, WeaponList } from "./Loadout";
 import { useMediaQuery } from "./layout";
 import { toRoman } from "./roman";
 import { StratagemRows } from "./StratagemRows";
 
 /**
  * The roster as a tile grid, attached units bracketed together. On a desktop
- * the selected unit shows in an inspector beside it, where its wargear can be
- * swapped; on a phone or tablet, tapping a unit opens its datasheet in a sheet
- * over the page.
+ * the selected unit shows in an inspector beside it; on a phone or tablet,
+ * tapping a unit opens its datasheet in a sheet over the page.
  */
 export function ArmyView({
   army,
@@ -25,12 +23,6 @@ export function ArmyView({
   onSelect,
   onOpenCards,
   onChangeList,
-  edits,
-  busy,
-  notice,
-  onEdit,
-  onUndo,
-  onRevert,
 }: {
   army: Army;
   /** "#2" for units that share a name, when numbering is on. */
@@ -39,13 +31,6 @@ export function ArmyView({
   onSelect: (id: string) => void;
   onOpenCards: () => void;
   onChangeList: () => void;
-  /** How many swaps have been made to the list here. */
-  edits: number;
-  busy: boolean;
-  notice?: string;
-  onEdit: (edit: Edit) => void;
-  onUndo: () => void;
-  onRevert: () => void;
 }) {
   const wide = useMediaQuery("(min-width: 1024px)");
   const [sheetId, setSheetId] = useState<string>();
@@ -53,31 +38,13 @@ export function ArmyView({
   const others = army.units.filter((unit) => !attachedIds.has(unit.id));
   const selected = army.units.find((unit) => unit.id === selectedId) ?? army.units[0];
   const points = army.units.reduce((sum, unit) => sum + unit.points, 0);
+  const inexact = army.units.some((unit) => !unit.pointsExact);
   const sheetUnit = wide ? undefined : army.units.find((unit) => unit.id === sheetId);
 
   const select = (id: string) => {
     onSelect(id);
     if (!wide) setSheetId(id);
   };
-  // What the last swap did, said back beside the loadout it changed.
-  const [lastChange, setLastChange] = useState<{ unitId: string; text: string }>();
-  // A unit's place in the army is its place in the list, which edits name it by.
-  const swap = (unit: Datasheet, chosen: Swap, times: number) => {
-    setLastChange({ unitId: unit.id, text: describeSwap(chosen, times) });
-    onEdit({
-      unit: army.units.indexOf(unit),
-      model: chosen.model,
-      toModel: chosen.toModel,
-      remove: chosen.remove,
-      add: chosen.add,
-      times,
-    });
-  };
-  const undo = () => {
-    setLastChange(undefined);
-    onUndo();
-  };
-  const inexact = army.units.some((unit) => !unit.pointsExact);
 
   return (
     <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_380px]">
@@ -87,34 +54,14 @@ export function ArmyView({
             {"// "}Roster · {army.units.length} units ·{" "}
             <span
               className="text-ink"
-              title={inexact ? "Some units have points rules the app can't read" : undefined}
+              title={inexact ? "Some units have a points rule the app can't read" : undefined}
             >
               {inexact ? "≈" : ""}
               {points.toLocaleString("en")} pts
             </span>
             {army.disposition ? ` · ${army.disposition}` : ""}
           </p>
-          {edits ? (
-            <div className="flex items-center gap-2">
-              <span className="micro text-gold">
-                {edits} {edits === 1 ? "change" : "changes"}
-              </span>
-              <button type="button" className="btn min-h-8 px-3" onClick={undo} disabled={busy}>
-                Undo
-              </button>
-              <button
-                type="button"
-                className="btn min-h-8 px-3"
-                onClick={() => {
-                  setLastChange(undefined);
-                  onRevert();
-                }}
-                disabled={busy}
-              >
-                Revert
-              </button>
-            </div>
-          ) : army.note ? (
+          {army.note ? (
             <p className="hidden max-w-[50ch] truncate text-[13px] italic text-ink-dim md:block">
               “{army.note}”
             </p>
@@ -123,12 +70,6 @@ export function ArmyView({
             Change list
           </button>
         </div>
-
-        {notice ? (
-          <p className="border-l-2 border-seal bg-panel px-4 py-3 text-[13px] text-ink-dim">
-            {notice}
-          </p>
-        ) : null}
 
         <ArmyRulesPanel army={army} />
 
@@ -194,15 +135,7 @@ export function ArmyView({
       </div>
 
       {wide && selected ? (
-        <Inspector
-          unit={selected}
-          label={unitLabel(selected, numbers)}
-          busy={busy}
-          lastChange={edits && lastChange?.unitId === selected.id ? lastChange.text : undefined}
-          onSwap={(chosen, times) => swap(selected, chosen, times)}
-          onUndo={undo}
-          onOpenCards={onOpenCards}
-        />
+        <Inspector unit={selected} label={unitLabel(selected, numbers)} onOpenCards={onOpenCards} />
       ) : null}
 
       {sheetUnit ? (
@@ -294,18 +227,10 @@ function Chip({ children, tone }: { children: React.ReactNode; tone?: "gold" | "
 function Inspector({
   unit,
   label,
-  busy,
-  lastChange,
-  onSwap,
-  onUndo,
   onOpenCards,
 }: {
   unit: Datasheet;
   label: string;
-  busy: boolean;
-  lastChange?: string;
-  onSwap: (swap: Swap, times: number) => void;
-  onUndo: () => void;
   onOpenCards: () => void;
 }) {
   const stats = unit.stats[0];
@@ -353,13 +278,6 @@ function Inspector({
           </div>
         ) : null}
 
-        <LoadoutEditor
-          rows={unit.loadout}
-          busy={busy}
-          lastChange={lastChange}
-          onSwap={onSwap}
-          onUndo={onUndo}
-        />
         <WeaponList title="Ranged" rows={unit.ranged} />
         <WeaponList title="Melee" rows={unit.melee} />
 
@@ -411,12 +329,37 @@ function Inspector({
   );
 }
 
-/** "Special Weapon: Ministorum Flamer → Meltagun · +5 pts", or "×4" when several models made it. */
-function describeSwap(swap: Swap, times: number): string {
-  const who = `${swap.modelLabel}${times > 1 ? ` ×${times}` : ""}`;
-  const what = swap.remove.length
-    ? `${swap.remove.map((item) => item.name).join(" + ")} → ${swap.label}`
-    : `added ${swap.label}`;
-  const cost = swap.cost * times;
-  return `${who}: ${what}${cost ? ` · ${cost > 0 ? "+" : "−"}${Math.abs(cost)} pts` : ""}`;
+function WeaponList({ title, rows }: { title: string; rows: WeaponRow[] }) {
+  if (!rows.length) return null;
+  return (
+    <div>
+      <p className="micro">
+        {"// "}
+        {title}
+      </p>
+      <ul className="mt-2 flex flex-col">
+        {rows.map((row) => (
+          <li
+            key={row.name}
+            className="flex items-baseline gap-3 border-b border-line py-1.5 text-[13px] last:border-b-0"
+          >
+            <span className="w-7 shrink-0 text-right font-bold text-ink">{row.count}×</span>
+            <span className="flex-1">
+              {row.name}
+              {row.carrier ? (
+                <span className="ml-2 border border-line-strong px-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-ink-dim">
+                  {row.carrier}
+                </span>
+              ) : null}
+            </span>
+            <span className="text-[12px] text-ink-dim">
+              {row.profiles[0]
+                ? `${row.profiles[0].range} · A${row.profiles[0].attacks} · S${row.profiles[0].strength} · AP${row.profiles[0].ap} · D${row.profiles[0].damage}`
+                : ""}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
