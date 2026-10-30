@@ -21,8 +21,6 @@ export type WeaponRow = {
   carrier?: string;
   /** The option it comes from, by normalized name. */
   key?: string;
-  /** What one model carrying it could take instead. */
-  swaps?: Swap[];
 };
 
 /** A number of one piece of wargear, as BSData names it. */
@@ -37,8 +35,9 @@ export type Swap = {
   /** The model type making the change, and its label on the card ("Superior"). */
   model: string;
   modelLabel: string;
-  /** The type it becomes, when that changes. */
+  /** The type it becomes, when that changes, and that type's label ("Special Weapon"). */
   toModel?: string;
+  toLabel?: string;
   remove: Counted[];
   add: Counted[];
   /** What it's called in a menu: the choice's name, or what it adds. */
@@ -49,10 +48,44 @@ export type Swap = {
   blocked?: string;
 };
 
+/**
+ * One kind of model in a unit, as a player reads the squad: "Superior ×1",
+ * "Dominion ×5", "Special Weapon 4 of 4". A trooper type with a special
+ * weapon or a piece of wargear is a row of its own, labelled by it.
+ */
+export type LoadoutRow = {
+  model: string;
+  label: string;
+  count: number;
+  /** How many the unit may have, when that's limited. */
+  max?: number;
+  /** Wargear each of them carries that can't be changed. */
+  fixed: Counted[];
+  /** The choices they've made, each with what one of them could take instead. */
+  picks: LoadoutPick[];
+  /** How a trooper becomes one of these: one entry per choice it could come with. */
+  joins: Swap[];
+  /** Why no more can join, when the unit is full of them. */
+  full?: string;
+};
+
+/** A choice some of a row's models have made ("Ministorum flamer", held by 4), or an empty optional slot. */
+export type LoadoutPick = {
+  /** The slot it fills ("Special Weapon"); empty for what sets a model type apart. */
+  slot: string;
+  /** The choice's name; empty for an optional slot nothing fills yet. */
+  name: string;
+  items: Counted[];
+  count: number;
+  swaps: Swap[];
+};
+
 /** A swap made to a unit of the list, kept so the list can be rebuilt with it. */
 export type Edit = Pick<Swap, "model" | "toModel" | "remove" | "add"> & {
   /** The unit's place in the list. */
   unit: number;
+  /** How many models make the same swap at once ("all 4"); one when missing. */
+  times?: number;
 };
 
 export type StatLine = {
@@ -79,8 +112,8 @@ export type Datasheet = {
   listedPoints: number;
   /** False when BSData has a points rule the app can't read, so `points` may be off. */
   pointsExact: boolean;
-  /** Wargear a model may add without giving anything up (a Simulacrum, a Null Rod). */
-  extras: Swap[];
+  /** Each kind of model, what it carries and what it could change. */
+  loadout: LoadoutRow[];
   models: { name: string; count: number }[];
   modelCount: number;
   stats: StatLine[];

@@ -27,9 +27,11 @@ export function applyEdits(
       continue;
     }
     const before = structuredClone(unit);
-    if (!applyEdit(unit, data, edit)) {
+    for (let made = 0; made < (edit.times ?? 1); made++) {
+      if (applyEdit(unit, data, edit)) continue;
       out.units[edit.unit] = before;
       skipped++;
+      break;
     }
   }
   return { list: out, skipped };

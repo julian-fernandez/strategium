@@ -1,6 +1,6 @@
 import { normalizeName } from "../bsdata/catalogues";
 import type { ChoiceData, Counted, ModelData, UnitData } from "../bundle";
-import type { Swap } from "../types";
+import type { LoadoutRow, Swap } from "../types";
 import { addCount, type Tally } from "./tally";
 
 /** Item counts by item key. */
@@ -18,125 +18,226 @@ type ModelState = {
 };
 
 /**
- * Every swap one model of the unit could make, by the item it gives up, and
- * the wargear a model could add without giving anything up.
+ * The unit as a player reads a squad: each kind of model, how many there are
+ * (and may be), what they all carry, and the choices they've made, each with
+ * what one of them could take instead.
  *
- * Two kinds: a different choice in one of the model's pick-one slots (a
- * Canoness's blessed blade for her chainsword), and a different model type
- * from its squad group, which is how BSData gives a trooper a special weapon
- * (a Dominion becomes a "Dominion w/ Special Weapon" with a meltagun). Lists
- * rarely say which trooper holds what, so who holds which choice is worked
- * out from the totals; the limits on each model type come from BSData.
+ * BSData gives a trooper a special weapon by making it another model type (a
+ * Dominion becomes a "Dominion w/ Special Weapon"), so those types are rows of
+ * their own, labelled by what sets them apart ("Special Weapon"), with a way
+ * for a trooper to join them while there's room. Lists rarely say which
+ * trooper holds what, so who holds which choice is worked out from the totals.
  */
-export function unitSwaps(
+export function unitLoadout(
   data: UnitData,
   tally: Tally,
   label: (model: string) => string,
-): { byItem: Map<string, Swap[]>; extras: Swap[] } {
+): LoadoutRow[] {
   const states = modelStates(data, tally);
-  const byItem = new Map<string, Swap[]>();
-  const extras: Swap[] = [];
-  const seen = new Set<string>();
-
-  const offer = (swap: Swap) => {
-    const signature = JSON.stringify([swap.model, swap.toModel, swap.remove, swap.add]);
-    if (seen.has(signature)) return;
-    seen.add(signature);
-    if (!swap.remove.length) {
-      extras.push(swap);
-      return;
-    }
-    for (const item of swap.remove) {
-      const key = normalizeName(item.name);
-      byItem.set(key, [...(byItem.get(key) ?? []), swap]);
-    }
+  const squad = states.size > 1;
+  const members = (group: string | undefined) =>
+    [...states.values()].filter((s) => group && s.model.group === group);
+  // A group's trooper: the one type it may have most of. Others are its specialists.
+  const trooperOf = (group: string | undefined): ModelState | undefined => {
+    const all = members(group);
+    const most = Math.max(...all.map((m) => limitOf(m.model)));
+    const top = all.filter((m) => limitOf(m.model) === most);
+    return top.length === 1 ? top[0] : undefined;
   };
 
-  const squad = states.size > 1;
+  const rows: { row: LoadoutRow; order: number }[] = [];
   for (const state of states.values()) {
-    if (state.count <= 0) continue;
     const { model } = state;
-    // A squad's leader goes by its rank ("Superior"); anything else by its own name.
+    const group = members(model.group);
+    const trooper = trooperOf(model.group);
+    const specialist = Boolean(model.group) && state !== trooper;
+    // A specialist type the squad has none of still shows, so a trooper can become one.
+    if (state.count <= 0 && !(specialist && trooper)) continue;
+
     const leader = squad && model.min === 1 && model.max === 1;
-    const modelLabel = leader ? label(model.name) : model.name;
+    const own = specialist ? distinctive(model, group) : new Map<string, number>();
+    const marks = model.fixed.filter((item) => own.has(normalizeName(item.name)));
+    const row: LoadoutRow = {
+      model: model.name,
+      label: leader
+        ? label(model.name)
+        : specialist
+          ? apartFrom(model.name, (trooper ?? group.find((m) => m !== state))?.model.name ?? "")
+          : model.name,
+      count: state.count,
+      // Only a specialist's limit means anything to a player ("4 of 4 special weapons").
+      max: specialist && model.max > 0 ? model.max : undefined,
+      fixed: model.fixed.filter((item) => !marks.includes(item)),
+      picks: [],
+      joins: [],
+    };
+    const swap = (fields: Omit<Swap, "model" | "modelLabel">): Swap => ({
+      model: model.name,
+      modelLabel: row.label,
+      ...fields,
+    });
+    // Where one of these models can go instead: back to a trooper, or (with no trooper) any other type.
+    const leaving = (from: Loadout): Swap[] => {
+      const targets = trooper ? (specialist ? [trooper] : []) : group.filter((m) => m !== state);
+      return targets.flatMap((target) =>
+        loadouts(target.model).flatMap((to) => {
+          const change = convert(state, target, from, to);
+          return change ? [swap({ ...change, toLabel: labelOf(target) })] : [];
+        }),
+      );
+    };
+    const labelOf = (other: ModelState) =>
+      other === trooper
+        ? other.model.name
+        : apartFrom(other.model.name, (trooper ?? state).model.name);
 
-    // Another choice in one of its slots.
-    for (const slot of model.slots) {
-      const held = slot.choices.filter((choice) => fits(state.held, choice.items) > 0);
-      for (const choice of held) {
-        for (const other of slot.choices) {
-          if (other === choice) continue;
-          offer({
-            model: model.name,
-            modelLabel,
-            remove: choice.items,
-            add: other.items,
-            label: other.name,
-            cost: other.cost - choice.cost,
+    if (state.count > 0) {
+      model.slots.forEach((slot, index) => {
+        const held = slot.choices
+          .map((choice) => ({
+            choice,
+            count: Math.min(state.count, fits(state.held, choice.items)),
+          }))
+          .filter(({ count }) => count > 0);
+        for (const { choice, count } of held) {
+          row.picks.push({
+            slot: slot.name,
+            name: choice.name,
+            items: choice.items,
+            count,
+            swaps: [
+              ...slot.choices
+                .filter((other) => other !== choice)
+                .map((other) =>
+                  swap({
+                    remove: choice.items,
+                    add: other.items,
+                    label: other.name,
+                    cost: other.cost - choice.cost,
+                  }),
+                ),
+              ...(slot.min === 0
+                ? [
+                    swap({
+                      remove: choice.items,
+                      add: [],
+                      label: `No ${choice.name}`,
+                      cost: -choice.cost,
+                    }),
+                  ]
+                : []),
+              ...leaving(loadoutWith(model, index, choice)),
+            ],
           });
         }
-        if (slot.min === 0) {
-          offer({
-            model: model.name,
-            modelLabel,
-            remove: choice.items,
-            add: [],
-            label: `No ${choice.name}`,
-            cost: -choice.cost,
+        // An optional slot with nothing in it: each choice can be added.
+        if (slot.min === 0 && !held.length) {
+          row.picks.push({
+            slot: slot.name,
+            name: "",
+            items: [],
+            count: 0,
+            swaps: slot.choices.map((choice) =>
+              swap({ remove: [], add: choice.items, label: choice.name, cost: choice.cost }),
+            ),
           });
         }
-      }
-      // An optional slot with nothing in it: each choice is an addition.
-      if (slot.min === 0 && !held.length) {
-        for (const choice of slot.choices) {
-          offer({
-            model: model.name,
-            modelLabel,
-            remove: [],
-            add: choice.items,
-            label: choice.name,
-            cost: choice.cost,
-          });
-        }
+      });
+      // What sets a specialist apart without a slot (the Simulacrum, a mace): giving it up.
+      if (marks.length) {
+        row.picks.push({
+          slot: "",
+          name: marks.map((item) => item.name).join(" and "),
+          items: marks,
+          count: state.count,
+          swaps: leaving(defaultLoadout(model)),
+        });
       }
     }
 
-    // Another model type from its squad group: one model changes, so the squad keeps its size.
-    if (!model.group) continue;
-    const mine = loadouts(model, state.held);
-    for (const other of states.values()) {
-      if (other === state || other.model.group !== model.group) continue;
-      const blocked =
-        other.model.max > 0 && other.count >= other.model.max
-          ? `The squad already has ${other.count} of the ${other.model.max} allowed.`
-          : model.min > 0 && state.count <= model.min
-            ? `The squad must keep ${model.min} ${model.name}.`
-            : undefined;
-      for (const from of mine) {
-        for (const to of loadouts(other.model)) {
-          const remove = minus(from.items, to.items);
-          const add = minus(to.items, from.items);
-          if (!add.length && !remove.length) continue;
-          offer({
-            model: model.name,
-            modelLabel,
-            toModel: other.model.name,
-            remove,
-            add,
-            // Giving something up for nothing: "No Simulacrum Imperialis".
-            label: add.length
-              ? add
-                  .map((item) => (item.count > 1 ? `${item.count}× ${item.name}` : item.name))
-                  .join(" + ")
-              : `No ${remove.map((item) => item.name).join(" or ")}`,
-            cost: to.cost + other.model.cost - from.cost - model.cost,
-            blocked,
-          });
-        }
-      }
+    // A trooper becoming one of these, while there's room.
+    if (specialist && trooper && trooper.count > 0) {
+      const from = loadouts(trooper.model, trooper.held)[0] ?? defaultLoadout(trooper.model);
+      row.joins = loadouts(model).flatMap((to) => {
+        const change = convert(trooper, state, from, to);
+        return change
+          ? [
+              {
+                ...change,
+                model: trooper.model.name,
+                modelLabel: trooper.model.name,
+                toLabel: row.label,
+              },
+            ]
+          : [];
+      });
+      row.full = row.joins[0]?.blocked;
     }
+
+    const order = leader ? 0 : !model.group ? 1 : specialist ? 3 : 2;
+    rows.push({ row, order });
   }
-  return { byItem, extras };
+  return rows.sort((a, b) => a.order - b.order).map(({ row }) => row);
+}
+
+/** One model of `from`'s type becoming `to`'s, with the loadouts given: what it gives up and gains, and why it can't. */
+function convert(
+  from: ModelState,
+  to: ModelState,
+  before: Loadout,
+  after: Loadout,
+): Omit<Swap, "model" | "modelLabel"> | undefined {
+  const remove = minus(before.items, after.items);
+  const add = minus(after.items, before.items);
+  if (!add.length && !remove.length) return undefined;
+  const blocked =
+    to.model.max > 0 && to.count >= to.model.max
+      ? to.model.max === 1
+        ? "Only one per squad."
+        : `All ${to.model.max} places taken.`
+      : from.model.min > 0 && from.count <= from.model.min
+        ? `The squad must keep ${from.model.min} ${from.model.name}.`
+        : undefined;
+  return {
+    toModel: to.model.name,
+    remove,
+    add,
+    // Giving something up for nothing: "No Simulacrum Imperialis".
+    label: add.length
+      ? add.map((item) => (item.count > 1 ? `${item.count}× ${item.name}` : item.name)).join(" + ")
+      : `No ${remove.map((item) => item.name).join(" or ")}`,
+    cost: after.cost + to.model.cost - before.cost - from.model.cost,
+    blocked,
+  };
+}
+
+/** How many of a model type a squad may have, a missing limit counting as no limit. */
+function limitOf(model: ModelData): number {
+  return model.max > 0 ? model.max : Number.POSITIVE_INFINITY;
+}
+
+/**
+ * A model type's name without what it shares with another's: "Dominion w/
+ * Special Weapon" next to "Dominion" is "Special Weapon"; "Celestian Sacresant
+ * (Hallowed Mace)" next to "Celestian Sacresant (Anointed Halberd)" is "Hallowed Mace".
+ */
+export function apartFrom(name: string, other: string): string {
+  const words = name.split(/\s+/);
+  const theirs = other.split(/\s+/);
+  let start = 0;
+  while (start < words.length - 1 && looseWord(words[start]) === looseWord(theirs[start])) start++;
+  const rest = words
+    .slice(start)
+    .join(" ")
+    .replace(/^(?:w\/|with|and)\s+/i, "")
+    .replace(/^\((.*)\)$/, "$1")
+    .trim();
+  // "w/ hand flamer" reads as a label once it starts with a capital.
+  return rest ? rest.charAt(0).toUpperCase() + rest.slice(1) : name;
+}
+
+function looseWord(word: string | undefined): string {
+  return (word ?? "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
 }
 
 /**
@@ -297,41 +398,38 @@ function distinctive(model: ModelData, members: ModelState[]): Map<string, numbe
 function loadouts(model: ModelData, held?: Bag): Loadout[] {
   const base = defaultLoadout(model);
   const out: Loadout[] = [];
-  const add = (slotIndex: number, choice: ChoiceData) => {
-    const items: Counted[] = [...model.fixed];
-    let cost = 0;
-    model.slots.forEach((slot, index) => {
-      const pick = index === slotIndex ? choice : slot.choices.find((c) => c.name === slot.default);
-      if (!pick) return;
-      items.push(...pick.items);
-      cost += pick.cost;
-    });
-    out.push({ items: merge(items), cost });
-  };
   if (!held) {
     out.push(base);
     model.slots.forEach((slot, index) => {
-      for (const choice of slot.choices) if (choice.name !== slot.default) add(index, choice);
+      for (const choice of slot.choices) {
+        if (choice.name !== slot.default) out.push(loadoutWith(model, index, choice));
+      }
     });
     return out;
   }
   // The loadouts its models hold now: each slot choice the totals show, the others at their defaults.
-  if (!model.slots.length) return [base];
   model.slots.forEach((slot, index) => {
-    for (const choice of slot.choices) if (fits(held, choice.items) > 0) add(index, choice);
+    for (const choice of slot.choices) {
+      if (fits(held, choice.items) > 0) out.push(loadoutWith(model, index, choice));
+    }
   });
   return out.length ? out : [base];
 }
 
 function defaultLoadout(model: ModelData): Loadout {
+  return loadoutWith(model, -1);
+}
+
+/** Its fixed wargear, with `choice` in one slot and every other slot at its default. */
+function loadoutWith(model: ModelData, slotIndex: number, choice?: ChoiceData): Loadout {
   const items: Counted[] = [...model.fixed];
   let cost = 0;
-  for (const slot of model.slots) {
-    const pick = slot.choices.find((c) => c.name === slot.default);
-    if (!pick) continue;
+  model.slots.forEach((slot, index) => {
+    const pick = index === slotIndex ? choice : slot.choices.find((c) => c.name === slot.default);
+    if (!pick) return;
     items.push(...pick.items);
     cost += pick.cost;
-  }
+  });
   return { items: merge(items), cost };
 }
 
