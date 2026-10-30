@@ -22,6 +22,7 @@ export function ArmyView({
   selectedId,
   onSelect,
   onOpenCards,
+  onOpenData,
   onChangeList,
 }: {
   army: Army;
@@ -30,6 +31,7 @@ export function ArmyView({
   selectedId?: string;
   onSelect: (id: string) => void;
   onOpenCards: () => void;
+  onOpenData: () => void;
   onChangeList: () => void;
 }) {
   const wide = useMediaQuery("(min-width: 1024px)");
@@ -61,9 +63,18 @@ export function ArmyView({
             </span>
             {army.disposition ? ` · ${army.disposition}` : ""}
           </p>
-          <button type="button" className="btn md:hidden" onClick={onChangeList}>
-            Change list
-          </button>
+          {/* On a phone or tablet the top bar has no room for these; the cards and the data live here. */}
+          <div className="flex flex-wrap gap-2 lg:hidden">
+            <button type="button" className="btn" onClick={onChangeList}>
+              Change list
+            </button>
+            <button type="button" className="btn" onClick={onOpenCards}>
+              Cards
+            </button>
+            <button type="button" className="btn" onClick={onOpenData}>
+              Data
+            </button>
+          </div>
           {army.note ? (
             // A line of its own, in full: it's the player's own note on the list.
             <p className="basis-full text-[13px] italic leading-relaxed text-ink-dim">

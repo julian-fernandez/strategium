@@ -46,12 +46,14 @@ export function CardsView({
   numbers,
   options,
   onOptions,
+  onPrint,
   fontsReady,
 }: {
   army: Army;
   numbers: Map<string, number>;
   options: DeckOptions;
   onOptions: (options: DeckOptions) => void;
+  onPrint: () => void;
   fontsReady: boolean;
 }) {
   // A rules page that still spills at its smallest type is split again on a
@@ -106,12 +108,16 @@ export function CardsView({
           </button>
         ))}
         {readable ? null : (
-          <div className="flex w-[180px] flex-col justify-center bg-panel-strong px-4 hairline">
+          <div className="flex w-[180px] flex-col justify-center bg-panel-strong px-4 py-3 hairline">
             <span className="micro">{"// "}Paper</span>
             <span className="mt-1 text-[22px] font-extrabold leading-none">{sheets}</span>
             <span className="mt-1 text-[12px] text-ink-dim">
               A5 {sheets === 1 ? "sheet" : "sheets"} · {pages.length} pages
             </span>
+            {/* The top bar's Print button is only on wide screens. */}
+            <button type="button" className="btn btn-action mt-3 lg:hidden" onClick={onPrint}>
+              Print
+            </button>
           </div>
         )}
       </div>

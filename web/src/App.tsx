@@ -15,7 +15,9 @@ import type { DeckOptions } from "./cards/printOrder";
 import { themeFor } from "./cards/themes";
 import { engine, type ListSource } from "./engine";
 import { PlayView } from "./play/PlayView";
+import { entryFor, playEntries } from "./play/playOrder";
 import { RulesProvider } from "./rules/Rules";
+import { RulesView } from "./rules/RulesView";
 import { ArmyView } from "./ui/ArmyView";
 import { CardsView } from "./ui/CardsView";
 import { DataPanel } from "./ui/DataPanel";
@@ -23,6 +25,8 @@ import { LoadPanel } from "./ui/LoadPanel";
 import { Ornament } from "./ui/Ornament";
 import { StratagemsView } from "./ui/StratagemsView";
 import { BottomNav, TABS, type Tab, TopBar } from "./ui/TopBar";
+import { useStored } from "./ui/useStored";
+import { useWakeLock } from "./ui/useWakeLock";
 
 export function App() {
   const [source, setSource] = useState<ListSource | undefined>(loadSavedSource);
@@ -31,7 +35,10 @@ export function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [showLoader, setShowLoader] = useState(false);
-  const [tab, setTab] = useState<Tab>("army");
+  // Remembered, so a reload mid-game comes back to the same tab and unit.
+  const [storedTab, setTab] = useStored<Tab>("army-cards:tab", "army");
+  const tab = TABS.some((t) => t.id === storedTab) ? storedTab : "army";
+  const [playUnit, setPlayUnit] = useStored<string | null>("army-cards:play-unit", null);
   const [selectedId, setSelectedId] = useState<string>();
   const [options, setOptions] = useState<DeckOptions>(loadSavedOptions);
   const [meta, setMeta] = useState<DataVersions>();
@@ -76,7 +83,17 @@ export function App() {
     setTab("cards");
     // Let the deck render and fit its text before the print dialog opens.
     requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
-  }, []);
+  }, [setTab]);
+
+  /** Shows a unit in Play, on the page of the unit it leads if it's a leader. */
+  const openUnit = useCallback(
+    (unitId: string) => {
+      const entry = army ? entryFor(playEntries(army), unitId) : undefined;
+      if (entry) setPlayUnit(entry.key);
+      setTab("play");
+    },
+    [army, setPlayUnit, setTab],
+  );
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -91,7 +108,7 @@ export function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [army, showLoader, tab, print]);
+  }, [army, showLoader, tab, print, setTab]);
 
   const changeOptions = useCallback((next: DeckOptions) => {
     setOptions(next);
@@ -103,6 +120,9 @@ export function App() {
       army && options.numberDuplicates ? duplicateNumbers(army.units) : new Map<string, number>(),
     [army, options.numberDuplicates],
   );
+
+  const inGame = tab === "play" || tab === "stratagems" || tab === "rules";
+  useWakeLock(Boolean(army) && !showLoader && inGame);
 
   const dataChanged = Boolean(army && meta?.changedAt && meta.changedAt !== army.data.changedAt);
   const theme = themeFor(army?.faction ?? "");
@@ -148,7 +168,7 @@ export function App() {
             </div>
           ) : null}
 
-          <main className="relative mx-auto max-w-[1400px] px-4 pb-24 pt-6 md:px-8 md:py-10 print:max-w-none print:p-0">
+          <main className="relative mx-auto max-w-[1400px] px-4 pb-24 pt-6 md:px-8 md:pt-10 lg:pb-10 print:max-w-none print:p-0">
             {!army || showLoader ? (
               <LoadPanel
                 initialText={source && "text" in source ? source.text : listText}
@@ -166,11 +186,18 @@ export function App() {
                 selectedId={selectedId}
                 onSelect={setSelectedId}
                 onOpenCards={() => setTab("cards")}
+                onOpenData={() => setTab("data")}
                 onChangeList={() => setShowLoader(true)}
               />
             ) : null}
             {army && !showLoader && tab === "play" ? (
-              <PlayView army={army} numbers={numbers} fontsReady={fontsReady} />
+              <PlayView
+                army={army}
+                numbers={numbers}
+                fontsReady={fontsReady}
+                unitKey={playUnit ?? undefined}
+                onUnitKey={setPlayUnit}
+              />
             ) : null}
             {army && !showLoader && tab === "cards" ? (
               <CardsView
@@ -178,11 +205,15 @@ export function App() {
                 numbers={numbers}
                 options={options}
                 onOptions={changeOptions}
+                onPrint={print}
                 fontsReady={fontsReady}
               />
             ) : null}
             {army && !showLoader && tab === "stratagems" ? (
-              <StratagemsView army={army} fontsReady={fontsReady} />
+              <StratagemsView army={army} numbers={numbers} fontsReady={fontsReady} />
+            ) : null}
+            {army && !showLoader && tab === "rules" ? (
+              <RulesView army={army} numbers={numbers} onOpenUnit={openUnit} />
             ) : null}
             {army && !showLoader && tab === "data" ? (
               <DataPanel

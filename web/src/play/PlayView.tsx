@@ -1,50 +1,90 @@
-import { type PointerEvent, useCallback, useEffect, useRef, useState } from "react";
+import {
+  type PointerEvent,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { unitLabel } from "../../../shared/labels";
-import type { Army, Stratagem } from "../../../shared/types";
+import type { Army } from "../../../shared/types";
 import { DatasheetCard } from "../cards/DatasheetCard";
 import { themeFor } from "../cards/themes";
-import { ArmyRulesPanel } from "../rules/ArmyRulesPanel";
+import { BottomSheet } from "../ui/BottomSheet";
 import { FitToWidth } from "../ui/FitToWidth";
-import { READABLE_CARD_WIDTH, useWidth } from "../ui/layout";
-import { StratagemRows } from "../ui/StratagemRows";
-import { PHASES, type Phase, playEntries, type Turn, usableNow } from "./playOrder";
+import { READABLE_CARD_WIDTH, useMediaQuery, useWidth } from "../ui/layout";
+import { StratagemList } from "../ui/StratagemRows";
+import { useStored } from "../ui/useStored";
+import { Finder } from "./Finder";
+import { MomentPicker, momentLabel, useMoment } from "./MomentPicker";
+import { type PlayEntry, playEntries, usableNow } from "./playOrder";
+import { UnitList } from "./UnitList";
 import { UnitSheet } from "./UnitSheet";
 
 const SWIPE_DISTANCE = 60;
-const STORAGE_KEY = "army-cards:play";
-/** The "All units" choice in the unit picker. */
-const ALL = -1;
 
 /**
- * For playing from a phone or tablet: one unit at a time (or all of them),
- * the stratagems usable right now, and the datasheet sized to the screen.
+ * For playing from a phone or tablet: find any unit, stratagem or rule from
+ * the search box, pick a unit from the list (a sheet on a phone, a column on
+ * a tablet), and read its datasheet sized to the screen, with the stratagems
+ * it can use right now a tap away.
  */
 export function PlayView({
   army,
   numbers,
   fontsReady,
+  unitKey,
+  onUnitKey,
 }: {
   army: Army;
   numbers: Map<string, number>;
   fontsReady: boolean;
+  /** The unit shown, remembered by the app so other tabs can open one here. */
+  unitKey?: string;
+  onUnitKey: (key: string) => void;
 }) {
-  const entries = playEntries(army);
-  const [index, setIndex] = useState(0);
-  const [{ phase, turn }, setMoment] = useState(loadMoment);
-  const theme = themeFor(army.faction);
-  const [content, width] = useWidth<HTMLDivElement>();
-
-  const selected = index === ALL ? undefined : entries[Math.min(index, entries.length - 1)];
+  const entries = useMemo(() => playEntries(army), [army]);
+  const selected = entries.find((entry) => entry.key === unitKey) ?? entries[0];
   const count = entries.length;
+  const index = selected ? entries.indexOf(selected) : 0;
+  const theme = themeFor(army.faction);
+  const [moment, setMoment] = useMoment();
+  const [showStratagems, setShowStratagems] = useStored("army-cards:play-stratagems", false);
+  const [browsing, setBrowsing] = useState(false);
+  const rail = useMediaQuery("(min-width: 768px)");
+  const [content, width] = useWidth<HTMLDivElement>();
+  const root = useRef<HTMLDivElement>(null);
+  const bar = useRef<HTMLDivElement>(null);
+  const [barHeight, setBarHeight] = useState(0);
 
-  /** Next and previous step through the units; from "All units" they go to the first or last. */
-  const go = useCallback(
-    (step: number) =>
-      setIndex((i) => (i === ALL ? (step > 0 ? 0 : count - 1) : (i + step + count) % count)),
-    [count],
+  // The unit column sticks just under the bar, however tall the bar wraps.
+  useLayoutEffect(() => {
+    const element = bar.current;
+    if (!element) return;
+    const observer = new ResizeObserver(() => setBarHeight(element.offsetHeight));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  /** Opens a unit at the top of its sheet. */
+  const pick = useCallback(
+    (entry: PlayEntry) => {
+      onUnitKey(entry.key);
+      setBrowsing(false);
+      const top = (root.current?.getBoundingClientRect().top ?? 0) + window.scrollY;
+      if (window.scrollY > top) window.scrollTo({ top, behavior: "instant" });
+    },
+    [onUnitKey],
   );
 
-  useEffect(() => saveMoment({ phase, turn }), [phase, turn]);
+  const go = useCallback(
+    (step: number) => {
+      const next = entries[(index + step + count) % count];
+      if (next) pick(next);
+    },
+    [entries, index, count, pick],
+  );
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -71,214 +111,150 @@ export function PlayView({
     if (Math.abs(dx) > SWIPE_DISTANCE && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
   };
 
-  const pool = selected ? selected.stratagems : army.stratagems;
-  const now = pool.filter((s) => usableNow(s, phase, turn));
+  if (!selected) return <p className="text-[14px] text-ink-dim">This list has no units.</p>;
+
+  const pool = selected.stratagems;
+  const now = pool.filter((s) => usableNow(s, moment.phase, moment.turn));
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="sticky top-0 z-20 -mx-4 flex flex-col gap-2 border-b border-line bg-panel-strong px-4 py-3 backdrop-blur-sm md:-mx-8 md:px-8">
-        <div className="grid grid-cols-6 gap-1" role="tablist" aria-label="Phase">
-          {PHASES.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              aria-selected={phase === item.id}
-              onClick={() => setMoment({ phase: item.id, turn })}
-              className={`flex min-w-0 flex-col items-center border px-1 py-1.5 transition-colors duration-150 ${
-                phase === item.id
-                  ? "border-ink bg-ink text-ground-deep"
-                  : "border-line text-ink-dim hover:border-line-strong"
-              }`}
-            >
-              <span className="text-[15px] font-extrabold leading-none">{item.numeral}</span>
-              <span className="mt-1 w-full truncate text-center text-[8px] font-semibold uppercase tracking-[0.08em] sm:text-[9px] sm:tracking-[0.14em]">
-                <span className="sm:hidden">{item.short ?? item.label}</span>
-                <span className="hidden sm:inline">{item.label}</span>
-              </span>
-            </button>
-          ))}
-        </div>
-        <fieldset className="flex gap-1 border-0 p-0" aria-label="Whose turn">
-          {(["mine", "theirs"] as Turn[]).map((item) => (
-            <button
-              key={item}
-              type="button"
-              aria-pressed={turn === item}
-              onClick={() => setMoment({ phase, turn: item })}
-              className={`flex-1 border py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] transition-colors duration-150 ${
-                turn === item
-                  ? "border-faction bg-faction text-ink"
-                  : "border-line text-ink-dim hover:border-line-strong"
-              }`}
-            >
-              {item === "mine" ? "My turn" : "Their turn"}
-            </button>
-          ))}
-        </fieldset>
-      </div>
-
-      <nav className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-5" aria-label="Units">
-        <UnitChip
-          label="All units"
-          detail="Every stratagem"
-          active={index === ALL}
-          onClick={() => setIndex(ALL)}
-        />
-        {entries.map((entry, i) => (
-          <UnitChip
-            key={entry.key}
-            label={unitLabel(entry.unit, numbers)}
-            detail={
-              entry.characters.length
-                ? `+ ${entry.characters.map((c) => c.name).join(", ")}`
-                : undefined
-            }
-            active={entry === selected}
-            onClick={() => setIndex(i)}
-          />
-        ))}
-      </nav>
-
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          className="btn h-11 w-11 px-0"
-          onClick={() => go(-1)}
-          aria-label="Previous unit"
-        >
-          ‹
-        </button>
-        <div className="min-w-0 flex-1 text-center">
-          <p className="micro">
-            {selected ? `Unit ${entries.indexOf(selected) + 1} / ${count}` : `${count} units`}
-          </p>
-          <h2 className="text-balance text-[20px] font-extrabold uppercase leading-tight tracking-[0.02em]">
-            {selected ? unitLabel(selected.unit, numbers) : "All units"}
-          </h2>
-        </div>
-        <button
-          type="button"
-          className="btn h-11 w-11 px-0"
-          onClick={() => go(1)}
-          aria-label="Next unit"
-        >
-          ›
-        </button>
-      </div>
-
-      <StratagemRows
-        title="Usable now"
-        count={`${now.length} of ${pool.length}`}
-        stratagems={now}
-        empty={
-          selected
-            ? "Nothing this unit can use in this phase and turn."
-            : "Nothing your army can use in this phase and turn."
-        }
-        usersOf={selected ? undefined : whoCanUse}
-      />
-
+    <div ref={root} className="flex flex-col gap-4">
       <div
-        ref={content}
-        className="flex touch-pan-y flex-col gap-4"
-        onPointerDown={onPointerDown}
-        onPointerUp={onPointerUp}
-        onPointerCancel={() => {
-          swipeStart.current = null;
-        }}
+        ref={bar}
+        className="sticky top-0 z-20 -mx-4 flex flex-col gap-2 border-b border-line bg-panel-strong px-4 py-3 backdrop-blur-sm md:-mx-8 md:px-8"
       >
-        {!selected ? (
-          <ArmyRulesPanel army={army} />
-        ) : width >= READABLE_CARD_WIDTH ? (
-          <>
-            <FitToWidth max={1.35}>
-              <DatasheetCard
-                sheet={selected.unit}
-                number={numbers.get(selected.unit.id)}
-                theme={theme}
-                fontsReady={fontsReady}
-              />
-            </FitToWidth>
-            {/* Characters on the same datasheet as every other unit. */}
-            {selected.characters.map((character) => (
-              <FitToWidth key={character.id} max={1.35}>
-                <DatasheetCard
-                  sheet={character}
-                  number={numbers.get(character.id)}
-                  theme={theme}
-                  fontsReady={fontsReady}
-                />
-              </FitToWidth>
-            ))}
-          </>
-        ) : (
-          <UnitSheet
-            unit={selected.unit}
-            characters={selected.characters}
-            numbers={numbers}
-            theme={theme}
-          />
-        )}
+        <Finder army={army} entries={entries} numbers={numbers} onUnit={pick} />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="btn h-11 w-11 shrink-0 px-0"
+            onClick={() => go(-1)}
+            aria-label="Previous unit"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            onClick={() => setBrowsing(true)}
+            disabled={rail}
+            className="min-w-0 flex-1 px-1 text-center disabled:cursor-default"
+            aria-label={rail ? undefined : "Choose a unit"}
+          >
+            <span className="micro block">
+              Unit {index + 1} / {count}
+              {rail ? "" : " · all units ▾"}
+            </span>
+            <span className="block text-balance text-[18px] font-extrabold uppercase leading-tight tracking-[0.02em] md:text-[20px]">
+              {unitLabel(selected.unit, numbers)}
+            </span>
+            {selected.characters.length ? (
+              <span className="block text-[12px] leading-snug text-ink-dim">
+                + {selected.characters.map((c) => unitLabel(c, numbers)).join(", ")}
+              </span>
+            ) : null}
+          </button>
+          <button
+            type="button"
+            className="btn h-11 w-11 shrink-0 px-0"
+            onClick={() => go(1)}
+            aria-label="Next unit"
+          >
+            ›
+          </button>
+        </div>
       </div>
+
+      <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-[220px_minmax(0,1fr)] lg:grid-cols-[260px_minmax(0,1fr)]">
+        {rail ? (
+          <aside
+            className="sticky overflow-y-auto overscroll-contain"
+            style={{ top: barHeight + 16, maxHeight: `calc(100vh - ${barHeight + 32}px)` }}
+            aria-label="Units"
+          >
+            <UnitList
+              entries={entries}
+              numbers={numbers}
+              selectedKey={selected.key}
+              onPick={pick}
+            />
+          </aside>
+        ) : null}
+
+        <div className="flex min-w-0 flex-col gap-4">
+          <section className="bg-panel hairline">
+            <button
+              type="button"
+              onClick={() => setShowStratagems(!showStratagems)}
+              aria-expanded={showStratagems}
+              className="flex w-full flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-4 py-3 text-left"
+            >
+              <span className="micro text-ink">
+                {showStratagems ? "▾" : "▸"} Usable now · {now.length} of {pool.length}
+              </span>
+              <span className="micro">{momentLabel(moment)}</span>
+            </button>
+            {showStratagems ? (
+              <>
+                <div className="border-t border-line px-4 py-3">
+                  <MomentPicker moment={moment} onMoment={setMoment} />
+                </div>
+                <div className="border-t border-line">
+                  <StratagemList
+                    stratagems={now}
+                    empty="Nothing this unit can use in this phase and turn."
+                  />
+                </div>
+              </>
+            ) : null}
+          </section>
+
+          <div
+            ref={content}
+            className="flex touch-pan-y flex-col gap-4"
+            onPointerDown={onPointerDown}
+            onPointerUp={onPointerUp}
+            onPointerCancel={() => {
+              swipeStart.current = null;
+            }}
+          >
+            {width >= READABLE_CARD_WIDTH ? (
+              <>
+                <FitToWidth max={1.35}>
+                  <DatasheetCard
+                    sheet={selected.unit}
+                    number={numbers.get(selected.unit.id)}
+                    theme={theme}
+                    fontsReady={fontsReady}
+                  />
+                </FitToWidth>
+                {/* Characters on the same datasheet as every other unit. */}
+                {selected.characters.map((character) => (
+                  <FitToWidth key={character.id} max={1.35}>
+                    <DatasheetCard
+                      sheet={character}
+                      number={numbers.get(character.id)}
+                      theme={theme}
+                      fontsReady={fontsReady}
+                    />
+                  </FitToWidth>
+                ))}
+              </>
+            ) : (
+              <UnitSheet
+                unit={selected.unit}
+                characters={selected.characters}
+                numbers={numbers}
+                theme={theme}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+
+      {browsing && !rail ? (
+        <BottomSheet title="Units" eyebrow={`${count} units`} onClose={() => setBrowsing(false)}>
+          <UnitList entries={entries} numbers={numbers} selectedKey={selected.key} onPick={pick} />
+        </BottomSheet>
+      ) : null}
     </div>
   );
-}
-
-function UnitChip({
-  label,
-  detail,
-  active,
-  onClick,
-}: {
-  label: string;
-  detail?: string;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-current={active ? "true" : undefined}
-      className={`min-w-0 border px-3 py-2 text-left leading-tight transition-colors duration-150 ${
-        active
-          ? "border-ink bg-panel-strong text-ink shadow-[inset_3px_0_0_var(--color-faction)]"
-          : "border-line bg-panel text-ink-dim hover:border-line-strong"
-      }`}
-    >
-      <span className="block text-[13px] font-semibold">{label}</span>
-      {detail ? (
-        <span className="mt-0.5 block text-[11px] font-medium leading-snug text-ink-faint">
-          {detail}
-        </span>
-      ) : null}
-    </button>
-  );
-}
-
-/** For the "All units" list: who in the army can use each stratagem. */
-function whoCanUse(stratagem: Stratagem): string {
-  if (stratagem.everyUnit) return "Every unit";
-  if (stratagem.usableBy.length === 0) return "Your army";
-  return stratagem.usableBy.join(", ");
-}
-
-type Moment = { phase: Phase; turn: Turn };
-
-function loadMoment(): Moment {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}") as Partial<Moment>;
-    return { phase: saved.phase ?? "all", turn: saved.turn ?? "mine" };
-  } catch {
-    return { phase: "all", turn: "mine" };
-  }
-}
-
-function saveMoment(moment: Moment): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(moment));
-  } catch {
-    // Storage can be unavailable; the phase just won't be remembered.
-  }
 }
