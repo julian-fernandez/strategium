@@ -1,4 +1,10 @@
-/** Our own line icons and emblems. No Games Workshop artwork. */
+import { useContext } from "react";
+import { FactionIconContext } from "./factionIcon";
+
+/**
+ * Our own line icons and emblems. The one piece of Games Workshop artwork is
+ * the faction emblem, fetched at run time into the data cache, never committed.
+ */
 
 export function CrosshairIcon({ className }: { className?: string }) {
   return (
@@ -32,6 +38,10 @@ export function BladesIcon({ className }: { className?: string }) {
 }
 
 /** A plain heraldic diamond with a cross: the faction emblem stand-in and render placeholder. */
+/**
+ * The faction's emblem in the current text colour: the faction's own when the
+ * icon set has one, drawn as a mask so it takes any colour, else the app's.
+ */
 export function Emblem({
   className,
   strokeWidth = 1.5,
@@ -39,6 +49,17 @@ export function Emblem({
   className?: string;
   strokeWidth?: number;
 }) {
+  const icon = useContext(FactionIconContext);
+  if (icon) {
+    const mask = `url("${icon}") center / contain no-repeat`;
+    return (
+      <span
+        className={`inline-block bg-current ${className ?? ""}`}
+        style={{ mask, WebkitMask: mask }}
+        aria-hidden
+      />
+    );
+  }
   return (
     <svg
       viewBox="0 0 48 48"

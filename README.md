@@ -26,8 +26,9 @@ A5 landscape page.
 Strategium reads lists; it doesn't build or edit them. Change a list in the
 app you built it with, then load it again.
 
-A personal tool. It reproduces Games Workshop's rules text, so don't host it
-publicly.
+A personal tool. It reproduces Games Workshop's rules text and faction
+emblems, so don't host it publicly. Neither is in the repo: both are fetched
+into `data/cache/` when the app runs.
 
 ## Run it
 
@@ -178,14 +179,21 @@ browser: Web Worker ─ detect format ─ read list ─ resolve units ─► Arm
 
 ## Where the data comes from
 
-| What                                                                                  | Source                                                                                          |
-| ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Datasheets: stats, weapons, abilities, keywords, default loadouts, points             | [BSData/wh40k-11e](https://github.com/BSData/wh40k-11e), the data New Recruit builds lists from |
-| Stratagems, detachment rules, enhancements, which units can use them, background text | [Wahapedia's data export](https://wahapedia.ru/wh40k11ed/the-rules/data-export/)                |
+| What                                                                                  | Source                                                                                              |
+| ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Datasheets: stats, weapons, abilities, keywords, default loadouts, points             | [BSData/wh40k-11e](https://github.com/BSData/wh40k-11e), the data New Recruit builds lists from     |
+| Stratagems, detachment rules, enhancements, which units can use them, background text | [Wahapedia's data export](https://wahapedia.ru/wh40k11ed/the-rules/data-export/)                    |
+| Faction emblems on the cards and in the app                                           | [warhammer40kgroup/wh40k-icon](https://github.com/warhammer40kgroup/wh40k-icon), at a pinned commit |
 
-The server checks both sources on start and every six hours, syncs anything
-new into `data/cache/`, and keeps the previous snapshot. The app then shows a
-"Data updated" banner.
+The server checks BSData and Wahapedia on start and every six hours, syncs
+anything new into `data/cache/`, and keeps the previous snapshot. The app then
+shows a "Data updated" banner.
+
+A faction's emblem is fetched the first time an army of that faction loads,
+and kept in `data/cache/icons/`. The set has no emblem for Aeldari, Drukhari,
+Orks, Tyranids, Genestealer Cults, Leagues of Votann, Grey Knights, Black
+Templars, Deathwatch, or either Knights faction; those keep the app's own
+emblem. The mapping is in `shared/icons.ts`.
 
 ## Checks
 

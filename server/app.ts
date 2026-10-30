@@ -5,6 +5,7 @@ import { etag } from "hono/etag";
 import { z } from "zod";
 import type { DataVersions } from "../shared/types";
 import { loadBundle } from "./data";
+import { factionIcon } from "./icons";
 import { lanAddresses } from "./lan";
 import { fetchListhammerListText } from "./sources";
 import { type Meta, readMeta } from "./store";
@@ -35,6 +36,17 @@ export const app = new Hono()
       } catch (error) {
         return c.json({ error: message(error) }, 500);
       }
+    },
+  )
+  .get(
+    "/api/icon",
+    zValidator("query", z.object({ faction: z.string().min(1) }), rejectInvalid),
+    async (c) => {
+      // As text inside JSON, never served as an SVG document of its own. A faction
+      // without one isn't an error: the app keeps its own emblem.
+      const svg = (await factionIcon(c.req.valid("query").faction)) ?? null;
+      c.header("Cache-Control", "max-age=86400");
+      return c.json({ svg }, 200);
     },
   )
   .post(

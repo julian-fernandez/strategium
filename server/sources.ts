@@ -1,4 +1,5 @@
 import { parsePipeCsv } from "../shared/csv";
+import { ICON_SOURCE } from "../shared/icons";
 import type { WahapediaFile } from "../shared/wahapedia";
 
 export { WAHAPEDIA_FILES, type WahapediaFile } from "../shared/wahapedia";
@@ -35,6 +36,12 @@ export async function fetchBsdataCatalogueNames(sha: string): Promise<string[]> 
   return body.tree
     .filter((entry) => entry.type === "blob" && entry.path.endsWith(".json"))
     .map((entry) => entry.path.slice(0, -".json".length));
+}
+
+/** A faction emblem from the pinned icon set, by its path there. */
+export async function fetchFactionIcon(iconPath: string): Promise<string> {
+  const response = await get(`${ICON_SOURCE}${iconPath}`, "image/svg+xml");
+  return response.text();
 }
 
 export async function fetchBsdataCatalogue(sha: string, name: string): Promise<string> {

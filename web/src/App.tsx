@@ -10,6 +10,7 @@ import {
   saveOptions,
   saveSource,
 } from "./api";
+import { FactionIconContext, useFactionIcon } from "./cards/factionIcon";
 import type { DeckOptions } from "./cards/printOrder";
 import { themeFor } from "./cards/themes";
 import { engine, type ListSource } from "./engine";
@@ -105,100 +106,103 @@ export function App() {
 
   const dataChanged = Boolean(army && meta?.changedAt && meta.changedAt !== army.data.changedAt);
   const theme = themeFor(army?.faction ?? "");
+  const icon = useFactionIcon(army?.faction);
 
   return (
     <RulesProvider glossary={army?.glossary ?? NO_RULES}>
-      <div
-        className="relative min-h-screen"
-        style={{ "--color-faction": theme.header } as React.CSSProperties}
-      >
-        <Ornament />
-        <TopBar
-          army={showLoader ? undefined : army}
-          tab={tab}
-          onTab={setTab}
-          onPrint={print}
-          onChangeList={() => setShowLoader(true)}
-          factionColor={theme.header}
-        />
+      <FactionIconContext.Provider value={icon}>
+        <div
+          className="relative min-h-screen"
+          style={{ "--color-faction": theme.header } as React.CSSProperties}
+        >
+          <Ornament />
+          <TopBar
+            army={showLoader ? undefined : army}
+            tab={tab}
+            onTab={setTab}
+            onPrint={print}
+            onChangeList={() => setShowLoader(true)}
+            factionColor={theme.header}
+          />
 
-        {dataChanged && source ? (
-          <div className="no-print relative border-b border-line bg-panel">
-            <div className="mx-auto flex max-w-[1400px] items-center gap-4 px-4 py-3 md:px-8">
-              <span className="h-2 w-2 rotate-45 bg-gold" />
-              <p className="flex-1 text-[13px]">
-                <span className="font-semibold uppercase tracking-[0.18em]">Data updated</span>
-                <span className="text-ink-dim">
-                  {" "}
-                  · new rules or datasheets arrived since these cards were built.
-                </span>
-              </p>
-              <button
-                type="button"
-                className="btn"
-                onClick={() => void load(source)}
-                disabled={loading}
-              >
-                Rebuild cards
-              </button>
+          {dataChanged && source ? (
+            <div className="no-print relative border-b border-line bg-panel">
+              <div className="mx-auto flex max-w-[1400px] items-center gap-4 px-4 py-3 md:px-8">
+                <span className="h-2 w-2 rotate-45 bg-gold" />
+                <p className="flex-1 text-[13px]">
+                  <span className="font-semibold uppercase tracking-[0.18em]">Data updated</span>
+                  <span className="text-ink-dim">
+                    {" "}
+                    · new rules or datasheets arrived since these cards were built.
+                  </span>
+                </p>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => void load(source)}
+                  disabled={loading}
+                >
+                  Rebuild cards
+                </button>
+              </div>
             </div>
-          </div>
-        ) : null}
-
-        <main className="relative mx-auto max-w-[1400px] px-4 pb-24 pt-6 md:px-8 md:py-10 print:max-w-none print:p-0">
-          {!army || showLoader ? (
-            <LoadPanel
-              initialText={source && "text" in source ? source.text : listText}
-              loading={loading}
-              error={error}
-              onLoad={(next) => void load(next)}
-              onCancel={army ? () => setShowLoader(false) : undefined}
-            />
           ) : null}
 
-          {army && !showLoader && tab === "army" ? (
-            <ArmyView
-              army={army}
-              numbers={numbers}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              onOpenCards={() => setTab("cards")}
-              onChangeList={() => setShowLoader(true)}
-            />
-          ) : null}
-          {army && !showLoader && tab === "play" ? (
-            <PlayView army={army} numbers={numbers} fontsReady={fontsReady} />
-          ) : null}
-          {army && !showLoader && tab === "cards" ? (
-            <CardsView
-              army={army}
-              numbers={numbers}
-              options={options}
-              onOptions={changeOptions}
-              fontsReady={fontsReady}
-            />
-          ) : null}
-          {army && !showLoader && tab === "stratagems" ? (
-            <StratagemsView army={army} fontsReady={fontsReady} />
-          ) : null}
-          {army && !showLoader && tab === "data" ? (
-            <DataPanel
-              army={army}
-              meta={meta}
-              checking={checking}
-              onCheck={async () => {
-                setChecking(true);
-                try {
-                  setMeta(await checkForUpdates());
-                } finally {
-                  setChecking(false);
-                }
-              }}
-            />
-          ) : null}
-        </main>
-        {army && !showLoader ? <BottomNav tab={tab} onTab={setTab} /> : null}
-      </div>
+          <main className="relative mx-auto max-w-[1400px] px-4 pb-24 pt-6 md:px-8 md:py-10 print:max-w-none print:p-0">
+            {!army || showLoader ? (
+              <LoadPanel
+                initialText={source && "text" in source ? source.text : listText}
+                loading={loading}
+                error={error}
+                onLoad={(next) => void load(next)}
+                onCancel={army ? () => setShowLoader(false) : undefined}
+              />
+            ) : null}
+
+            {army && !showLoader && tab === "army" ? (
+              <ArmyView
+                army={army}
+                numbers={numbers}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+                onOpenCards={() => setTab("cards")}
+                onChangeList={() => setShowLoader(true)}
+              />
+            ) : null}
+            {army && !showLoader && tab === "play" ? (
+              <PlayView army={army} numbers={numbers} fontsReady={fontsReady} />
+            ) : null}
+            {army && !showLoader && tab === "cards" ? (
+              <CardsView
+                army={army}
+                numbers={numbers}
+                options={options}
+                onOptions={changeOptions}
+                fontsReady={fontsReady}
+              />
+            ) : null}
+            {army && !showLoader && tab === "stratagems" ? (
+              <StratagemsView army={army} fontsReady={fontsReady} />
+            ) : null}
+            {army && !showLoader && tab === "data" ? (
+              <DataPanel
+                army={army}
+                meta={meta}
+                checking={checking}
+                onCheck={async () => {
+                  setChecking(true);
+                  try {
+                    setMeta(await checkForUpdates());
+                  } finally {
+                    setChecking(false);
+                  }
+                }}
+              />
+            ) : null}
+          </main>
+          {army && !showLoader ? <BottomNav tab={tab} onTab={setTab} /> : null}
+        </div>
+      </FactionIconContext.Provider>
     </RulesProvider>
   );
 }
