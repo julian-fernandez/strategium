@@ -102,7 +102,7 @@ export function DatasheetCard({
   fontsReady: boolean;
 }) {
   const [title, suffix] = splitName(sheet.name);
-  const body = useFitText<HTMLDivElement>(7.6, 5.2, sheet, fontsReady, SIDE_WIDTHS);
+  const body = useFitText<HTMLDivElement>(7.6, 5, sheet, fontsReady, SIDE_WIDTHS);
   const name = useFitText<HTMLHeadingElement>(20, 11, `${sheet.name}#${number}`, fontsReady);
   const legend = useFitText<HTMLParagraphElement>(6.4, 4.8, sheet.legend, fontsReady);
 

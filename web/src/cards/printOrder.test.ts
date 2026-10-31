@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { Army, Datasheet, Stratagem } from "../../../shared/types";
-import { buildDeck, DEFAULT_DECK_OPTIONS, type DeckOptions, paginate } from "./printOrder";
+import {
+  buildDeck,
+  DEFAULT_DECK_OPTIONS,
+  type DeckOptions,
+  paginate,
+  splitSections,
+} from "./printOrder";
 
 function unit(id: string, name: string, attachment?: Datasheet["attachment"]): Datasheet {
   return { id, name, attachment } as Datasheet;
@@ -108,6 +114,26 @@ describe("the stratagem deck", () => {
   it("backs its pages onto each other, with one blank to finish the sheet", () => {
     // Nine stratagems, four to a page: three pages, the last sheet's back blank.
     expect(deck(UNITS_ONLY)).toEqual(["stratagems", "stratagems", "stratagems", "blank"]);
+  });
+});
+
+describe("splitSections", () => {
+  const rule = (name: string) => ({ name, html: "x".repeat(200) });
+
+  it("keeps a section that fits, and breaks one that doesn't between its rules", () => {
+    const sections = [
+      { title: "Army rule", rules: [rule("Acts of Faith")] },
+      { title: "Enhancements", rules: ["A", "B", "C", "D", "E"].map(rule) },
+    ];
+    // A rule costs 261 and a section title 80, so a 700 budget takes two rules to a page.
+    expect(
+      splitSections(sections, 700).map((s) => `${s.title}: ${s.rules.map((r) => r.name)}`),
+    ).toEqual([
+      "Army rule: Acts of Faith",
+      "Enhancements: A,B",
+      "Enhancements, continued: C,D",
+      "Enhancements, continued: E",
+    ]);
   });
 });
 

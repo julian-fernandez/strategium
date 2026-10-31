@@ -137,7 +137,9 @@ function selectStratagems(
   usableByUnit: Map<string, Set<string>>,
 ): Stratagem[] {
   const chosen = new Set(detachments.map((d) => d.id));
-  const unitNames = new Set(units.map((unit) => unit.name));
+  // Units Wahapedia doesn't have (Legends, Crucible) carry no stratagem data, so they don't
+  // stop a stratagem every other unit can use from saying so.
+  const unitNames = new Set(units.filter((unit) => unit.wahapediaId).map((unit) => unit.name));
   const selected: Stratagem[] = [];
 
   for (const stratagem of bundle.stratagems) {
@@ -157,7 +159,8 @@ function selectStratagems(
       html: stratagem.html,
       when: stratagem.when,
       usableBy,
-      everyUnit: usableBy.length === unitNames.size,
+      everyUnit: unitNames.size > 0 && usableBy.length === unitNames.size,
+      notUsableBy: usableBy.length ? [...unitNames].filter((name) => !usableBy.includes(name)) : [],
     });
   }
 

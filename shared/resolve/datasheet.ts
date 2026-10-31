@@ -299,13 +299,15 @@ function addWeapon(
   count: number,
   melee: boolean,
 ): WeaponRow {
-  const key = `${melee ? "melee" : "ranged"}:${normalizeName(item.name)}`;
+  // Several profiles on one option: name the row after the option, like the official cards.
+  const name = (profiles.length > 1 ? item.name : profiles[0]?.name) ?? item.name;
+  // One row per weapon as the card shows it, so the same gun reached through two options
+  // ("Bolt pistol", and "Bolt pistol and chainsword") is one row with both counted.
+  const key = `${melee ? "melee" : "ranged"}:${normalizeName(name)}:${JSON.stringify(profiles)}`;
   let row = rows.get(key);
   if (!row) {
-    // Several profiles on one option: name the row after the option, like the official cards.
-    const name = profiles.length > 1 ? item.name : profiles[0]?.name;
     row = {
-      name: name ?? item.name,
+      name,
       count: 0,
       profiles: profiles.map((p) => ({ ...p, keywords: [...p.keywords] })),
     };

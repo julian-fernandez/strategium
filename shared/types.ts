@@ -83,6 +83,8 @@ export type Stratagem = {
   usableBy: string[];
   /** Every unit in the army can use it, so the card says so instead of listing them. */
   everyUnit: boolean;
+  /** The army's units that can't use it, so most-but-not-all reads "every unit except…". */
+  notUsableBy: string[];
 };
 
 export type AttachedGroup = {

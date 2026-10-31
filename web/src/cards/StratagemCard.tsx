@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { usersOf } from "../../../shared/stratagems";
 import type { Stratagem } from "../../../shared/types";
 import { Rich } from "./parts";
 import type { CardTheme } from "./themes";
@@ -35,6 +36,8 @@ export function StratagemCard({
 }) {
   const body = useFitText<HTMLDivElement>(7, 4.8, stratagem, fontsReady);
   const name = useFitText<HTMLHeadingElement>(10.5, 6.5, stratagem.name, fontsReady);
+  const users = usersOf(stratagem) || "Your army";
+  const usersLine = useFitText<HTMLElement>(5.8, 4.4, users, fontsReady);
   const band = stratagem.detachment ? theme.header : CORE_COLOR;
 
   return (
@@ -76,13 +79,14 @@ export function StratagemCard({
       >
         <Rich html={stratagem.html} />
       </div>
-      <footer className="shrink-0 border-t border-paper-rule px-[2.5mm] py-[1mm] font-condensed text-[5.8pt] uppercase leading-tight text-[#4a4a44]">
+      {/* Held to a few lines, its text shrinking, so a long list of users can't crowd out the rule. */}
+      <footer
+        ref={usersLine}
+        className="max-h-[8mm] shrink-0 overflow-hidden border-t border-paper-rule px-[2.5mm] py-[1mm] font-condensed uppercase leading-tight text-[#4a4a44]"
+        style={{ fontSize: "calc(var(--fit) * 1pt)" }}
+      >
         <b className="text-card-ink">Usable by: </b>
-        {stratagem.everyUnit
-          ? "Every unit"
-          : stratagem.usableBy.length
-            ? stratagem.usableBy.join(", ")
-            : "Your army"}
+        {users}
       </footer>
     </article>
   );

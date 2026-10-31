@@ -71,9 +71,12 @@ export type CatalogueFile = { name: string; root: BsNode; isGameSystem: boolean 
 
 type Indexed = { node: BsNode; file: CatalogueFile };
 
-/** Groups that never hold a unit's own wargear, skipped while searching. */
+/**
+ * Groups that never hold a unit's own wargear, skipped while searching. Whole
+ * words only: the Black Templars' "Crusaders" group holds a Crusader Squad's models.
+ */
 export const SKIPPED_GROUPS =
-  /^(crusade|battle honours|battle scars|battle traits|weapon modifications|crusade relic)/i;
+  /^(?:crusade|battle honours|battle scars|battle traits|weapon modifications|crusade relic)\b/i;
 
 export class Catalogues {
   readonly files: CatalogueFile[];
