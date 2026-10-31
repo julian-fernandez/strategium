@@ -5,6 +5,7 @@ import { etag } from "hono/etag";
 import { z } from "zod";
 import type { DataVersions } from "../shared/types";
 import { loadBundle } from "./data";
+import { dataHealth } from "./health";
 import { factionIcon } from "./icons";
 import { lanAddresses } from "./lan";
 import { fetchListhammerListText } from "./sources";
@@ -23,6 +24,7 @@ export const app = new Hono()
   .use("/api/bundle", compress(), etag())
   .get("/api/meta", async (c) => c.json(versions(await readMeta())))
   .post("/api/updates/check", async (c) => c.json(versions(await checkForUpdates())))
+  .get("/api/health", async (c) => c.json(await dataHealth()))
   .get("/api/lan", async (c) => c.json(await lanAddresses()))
   .get(
     "/api/bundle",

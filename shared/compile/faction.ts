@@ -150,7 +150,7 @@ export function compileFaction(input: {
         })),
     })),
     stratagems,
-    rules: compileRules(catalogues, wahapedia, factionId),
+    rules: withDatasheetRules(compileRules(catalogues, wahapedia, factionId), units, wahapedia),
   });
   return { bundle, stats };
 }
@@ -714,6 +714,36 @@ function enhancementText(units: Record<string, UnitData>, name: string): string 
     if (parts.length) return parts.join("<br>");
   }
   return "";
+}
+
+/**
+ * Adds the rules a datasheet names that no shared rule covers: its weapons'
+ * own ("Conversion", "Linked Fire", "Plasma Warhead") and a few listed among
+ * its abilities ("Supreme Commander"), from Wahapedia's datasheet abilities,
+ * so they open their text and join the rules reference like any other.
+ */
+function withDatasheetRules(
+  rules: Record<string, Ability>,
+  units: Record<string, UnitData>,
+  wahapedia: Wahapedia,
+): Record<string, Ability> {
+  for (const unit of Object.values(units)) {
+    const own = unit.wahapedia ? wahapedia.datasheetRules.get(unit.wahapedia.id) : undefined;
+    if (!own?.length) continue;
+    const named = [
+      ...Object.values(unit.items)
+        .flatMap((item) => [...item.ranged, ...item.melee])
+        .flatMap((w) => w.keywords),
+      ...unit.coreRules,
+      ...unit.factionRules,
+    ];
+    for (const name of named) {
+      const key = ruleKey(name);
+      const rule = rules[key] ? undefined : own.find((r) => ruleKey(r.name) === key);
+      if (rule) rules[key] = { name: rule.name, html: sanitizeWahapediaHtml(rule.description) };
+    }
+  }
+  return rules;
 }
 
 /** Every rule's text, by rule key: core rules first, then faction rules, then Wahapedia's. */

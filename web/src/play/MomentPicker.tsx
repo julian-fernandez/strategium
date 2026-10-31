@@ -26,7 +26,8 @@ export function MomentPicker({
   const { phase, turn } = moment;
   return (
     <div className="flex flex-col gap-2">
-      <div className="grid grid-cols-6 gap-1" role="tablist" aria-label="Phase">
+      {/* Two rows of three on a phone, so each name reads at full size; one row of six wider. */}
+      <div className="grid grid-cols-3 gap-1 sm:grid-cols-6" role="tablist" aria-label="Phase">
         {PHASES.map((item) => (
           <button
             key={item.id}
@@ -34,16 +35,17 @@ export function MomentPicker({
             role="tab"
             aria-selected={phase === item.id}
             onClick={() => onMoment({ phase: item.id, turn })}
-            className={`flex min-w-0 flex-col items-center border px-1 py-1.5 transition-colors duration-150 ${
+            className={`flex min-w-0 items-center justify-center gap-1.5 border px-1 py-2 transition-colors duration-150 sm:flex-col sm:gap-1 sm:py-1.5 ${
               phase === item.id
                 ? "border-ink bg-ink text-ground-deep"
                 : "border-line text-ink-dim hover:border-line-strong"
             }`}
           >
-            <span className="text-[15px] font-extrabold leading-none">{item.numeral}</span>
-            <span className="mt-1 w-full text-center text-[8px] font-semibold uppercase tracking-[0.08em] sm:text-[9px] sm:tracking-[0.14em]">
-              <span className="sm:hidden">{item.short ?? item.label}</span>
-              <span className="hidden sm:inline">{item.label}</span>
+            <span className="text-[14px] font-extrabold leading-none sm:text-[15px]">
+              {item.numeral}
+            </span>
+            <span className="text-[11px] font-semibold uppercase leading-none tracking-[0.08em] sm:w-full sm:text-center sm:text-[9px] sm:tracking-[0.14em]">
+              {item.label}
             </span>
           </button>
         ))}

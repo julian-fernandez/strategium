@@ -25,6 +25,8 @@ await page.goto("http://localhost:5173/");
 await page.getByRole("button", { name: "Load demo" }).click();
 await page.getByRole("button", { name: "Cards", exact: true }).click();
 await page.locator(".print-page").first().waitFor();
+// The deck renders a few sheets at a time; wait for all of them.
+await page.locator("[data-deck-complete]").waitFor();
 await page.evaluate(() => document.fonts.ready);
 // Let the cards fit their text with the real fonts.
 await page.waitForTimeout(500);

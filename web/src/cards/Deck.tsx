@@ -1,4 +1,5 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 import type { Army } from "../../../shared/types";
 import { FitToWidth } from "../ui/FitToWidth";
 import { ArmyRulesCard } from "./ArmyRulesCard";
@@ -62,14 +63,38 @@ export function Deck({
     if (front) sheets.push({ front, back: duplex ? pages[i + 1] : undefined });
   }
 
+  // A long deck renders a few sheets at a time, letting the page paint in between: each card
+  // fits its text as it mounts, and all of them at once froze the page. Printing needs every
+  // page, so it renders the rest at once first. A new army starts from the top again.
+  const [progress, setProgress] = useState({ army, shown: FIRST_SHEETS });
+  const shown = progress.army === army ? progress.shown : FIRST_SHEETS;
+  const complete = shown >= sheets.length;
+  useEffect(() => {
+    if (complete) return;
+    const timer = setTimeout(() => setProgress({ army, shown: shown + SHEETS_PER_STEP }), 0);
+    return () => clearTimeout(timer);
+  }, [army, complete, shown]);
+  useEffect(() => {
+    const all = () => flushSync(() => setProgress({ army, shown: Number.POSITIVE_INFINITY }));
+    window.addEventListener("beforeprint", all);
+    return () => window.removeEventListener("beforeprint", all);
+  }, [army]);
+
   return (
-    <div className="flex flex-col items-center gap-8 print:gap-0">
-      {sheets.map((sheet, index) => (
+    <div
+      className="flex flex-col items-center gap-8 print:gap-0"
+      data-deck-complete={complete ? "" : undefined}
+    >
+      {sheets.slice(0, shown).map((sheet, index) => (
         <Sheet key={sheet.front.key} number={index + 1} {...sheet} {...faces} />
       ))}
     </div>
   );
 }
+
+/** Sheets in the first render, and in each one after, so no single render fits too many cards. */
+const FIRST_SHEETS = 2;
+const SHEETS_PER_STEP = 2;
 
 type Faces = {
   army: Army;
