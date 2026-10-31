@@ -235,6 +235,8 @@ async function checkList(
         .click();
       await page.evaluate(() => document.fonts.ready);
       // Let cards fit their text, and rules pages split, before measuring.
+      // A printed deck renders a few sheets at a time (a phone shows a reflowed one instead).
+      if (tab === "Cards" && !size.mobile) await page.locator("[data-deck-complete]").waitFor();
       await page.waitForTimeout(tab === "Cards" || tab === "Stratagems" ? 2000 : 500);
       for (const what of await page.evaluate(cutShort, size.mobile)) note(what);
     }

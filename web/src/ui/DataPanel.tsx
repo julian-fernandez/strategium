@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import type { LanAddress } from "../../../server/lan";
+import type { AuditFinding, DataHealth } from "../../../shared/audit";
 import type { Army, DataVersions } from "../../../shared/types";
+import { fetchHealth } from "../api";
 import { api, read } from "../client";
+
+/** How many places a finding lists before "and N more". */
+const PLACES = 30;
 
 export function DataPanel({
   army,
@@ -97,8 +102,125 @@ export function DataPanel({
         )}
       </section>
 
+      <DataHealthPanel changedAt={versions.changedAt} />
+
       <OnYourNetwork />
     </div>
+  );
+}
+
+/**
+ * The server's audit of every faction's data, run after each update: whether
+ * anything would show wrong on a card, and what's only worth knowing.
+ */
+function DataHealthPanel({ changedAt }: { changedAt?: string }) {
+  const [state, setState] = useState<{ health: DataHealth | null; running: boolean }>();
+  const [failed, setFailed] = useState(false);
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: new data means a new audit, so ask again.
+  useEffect(() => {
+    let stopped = false;
+    let timer: number | undefined;
+    const load = () =>
+      fetchHealth().then(
+        (next) => {
+          if (stopped) return;
+          setState(next);
+          setFailed(false);
+          // While an audit runs, look again shortly.
+          if (next.running) timer = window.setTimeout(load, 3000);
+        },
+        () => {
+          if (!stopped) setFailed(true);
+        },
+      );
+    void load();
+    return () => {
+      stopped = true;
+      window.clearTimeout(timer);
+    };
+  }, [changedAt]);
+
+  const health = state?.health;
+  const errors = health?.findings.filter((f) => f.severity === "error") ?? [];
+  const notes = health?.findings.filter((f) => f.severity === "note") ?? [];
+
+  return (
+    <section className="bg-panel hairline lg:col-span-2">
+      <div className="border-b border-line px-6 py-4">
+        <p className="micro">{"// "}Data health</p>
+        <h2 className="mt-1 text-[18px] font-extrabold uppercase tracking-[0.04em]">
+          Every faction, checked
+        </h2>
+      </div>
+      <div className="px-6 py-5 text-[14px] leading-relaxed text-ink-dim">
+        <p>
+          After each data update the server reads every unit, weapon, ability, stratagem, detachment
+          rule and enhancement of every faction, looking for anything a card would show wrong:
+          missing text, markup left in it, a blank column.
+        </p>
+        {failed ? (
+          <p className="mt-4">Couldn't reach the server for its data check.</p>
+        ) : !state ? (
+          <p className="mt-4">Loading…</p>
+        ) : !health ? (
+          <p className="mt-4">
+            {state.running ? "Checking every faction's data for the first time…" : "No data yet."}
+          </p>
+        ) : (
+          <>
+            <p className={`mt-4 font-semibold ${health.errors ? "text-seal" : "text-ink"}`}>
+              {health.errors
+                ? `${health.errors} ${health.errors === 1 ? "thing" : "things"} in the data would show wrong.`
+                : "Nothing in the data would show wrong."}
+            </p>
+            <p className="mt-1 text-[12px]">
+              {health.units.toLocaleString("en")} units, {health.stratagems.toLocaleString("en")}{" "}
+              stratagems and {health.detachments} detachments across {health.factions} factions ·
+              checked {formatDate(health.checkedAt)}
+              {state.running ? " · checking newer data now…" : ""}
+            </p>
+            <div className="mt-4">
+              {errors.map((finding) => (
+                <Finding key={finding.kind} finding={finding} open />
+              ))}
+            </div>
+            {notes.length ? (
+              <div className="mt-4">
+                <p className="micro">Worth knowing</p>
+                {notes.map((finding) => (
+                  <Finding key={finding.kind} finding={finding} />
+                ))}
+              </div>
+            ) : null}
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function Finding({ finding, open }: { finding: AuditFinding; open?: boolean }) {
+  const shown = finding.places.slice(0, PLACES);
+  return (
+    <details open={open} className="border-t border-line py-2 first:border-t-0">
+      <summary className="cursor-pointer text-[13px]">
+        <span className={finding.severity === "error" ? "text-seal" : "text-ink"}>
+          {finding.kind.charAt(0).toUpperCase() + finding.kind.slice(1)}
+        </span>
+        <span className="text-ink-faint"> · {finding.places.length}</span>
+      </summary>
+      <ul className="mt-2 flex flex-col gap-0.5 pl-4 text-[12px] text-ink-dim">
+        {shown.map((place) => (
+          <li key={place}>{place}</li>
+        ))}
+      </ul>
+      {finding.places.length > shown.length ? (
+        <p className="mt-1 pl-4 text-[12px] text-ink-faint">
+          … and {finding.places.length - shown.length} more
+        </p>
+      ) : null}
+    </details>
   );
 }
 

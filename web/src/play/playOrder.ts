@@ -9,11 +9,10 @@ export const TURNS: { id: Turn; label: string }[] = [
   { id: "both", label: "Both" },
 ];
 
-/** `short` is for a phone's phase bar, where "Movement" doesn't fit. */
-export const PHASES: { id: Phase; numeral: string; label: string; short?: string }[] = [
+export const PHASES: { id: Phase; numeral: string; label: string }[] = [
   { id: "all", numeral: "∗", label: "All" },
   { id: "command", numeral: "I", label: "Command" },
-  { id: "movement", numeral: "II", label: "Movement", short: "Move" },
+  { id: "movement", numeral: "II", label: "Movement" },
   { id: "shooting", numeral: "III", label: "Shooting" },
   { id: "charge", numeral: "IV", label: "Charge" },
   { id: "fight", numeral: "V", label: "Fight" },

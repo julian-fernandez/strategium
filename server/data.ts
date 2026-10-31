@@ -41,6 +41,14 @@ export async function loadFactionBundle(requested: string): Promise<FactionBundl
   return hydrateBundle(await loadBundle(requested));
 }
 
+/**
+ * A faction's bundle from disk or a fresh compile, without keeping it in
+ * memory: for the data audit, which goes through every faction.
+ */
+export async function readFactionBundle(requested: string): Promise<FactionBundle> {
+  return hydrateBundle(await buildBundle(findFaction(requested)?.name ?? requested.trim()));
+}
+
 /** The compiled bundle for a faction, as it's stored and sent: from memory, disk, or a fresh compile. */
 export function loadBundle(requested: string): Promise<StoredBundle> {
   // "T’au Empire", "Xenos - Tyranids" and "Imperial Agents" all name one bundle.

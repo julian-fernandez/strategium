@@ -191,7 +191,8 @@ browser: Web Worker ─ detect format ─ read list ─ resolve units ─► Arm
     size, the surcharge on a repeated datasheet, and what each costed option
     adds;
   - detachments, enhancements, stratagems and which units can use them;
-  - the text of every rule.
+  - the text of every rule, including the ones only one datasheet's weapons
+    name ("Conversion", "Linked Fire"), from Wahapedia's datasheet abilities.
 
   BSData modifiers that depend only on the unit are applied while compiling;
   ones that depend on a selection travel with the bundle and apply when the
@@ -258,7 +259,10 @@ The fixtures cover a fraction of the data, so two checks cover the rest:
   and rule. It fails on what would show wrong (empty text, markup left in it,
   a blank weapon or stat column, a stratagem the phase or turn filter can't
   place) and counts what's only worth knowing (a keyword with no rule text, a
-  unit with no background text); `--notes` lists those too.
+  unit with no background text); `--notes` lists those too. The server runs
+  the same audit (`shared/audit.ts`) after every data update or compiler
+  change, and the Data tab shows the result, so a bad upstream update shows
+  up there before it reaches a card.
 - `pnpm card-check --all` builds made-up lists (`scripts/synthetic-lists.ts`)
   naming every datasheet, every detachment and every enhancement, fifteen
   units to a list, and checks their decks, stratagems and rules on a phone

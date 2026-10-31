@@ -1,3 +1,4 @@
+import type { DataHealth } from "../../shared/audit";
 import type { DataVersions } from "../../shared/types";
 import { DEFAULT_DECK_OPTIONS, type DeckOptions } from "./cards/printOrder";
 import { api, read } from "./client";
@@ -11,6 +12,11 @@ export async function fetchMeta(): Promise<DataVersions> {
 
 export async function checkForUpdates(): Promise<DataVersions> {
   return read(await api.updates.check.$post());
+}
+
+/** The server's audit of every faction's data, and whether a newer one is running. */
+export async function fetchHealth(): Promise<{ health: DataHealth | null; running: boolean }> {
+  return read(await api.health.$get());
 }
 
 export const DEMO_LIST_URL = "https://listhammer.info/list/b29e2c836943545e89";

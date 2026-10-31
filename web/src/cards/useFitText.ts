@@ -27,30 +27,20 @@ export function useFitText<T extends HTMLElement>(
   const report = useRef(shared?.onFit);
   report.current = shared?.onFit;
   const fontLoads = useFontLoads();
+  // The last measurement and what it was of: a new shared size alone needs no new one.
+  const measured = useRef<{ of: unknown[]; best: Best }>(undefined);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: a font arriving changes the text's width, so it measures again.
   useLayoutEffect(() => {
     const element = ref.current;
     if (!element || content === undefined) return;
 
-    // Measured from the full size every time, so a shared size can grow again
-    // when, say, a late font makes every page fit larger.
-    const candidates = widths ? widths.split(",").map(Number) : [undefined];
-    let best = { size: -1, over: Number.POSITIVE_INFINITY, width: candidates[0] };
-    for (const width of candidates) {
-      if (width) element.style.setProperty("--side", `${width}mm`);
-      // Another width only matters if it fits a step larger than the best so far.
-      const floor = best.over === 0 ? Math.min(base, best.size + STEP) : min;
-      const size = largestFit(element, base, floor);
-      if (size !== undefined) {
-        best = { size, over: 0, width };
-        if (size >= base) break;
-      } else if (floor === min) {
-        // Nothing fits even at the smallest size: the width that spills least wins.
-        const over = spill(element);
-        if (over < best.over) best = { size: min, over, width };
-      }
-    }
+    // A font arriving changes the text's width, so it counts as something new to measure.
+    const of = [base, min, content, fontsReady, fontLoads, widths];
+    const last = measured.current;
+    const best = last?.of.every((value, index) => value === of[index])
+      ? last.best
+      : measure(element, base, min, widths);
+    measured.current = { of, best };
     if (best.width) element.style.setProperty("--side", `${best.width}mm`);
     element.style.setProperty("--fit", String(Math.min(best.size, cap ?? best.size)));
     element.dataset.fitReady = String(fontsReady);
@@ -58,6 +48,33 @@ export function useFitText<T extends HTMLElement>(
   }, [base, min, content, fontsReady, fontLoads, widths, cap]);
 
   return ref;
+}
+
+type Best = { size: number; over: number; width?: number };
+
+/**
+ * The largest size the text fits at, and the side width that allows it.
+ * Measured from the full size every time, so a shared size can grow again
+ * when, say, a late font makes every page fit larger.
+ */
+function measure(element: HTMLElement, base: number, min: number, widths?: string): Best {
+  const candidates = widths ? widths.split(",").map(Number) : [undefined];
+  let best: Best = { size: -1, over: Number.POSITIVE_INFINITY, width: candidates[0] };
+  for (const width of candidates) {
+    if (width) element.style.setProperty("--side", `${width}mm`);
+    // Another width only matters if it fits a step larger than the best so far.
+    const floor = best.over === 0 ? Math.min(base, best.size + STEP) : min;
+    const size = largestFit(element, base, floor);
+    if (size !== undefined) {
+      best = { size, over: 0, width };
+      if (size >= base) break;
+    } else if (floor === min) {
+      // Nothing fits even at the smallest size: the width that spills least wins.
+      const over = spill(element);
+      if (over < best.over) best = { size: min, over, width };
+    }
+  }
+  return best;
 }
 
 /** Counts the font loads that finish after the page first settles, so text can be measured again. */

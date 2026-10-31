@@ -15,6 +15,7 @@ export const WAHAPEDIA_FILES = [
   "Datasheets_stratagems",
   "Datasheets_models",
   "Datasheets_wargear",
+  "Datasheets_abilities",
 ] as const;
 
 export type WahapediaFile = (typeof WAHAPEDIA_FILES)[number];
@@ -83,6 +84,7 @@ const COLUMNS = {
     AP: text,
     D: text,
   },
+  Datasheets_abilities: { datasheet_id: text, name: text, description: text, type: text },
 } satisfies Record<WahapediaFile, z.ZodRawShape>;
 
 /** Every column the app reads is text. */
@@ -163,6 +165,12 @@ export type Wahapedia = {
   unitStratagems: Set<string>;
   models: Map<string, WahapediaModel[]>;
   wargear: Map<string, WahapediaWeapon[]>;
+  /**
+   * datasheet id -> the rules written out on that datasheet alone, with their
+   * text: its weapons' own ("Conversion", "Linked Fire") and a few it names
+   * among its abilities ("Supreme Commander").
+   */
+  datasheetRules: Map<string, { name: string; description: string }[]>;
 };
 
 export function buildWahapedia(files: Record<WahapediaFile, string>): Wahapedia {
@@ -205,6 +213,15 @@ export function buildWahapedia(files: Record<WahapediaFile, string>): Wahapedia 
       damage: row.D,
     });
     wargear.set(row.datasheet_id, list);
+  }
+
+  // Rows that only point at a shared ability (by ability_id) have no name or text of their own.
+  const datasheetRules = new Map<string, { name: string; description: string }[]>();
+  for (const row of wahapediaTable("Datasheets_abilities", files.Datasheets_abilities)) {
+    if (!row.name || !row.description) continue;
+    const list = datasheetRules.get(row.datasheet_id) ?? [];
+    list.push({ name: row.name, description: row.description });
+    datasheetRules.set(row.datasheet_id, list);
   }
 
   const abilityIds = new Set<string>();
@@ -262,6 +279,7 @@ export function buildWahapedia(files: Record<WahapediaFile, string>): Wahapedia 
     unitStratagems,
     models,
     wargear,
+    datasheetRules,
   };
 }
 
