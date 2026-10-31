@@ -24,7 +24,7 @@ import {
   type WeaponProfileData,
 } from "../bundle";
 import { findFaction as findKnownFaction } from "../factions";
-import { bsdataToHtml, sanitizeWahapediaHtml, stripTags } from "../markup";
+import { bsdataToHtml, escapeHtml, sanitizeWahapediaHtml, stripTags } from "../markup";
 import { isCoreStratagem, latestByName, whenLine } from "../stratagems";
 import type { Ability, CrossCheckIssue, StatLine } from "../types";
 import {
@@ -382,7 +382,7 @@ class UnitCompiler {
           abilities: [],
         };
         const weapon = this.weapon(profile, context, modifiers);
-        (profile.typeName === "Ranged Weapons" ? item.ranged : item.melee).push(weapon);
+        (weaponKind(profile) === "ranged" ? item.ranged : item.melee).push(weapon);
         model.items[normalizeName(profile.name)] = item;
       } else if (inSquad && profile.typeName === "Abilities" && profile.name) {
         const ability: Ability[] = [];
@@ -493,9 +493,10 @@ class UnitCompiler {
     }
     const item: ItemData = { name: node.name ?? "", ranged: [], melee: [], abilities: [] };
     for (const profile of profiles) {
-      if (profile.typeName === "Ranged Weapons") {
+      const kind = weaponKind(profile);
+      if (kind === "ranged") {
         item.ranged.push(this.weapon(profile, context, modifiers));
-      } else if (profile.typeName === "Melee Weapons") {
+      } else if (kind === "melee") {
         item.melee.push(this.weapon(profile, context, modifiers));
       } else if (profile.typeName) {
         pushAbility(item.abilities, profile);
@@ -844,7 +845,22 @@ function addCategories(
 }
 
 function isWeapon(profile: BsNode): boolean {
-  return profile.typeName === "Ranged Weapons" || profile.typeName === "Melee Weapons";
+  return weaponKind(profile) !== undefined;
+}
+
+const WEAPON_COLUMNS = ["range", "a", "s", "ap", "d"];
+
+/**
+ * Ranged or melee, for a weapon profile. A few are filed under a type of
+ * their own but have a weapon's columns (a Tesseract Vault's C'tan Powers);
+ * they're weapons too, ranged unless their range is Melee.
+ */
+export function weaponKind(profile: BsNode): "ranged" | "melee" | undefined {
+  if (profile.typeName === "Ranged Weapons") return "ranged";
+  if (profile.typeName === "Melee Weapons") return "melee";
+  const columns = new Set(profile.characteristics?.map((c) => c.name.toLowerCase()));
+  if (!WEAPON_COLUMNS.every((column) => columns.has(column))) return undefined;
+  return /melee/i.test(characteristic(profile, "Range")) ? "melee" : "ranged";
 }
 
 function characteristic(profile: BsNode, name: string): string {
@@ -865,13 +881,44 @@ function splitKeywords(value: string): string[] {
     : [];
 }
 
-function pushAbility(list: Ability[], profile: BsNode): void {
+export function pushAbility(list: Ability[], profile: BsNode): void {
   const name = profile.name ?? "";
-  if (list.some((ability) => ability.name === name)) return;
+  const type = profile.typeName ?? "";
   // Profiles that aren't plain abilities, such as Hymns of Battle, keep their type as a prefix.
+  // A transport's profile is always named after its own unit, and an Orders
+  // profile is named "Orders", so those are just their type.
   const label =
-    profile.typeName && profile.typeName !== "Abilities" ? `${profile.typeName}: ${name}` : name;
-  list.push({ name: label, html: bsdataToHtml(description(profile)) });
+    !type || type === "Abilities"
+      ? name
+      : name === type || type === "Transport"
+        ? type
+        : `${type}: ${name}`;
+  if (list.some((ability) => ability.name === label)) return;
+  list.push({ name: label, html: profileHtml(profile) });
+}
+
+/** Characteristics that hold a profile's text itself, rather than a labelled field of it. */
+const TEXT_FIELDS = new Set(["description", "descriptions"]);
+
+/**
+ * A rule profile's text. Most keep it in one characteristic: an ability's
+ * Description, but also Orders, a transport's Capacity, an epic hero's
+ * Effect. Others split it into fields (Martial Ka'tah's When, Target and
+ * Effect; a Hymn of Battle's D6 roll), which keep their labels, as a
+ * stratagem's do.
+ */
+export function profileHtml(profile: BsNode): string {
+  const fields = (profile.characteristics ?? []).filter((field) => field.$text?.trim());
+  const [only] = fields;
+  if (fields.length === 1 && only) return bsdataToHtml(only.$text ?? "");
+  return fields
+    .map((field) => {
+      const text = bsdataToHtml(field.$text ?? "");
+      return TEXT_FIELDS.has(field.name.toLowerCase())
+        ? text
+        : `<b>${escapeHtml(field.name)}:</b> ${text}`;
+    })
+    .join("<br>");
 }
 
 function pushStats(list: StatLine[], line: StatLine): void {
