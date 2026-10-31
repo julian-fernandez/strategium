@@ -240,11 +240,30 @@ export function App() {
 
 const NO_RULES: Army["glossary"] = [];
 
+/**
+ * The cards' faces. A browser fetches a face only when text first uses it, so
+ * without asking for these up front, opening the cards would fit every card's
+ * text twice: once in a fallback font, then again when Barlow arrives.
+ */
+const CARD_FONTS = [
+  "400 1em Barlow",
+  "italic 400 1em Barlow",
+  "500 1em Barlow",
+  "600 1em Barlow",
+  "700 1em Barlow",
+  "600 1em 'Barlow Condensed'",
+  "700 1em 'Barlow Condensed'",
+  "800 1em 'Barlow Condensed'",
+];
+
 /** Text fitting needs the real fonts, so cards measure again once they load. */
 function useFontsReady(): boolean {
   const [ready, setReady] = useState(false);
   useEffect(() => {
-    void document.fonts.ready.then(() => setReady(true));
+    const cardFonts = CARD_FONTS.map((font) => document.fonts.load(font));
+    void Promise.allSettled(cardFonts)
+      .then(() => document.fonts.ready)
+      .then(() => setReady(true));
   }, []);
   return ready;
 }

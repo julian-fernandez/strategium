@@ -2,9 +2,9 @@ import { useMemo, useState } from "react";
 import { unitLabel } from "../../../shared/labels";
 import type { Army } from "../../../shared/types";
 import { Rich } from "../cards/parts";
-import { holders } from "../play/Finder";
-import { armyRuleIndex, search, searchableRules } from "../play/lookup";
+import { armyRuleIndex, holders, search, searchableRules } from "../play/lookup";
 import { SearchField } from "../ui/SearchField";
+import { UnitChips } from "../ui/UnitChips";
 
 /**
  * Every rule the army uses in one list, alphabetical and searchable by name
@@ -46,7 +46,8 @@ export function RulesView({
         {shown.length ? (
           <ul>
             {shown.map((rule) => {
-              const expanded = open === rule.key;
+              // A search down to one rule shows it whole, without a tap.
+              const expanded = open === rule.key || shown.length === 1;
               const units = rule.unitIds
                 .map((id) => army.units.find((unit) => unit.id === id))
                 .filter((unit) => unit !== undefined);
@@ -77,20 +78,14 @@ export function RulesView({
                       <div className="rules-text text-[14px] leading-relaxed text-ink-dim [&_b]:text-ink">
                         <Rich html={rule.html} />
                       </div>
-                      {units.length ? (
-                        <div className="mt-3 flex flex-wrap gap-1.5">
-                          {units.map((unit) => (
-                            <button
-                              key={unit.id}
-                              type="button"
-                              onClick={() => onOpenUnit(unit.id)}
-                              className="border border-line-strong px-2.5 py-1.5 text-[12px] font-semibold text-ink transition-colors duration-150 hover:bg-panel-strong"
-                            >
-                              {unitLabel(unit, numbers)} ›
-                            </button>
-                          ))}
-                        </div>
-                      ) : null}
+                      <UnitChips
+                        title="Has it"
+                        units={units.map((unit) => ({
+                          key: unit.id,
+                          label: unitLabel(unit, numbers),
+                        }))}
+                        onPick={onOpenUnit}
+                      />
                     </div>
                   ) : null}
                 </li>

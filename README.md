@@ -133,7 +133,9 @@ Army. The cards and the data are for before the game, under Army.
 - **Find anything (Play):** one search box for units (by name, number such as
   "ogryn 2", model, or the character leading them), stratagems and rules, by
   name and then by text. A unit opens in Play; a stratagem or rule opens over
-  the page, so you keep your place. On a keyboard, `/` jumps to it.
+  the page, so you keep your place, with links to the units that can use it.
+  On a keyboard, `/` jumps to it, the arrow keys move through the results and
+  Enter opens one.
 - **Units (Play):** tap the unit's name for every unit in a list, each with its
   main stats and any leaders; on a tablet the list stays beside the datasheet.
   The arrows and a swipe still step through them in list order.
@@ -146,6 +148,9 @@ Army. The cards and the data are for before the game, under Army.
 - **Rules:** every rule the army uses, alphabetically: the army and detachment
   rules, enhancements, core abilities, weapon keywords and each unit's
   abilities, with the units that have it. Tap a unit to open it in Play.
+
+On a phone held sideways, the search and the unit share one bar, so the
+datasheet keeps most of the screen.
 
 The app remembers the tab, the unit and the phase across reloads, and keeps
 the screen from dimming in Play, Stratagems and Rules. Phones only allow that
@@ -236,7 +241,13 @@ pnpm coverage     # every fixture against the live synced data, with a report
 pnpm typecheck
 pnpm lint
 pnpm print-check  # with `pnpm dev` running: prints the demo deck to print-check.pdf
+pnpm card-check   # with `pnpm dev` running: every fixture list, phone and desktop, every tab
 ```
+
+`pnpm card-check` fails if any text is cut short (a card's text spilling past
+its box at its smallest size, or an ellipsis or line clamp on screen) or the
+console shows an error. Run it after a change to the cards, the layout or the
+compiler, and after the data updates.
 
 The tests run on `fixtures/`:
 

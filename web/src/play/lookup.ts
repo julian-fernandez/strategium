@@ -78,6 +78,15 @@ export function armyRuleIndex(army: Army): RuleEntry[] {
   return [...entries.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
+/** "Bullgryn Squad #1, Bullgryn Squad #2", for a rule some units have. */
+export function holders(rule: RuleEntry, army: Army, numbers: Map<string, number>): string {
+  return rule.unitIds
+    .map((id) => army.units.find((unit) => unit.id === id))
+    .filter((unit) => unit !== undefined)
+    .map((unit) => unitLabel(unit, numbers))
+    .join(", ");
+}
+
 /** Text as search compares it: lower case, no accents, curly quotes straightened, words split on anything else. */
 export function normalize(text: string): string {
   return text

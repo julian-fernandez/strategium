@@ -24,19 +24,20 @@ export function BottomNav({ tab, onTab }: { tab: Tab; onTab: (tab: Tab) => void 
     <nav
       className="no-print fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-panel-strong pb-[env(safe-area-inset-bottom)] backdrop-blur-sm lg:hidden"
       aria-label="Sections"
+      data-bottom-nav
     >
       {GAME_TABS.map((id) => (
         <button
           key={id}
           type="button"
           onClick={() => onTab(id)}
-          className={`relative flex h-14 flex-1 flex-col items-center justify-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${
+          className={`relative flex h-14 flex-1 flex-col items-center justify-center gap-1 text-[10px] font-semibold uppercase tracking-[0.14em] short:h-10 ${
             current === id ? "text-ink" : "text-ink-faint"
           }`}
           aria-current={current === id ? "page" : undefined}
         >
           <span
-            className={`h-1.5 w-1.5 rotate-45 ${current === id ? "bg-faction" : "border border-ink-faint"}`}
+            className={`h-1.5 w-1.5 rotate-45 short:hidden ${current === id ? "bg-faction" : "border border-ink-faint"}`}
           />
           {TABS.find((item) => item.id === id)?.label}
           {current === id ? <span className="absolute inset-x-4 top-0 h-[2px] bg-ink" /> : null}

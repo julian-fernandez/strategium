@@ -12,6 +12,7 @@
     "build": "vite build",
     "sync-data": "tsx server/sync-cli.ts",
     "print-check": "tsx scripts/print-check.ts",
+    "card-check": "tsx scripts/card-check.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "biome check .",
