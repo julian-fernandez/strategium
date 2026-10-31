@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usersOf } from "../../../shared/stratagems";
 import type { Stratagem } from "../../../shared/types";
 import { Rich } from "../cards/parts";
 import { phaseNumeral } from "../cards/StratagemCard";
@@ -63,7 +64,7 @@ export function StratagemList({ stratagems, empty }: { stratagems: Stratagem[]; 
             <div className="px-4 pb-4 pl-16 text-[14px] leading-relaxed text-ink-dim [&_b]:text-ink">
               <Rich html={stratagem.html} />
               <p className="mt-2 text-[12px] text-ink-faint">
-                {stratagem.detachment || "Core"} · {usableBy(stratagem)}
+                {stratagem.detachment || "Core"} · {usersOf(stratagem) || "Army-wide"}
               </p>
             </div>
           ) : null}
@@ -71,10 +72,4 @@ export function StratagemList({ stratagems, empty }: { stratagems: Stratagem[]; 
       ))}
     </ul>
   );
-}
-
-function usableBy(stratagem: Stratagem): string {
-  if (stratagem.everyUnit) return "every unit";
-  if (stratagem.usableBy.length === 0) return "army-wide";
-  return `for ${stratagem.usableBy.join(", ")}`;
 }

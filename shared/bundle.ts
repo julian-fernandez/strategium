@@ -8,7 +8,7 @@ import { z } from "zod";
  * Bump COMPILER_VERSION whenever the shape or the compile rules change, so
  * cached bundles are rebuilt.
  */
-export const COMPILER_VERSION = 15;
+export const COMPILER_VERSION = 16;
 
 export const weaponProfileSchema = z.object({
   name: z.string(),
@@ -218,15 +218,18 @@ export type FactionBundle = z.infer<typeof factionBundleSchema>;
 
 /**
  * The key a rule is filed under, so "Feel No Pain 5+", "Melta 2",
- * "Anti-PSYKER 4+" and "Sustained Hits 1" find "Feel No Pain", "Melta",
- * "Anti" and "Sustained Hits".
+ * "Anti-PSYKER 4+", "Deadly Demise 2D6+6", 'Scouts D6+4"' and "Sustained
+ * Hits 1: non-MONSTER/VEHICLE" find "Feel No Pain", "Melta", "Anti",
+ * "Deadly Demise", "Scouts" and "Sustained Hits". What follows a colon is a
+ * condition on the weapon, not part of the rule's name.
  */
 export function ruleKey(name: string): string {
   return name
     .toLowerCase()
+    .replace(/\s*:.*$/, "")
     .replace(/^anti-.*$/, "anti")
     .replace(/[’']/g, "'")
-    .replace(/\s+(?:\d+\+?\*?|d\d+(?:\+\d+)?|\d*d\d+|\d+"|x\d+)$/i, "")
+    .replace(/\s+(?:\d*d\d+(?:\+\d+)?|\d+|x\d+)[+"*]*$/i, "")
     .replace(/[-–]/g, " ")
     .replace(/\s+/g, " ")
     .trim();

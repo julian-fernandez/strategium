@@ -73,11 +73,8 @@ export function buildDeck(army: Army, options: DeckOptions, squeeze: Squeeze = {
   };
 
   if (options.armyRules) {
-    const parts = paginate(
-      armyRulesSections(army),
-      sectionLength,
-      ARMY_RULES_BUDGET * (squeeze["army-rules"] ?? 1),
-    );
+    const budget = ARMY_RULES_BUDGET * (squeeze["army-rules"] ?? 1);
+    const parts = paginate(splitSections(armyRulesSections(army), budget), sectionLength, budget);
     parts.forEach((sections, index) => {
       const key = `army-rules-${index}`;
       pages.push({ kind: "army-rules", key, sections, part: index + 1, parts: parts.length });
@@ -205,4 +202,31 @@ function ruleLength(rule: Ability): number {
 
 function sectionLength(section: RulesSection): number {
   return 80 + section.rules.reduce((sum, rule) => sum + ruleLength(rule), 0);
+}
+
+/**
+ * A section too long for one page (a detachment with very long rules, many
+ * enhancements) breaks between its rules, carrying on under its title,
+ * "continued", on the next page.
+ */
+export function splitSections(sections: RulesSection[], budget: number): RulesSection[] {
+  return sections.flatMap((section) => {
+    if (sectionLength(section) <= budget) return [section];
+    const parts: RulesSection[] = [];
+    let rules: RulesSection["rules"] = [];
+    let length = 80;
+    for (const rule of section.rules) {
+      if (rules.length && length + ruleLength(rule) > budget) {
+        parts.push({ title: section.title, rules });
+        rules = [];
+        length = 80;
+      }
+      rules.push(rule);
+      length += ruleLength(rule);
+    }
+    if (rules.length) parts.push({ title: section.title, rules });
+    return parts.map((part, index) =>
+      index ? { ...part, title: `${section.title}, continued` } : part,
+    );
+  });
 }

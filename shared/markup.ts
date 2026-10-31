@@ -48,18 +48,22 @@ const ALLOWED_TAGS = new Set(["b", "strong", "i", "em", "br", "p", "ul", "li", "
 
 /**
  * Keeps Wahapedia's formatting tags and drops everything else, including every
- * attribute except a keyword class on spans.
+ * attribute except a keyword class on spans. A dropped image (a table Wahapedia
+ * shows as a picture) leaves only line breaks behind; a run of them becomes one
+ * blank line.
  */
 export function sanitizeWahapediaHtml(html: string): string {
-  return html.replace(/<\/?([a-z0-9]+)([^>]*)>/gi, (tag, rawName: string, attributes: string) => {
-    const name = rawName.toLowerCase();
-    if (!ALLOWED_TAGS.has(name)) return "";
-    if (tag.startsWith("</")) return `</${name}>`;
-    if (name === "span") {
-      return /class="kw/.test(attributes) ? '<span class="kw">' : "<span>";
-    }
-    return name === "br" ? "<br>" : `<${name}>`;
-  });
+  return html
+    .replace(/<\/?([a-z0-9]+)([^>]*)>/gi, (tag, rawName: string, attributes: string) => {
+      const name = rawName.toLowerCase();
+      if (!ALLOWED_TAGS.has(name)) return "";
+      if (tag.startsWith("</")) return `</${name}>`;
+      if (name === "span") {
+        return /class="kw/.test(attributes) ? '<span class="kw">' : "<span>";
+      }
+      return name === "br" ? "<br>" : `<${name}>`;
+    })
+    .replace(/(?:<br>\s*){3,}/g, "<br><br>");
 }
 
 /** Plain text, for comparisons and compact lists. Line breaks and list items become spaces. */

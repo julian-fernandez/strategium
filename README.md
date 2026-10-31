@@ -242,12 +242,29 @@ pnpm typecheck
 pnpm lint
 pnpm print-check  # with `pnpm dev` running: prints the demo deck to print-check.pdf
 pnpm card-check   # with `pnpm dev` running: every fixture list, phone and desktop, every tab
+pnpm data-check   # every faction's compiled data, in seconds
+pnpm card-check --all   # with `pnpm dev` running: everything the data can show, rendered
 ```
 
 `pnpm card-check` fails if any text is cut short (a card's text spilling past
-its box at its smallest size, or an ellipsis or line clamp on screen) or the
-console shows an error. Run it after a change to the cards, the layout or the
-compiler, and after the data updates.
+its box at its smallest size, an ellipsis or line clamp on screen, a phone
+page wider than the screen) or the console shows an error. Run it after a
+change to the cards, the layout or the compiler, and after the data updates.
+
+The fixtures cover a fraction of the data, so two checks cover the rest:
+
+- `pnpm data-check` reads every faction's compiled data: each unit's stat
+  lines, weapons and abilities, each stratagem, detachment rule, enhancement
+  and rule. It fails on what would show wrong (empty text, markup left in it,
+  a blank weapon or stat column, a stratagem the phase or turn filter can't
+  place) and counts what's only worth knowing (a keyword with no rule text, a
+  unit with no background text); `--notes` lists those too.
+- `pnpm card-check --all` builds made-up lists (`scripts/synthetic-lists.ts`)
+  naming every datasheet, every detachment and every enhancement, fifteen
+  units to a list, and checks their decks, stratagems and rules on a phone
+  and a desktop. A second pass gives each unit every weapon it could take at
+  once, which no real list does, and only warns when a card can't fit that.
+  It takes several minutes; name factions to check just those.
 
 The tests run on `fixtures/`:
 

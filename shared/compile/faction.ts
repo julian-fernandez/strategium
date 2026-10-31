@@ -25,7 +25,7 @@ import {
 } from "../bundle";
 import { findFaction as findKnownFaction } from "../factions";
 import { bsdataToHtml, escapeHtml, sanitizeWahapediaHtml, stripTags } from "../markup";
-import { isCoreStratagem, latestByName, whenLine } from "../stratagems";
+import { boldLabels, isCoreStratagem, latestByName, whenLine } from "../stratagems";
 import type { Ability, CrossCheckIssue, StatLine } from "../types";
 import {
   comparable,
@@ -99,7 +99,7 @@ export function compileFaction(input: {
     turn: s.turn,
     detachment: s.detachment,
     detachmentId: s.detachmentId,
-    html: sanitizeWahapediaHtml(s.description),
+    html: boldLabels(sanitizeWahapediaHtml(s.description)),
     when: whenLine(s.description),
     targetsUnits: wahapedia.unitStratagems.has(s.id),
   }));
@@ -143,7 +143,11 @@ export function compileFaction(input: {
         .map((rule) => ({ name: rule.name, html: sanitizeWahapediaHtml(rule.description) })),
       enhancements: wahapedia.enhancements
         .filter((e) => e.detachmentId === d.id)
-        .map((e) => ({ name: e.name, cost: e.cost, html: sanitizeWahapediaHtml(e.description) })),
+        .map((e) => ({
+          name: e.name,
+          cost: e.cost,
+          html: sanitizeWahapediaHtml(e.description) || enhancementText(units, e.name),
+        })),
     })),
     stratagems,
     rules: compileRules(catalogues, wahapedia, factionId),
@@ -681,6 +685,35 @@ function limit(node: BsNode, type: "min" | "max"): number {
   );
   const value = Number(constraint?.value ?? 0);
   return Number.isFinite(value) && value > 0 ? value : 0;
+}
+
+/**
+ * An enhancement's text from BSData, for one Wahapedia leaves blank: its
+ * abilities, or the weapon it grants (Lords of the Forge's TL-4Ø9 is a gun,
+ * spelled TL-409 in BSData).
+ */
+function enhancementText(units: Record<string, UnitData>, name: string): string {
+  const key = normalizeName(name).replace(/ø/g, "0");
+  for (const unit of Object.values(units)) {
+    const item = unit.items[key];
+    if (!item) continue;
+    const weapon = (w: WeaponProfileData, skill: string) =>
+      `<b>${escapeHtml(w.name)}:</b> ${[
+        `Range ${w.range}`,
+        `A ${w.attacks}`,
+        `${skill} ${w.skill}`,
+        `S ${w.strength}`,
+        `AP ${w.ap}`,
+        `D ${w.damage}`,
+      ].join(" · ")}${w.keywords.length ? ` [${w.keywords.join(", ")}]` : ""}`;
+    const parts = [
+      ...item.abilities.map((ability) => ability.html),
+      ...item.ranged.map((w) => weapon(w, "BS")),
+      ...item.melee.map((w) => weapon(w, "WS")),
+    ].filter(Boolean);
+    if (parts.length) return parts.join("<br>");
+  }
+  return "";
 }
 
 /** Every rule's text, by rule key: core rules first, then faction rules, then Wahapedia's. */
