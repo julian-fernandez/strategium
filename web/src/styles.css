@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* A phone on its side: little height, so bars squeeze into fewer rows. */
+@custom-variant short (@media (max-height: 500px));
+
 /*
  * App UI: after Destiny 2's menus. A deep-space navy ground, darker translucent
  * panels, hairline square frames, one grotesk family with wide-tracked capitals.

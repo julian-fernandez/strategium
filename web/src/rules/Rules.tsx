@@ -4,9 +4,12 @@ import type { Ability } from "../../../shared/types";
 import { Rich } from "../cards/parts";
 import { BottomSheet } from "../ui/BottomSheet";
 
+/** Something to show under a rule's text, given a way to close the sheet (links to the units that have it). */
+type Footer = (close: () => void) => ReactNode;
+
 type Rules = {
   find: (name: string) => Ability | undefined;
-  show: (rule: Ability, eyebrow?: string) => void;
+  show: (rule: Ability, eyebrow?: string, footer?: Footer) => void;
 };
 
 const RulesContext = createContext<Rules>({ find: () => undefined, show: () => undefined });
@@ -22,12 +25,12 @@ export function RulesProvider({
   glossary: Ability[];
   children: ReactNode;
 }) {
-  const [open, setOpen] = useState<{ rule: Ability; eyebrow: string }>();
+  const [open, setOpen] = useState<{ rule: Ability; eyebrow: string; footer?: Footer }>();
   const rules = useMemo<Rules>(() => {
     const byKey = new Map(glossary.map((rule) => [ruleKey(rule.name), rule]));
     return {
       find: (name) => byKey.get(ruleKey(name)),
-      show: (rule, eyebrow = "Rule") => setOpen({ rule, eyebrow }),
+      show: (rule, eyebrow = "Rule", footer) => setOpen({ rule, eyebrow, footer }),
     };
   }, [glossary]);
 
@@ -44,6 +47,7 @@ export function RulesProvider({
           <div className="rules-text px-1 pb-2 text-[14px] leading-relaxed text-ink-dim">
             <Rich html={open.rule.html} />
           </div>
+          {open.footer?.(() => setOpen(undefined))}
         </BottomSheet>
       ) : null}
     </RulesContext>

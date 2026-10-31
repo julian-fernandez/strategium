@@ -78,6 +78,13 @@ export function PlayView({
     [onUnitKey],
   );
 
+  /** On a touch screen, searching brings the bar to the top, leaving the most room for results. */
+  const toBar = useCallback(() => {
+    if (!window.matchMedia("(pointer: coarse)").matches) return;
+    const top = (root.current?.getBoundingClientRect().top ?? 0) + window.scrollY;
+    if (window.scrollY < top) window.scrollTo({ top, behavior: "instant" });
+  }, []);
+
   const go = useCallback(
     (step: number) => {
       const next = entries[(index + step + count) % count];
@@ -120,10 +127,12 @@ export function PlayView({
     <div ref={root} className="flex flex-col gap-4">
       <div
         ref={bar}
-        className="sticky top-0 z-20 -mx-4 flex flex-col gap-2 border-b border-line bg-panel-strong px-4 py-3 backdrop-blur-sm md:-mx-8 md:px-8"
+        className="sticky top-0 z-20 -mx-4 flex flex-col gap-2 border-b border-line bg-panel-strong px-4 py-3 backdrop-blur-sm md:-mx-8 md:px-8 short:flex-row short:items-center short:py-2"
       >
-        <Finder army={army} entries={entries} numbers={numbers} onUnit={pick} />
-        <div className="flex items-center gap-2">
+        <div className="min-w-0 short:flex-1">
+          <Finder army={army} entries={entries} numbers={numbers} onUnit={pick} onFocus={toBar} />
+        </div>
+        <div className="flex items-center gap-2 short:flex-1">
           <button
             type="button"
             className="btn h-11 w-11 shrink-0 px-0"
@@ -137,14 +146,16 @@ export function PlayView({
             onClick={() => setBrowsing(true)}
             disabled={rail}
             className="min-w-0 flex-1 px-1 text-center disabled:cursor-default"
-            aria-label={rail ? undefined : "Choose a unit"}
+            aria-haspopup={rail ? undefined : "dialog"}
           >
-            <span className="micro block">
+            <span className="micro block short:hidden">
               Unit {index + 1} / {count}
               {rail ? "" : " · all units ▾"}
             </span>
-            <span className="block text-balance text-[18px] font-extrabold uppercase leading-tight tracking-[0.02em] md:text-[20px]">
+            <span className="block text-balance text-[18px] font-extrabold uppercase leading-tight tracking-[0.02em] md:text-[20px] short:text-[16px]">
               {unitLabel(selected.unit, numbers)}
+              {/* The "all units" hint above is hidden on a short screen; the arrow stays. */}
+              {rail ? null : <span className="hidden short:inline"> ▾</span>}
             </span>
             {selected.characters.length ? (
               <span className="block text-[12px] leading-snug text-ink-dim">

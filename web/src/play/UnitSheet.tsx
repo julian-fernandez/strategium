@@ -171,7 +171,7 @@ function Stat({ label, value, shield }: { label: string; value: string; shield?:
     <div className="flex flex-col items-center gap-0.5">
       <span className="font-condensed text-[11px] font-bold uppercase text-white/85">{label}</span>
       <span
-        className={`flex h-10 w-10 items-center justify-center bg-white font-condensed text-[19px] font-extrabold text-[#2b2b29] ${
+        className={`flex h-9 w-9 items-center justify-center bg-white font-condensed text-[17px] font-extrabold text-[#2b2b29] min-[380px]:h-10 min-[380px]:w-10 min-[380px]:text-[19px] ${
           shield ? "rounded-b-[14px] rounded-t-[4px]" : "rounded-[5px]"
         }`}
       >

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const STEP = 0.25;
 
@@ -10,7 +10,8 @@ const STEP = 0.25;
  * and keeps the one that fits the largest text, so a unit with few weapons
  * and long abilities gives the abilities more room.
  *
- * It measures again when `content` changes and once the real fonts have loaded.
+ * It measures again when `content` changes, once the real fonts have loaded,
+ * and whenever another font face arrives later (a weight a card uses first).
  */
 export function useFitText<T extends HTMLElement>(
   base: number,
@@ -25,46 +26,84 @@ export function useFitText<T extends HTMLElement>(
   const cap = shared?.cap;
   const report = useRef(shared?.onFit);
   report.current = shared?.onFit;
+  const fontLoads = useFontLoads();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: a font arriving changes the text's width, so it measures again.
   useLayoutEffect(() => {
     const element = ref.current;
     if (!element || content === undefined) return;
 
-    const top = Math.min(base, cap ?? base);
+    // Measured from the full size every time, so a shared size can grow again
+    // when, say, a late font makes every page fit larger.
     const candidates = widths ? widths.split(",").map(Number) : [undefined];
     let best = { size: -1, over: Number.POSITIVE_INFINITY, width: candidates[0] };
     for (const width of candidates) {
       if (width) element.style.setProperty("--side", `${width}mm`);
-      const size = shrink(element, top, min);
-      // When nothing fits even at the smallest size, the width that spills least wins.
-      const over = size <= min ? spill(element) : 0;
-      if (size > best.size || (size === best.size && over < best.over))
-        best = { size, over, width };
+      // Another width only matters if it fits a step larger than the best so far.
+      const floor = best.over === 0 ? Math.min(base, best.size + STEP) : min;
+      const size = largestFit(element, base, floor);
+      if (size !== undefined) {
+        best = { size, over: 0, width };
+        if (size >= base) break;
+      } else if (floor === min) {
+        // Nothing fits even at the smallest size: the width that spills least wins.
+        const over = spill(element);
+        if (over < best.over) best = { size: min, over, width };
+      }
     }
     if (best.width) element.style.setProperty("--side", `${best.width}mm`);
-    element.style.setProperty("--fit", String(best.size));
+    element.style.setProperty("--fit", String(Math.min(best.size, cap ?? best.size)));
     element.dataset.fitReady = String(fontsReady);
     report.current?.(best.size, best.over > 0);
-  }, [base, min, content, fontsReady, widths, cap]);
+  }, [base, min, content, fontsReady, fontLoads, widths, cap]);
 
   return ref;
 }
 
+/** Counts the font loads that finish after the page first settles, so text can be measured again. */
+function useFontLoads(): number {
+  const [loads, setLoads] = useState(0);
+  useEffect(() => {
+    const fonts = document.fonts;
+    const onDone = () => setLoads((count) => count + 1);
+    fonts.addEventListener("loadingdone", onDone);
+    return () => fonts.removeEventListener("loadingdone", onDone);
+  }, []);
+  return loads;
+}
+
 /**
  * For pages that must share one type size (the rules reference's pages):
- * each reports the size it fits at, and is held to `cap`, the smallest of them.
- * `spills` is true when even the smallest size doesn't fit.
+ * each reports the largest size it fits at on its own, and is shown at `cap`,
+ * the smallest of them. `spills` is true when even the smallest size doesn't fit.
  */
 export type SharedFit = { cap?: number; onFit: (size: number, spills: boolean) => void };
 
-function shrink(element: HTMLElement, base: number, min: number): number {
-  let size = base;
-  element.style.setProperty("--fit", String(size));
-  while (spill(element) > 0 && size > min) {
-    size = Math.max(min, size - STEP);
-    element.style.setProperty("--fit", String(size));
+/**
+ * The largest size, in steps down from `base` to `min`, at which the text
+ * fits, found by halving the steps rather than trying each one (each try is
+ * a layout); undefined when even `min` spills. Leaves the box at that size,
+ * or at `min`.
+ */
+function largestFit(element: HTMLElement, base: number, min: number): number | undefined {
+  const sizeAt = (step: number) => Math.max(min, Math.round((base - step * STEP) * 100) / 100);
+  const fits = (step: number) => {
+    element.style.setProperty("--fit", String(sizeAt(step)));
+    return spill(element) === 0;
+  };
+  if (fits(0)) return base;
+  const last = Math.ceil((base - min) / STEP - 1e-9);
+  if (last === 0 || !fits(last)) return undefined;
+  // The first step spills and the last fits: halve the steps between them.
+  let spilling = 0;
+  let fitting = last;
+  while (fitting - spilling > 1) {
+    const middle = (spilling + fitting) >> 1;
+    if (fits(middle)) fitting = middle;
+    else spilling = middle;
   }
-  return size;
+  element.style.setProperty("--fit", String(sizeAt(fitting)));
+  return sizeAt(fitting);
 }
 
 /** How many pixels of text run past the box, or 0 when it all fits. */

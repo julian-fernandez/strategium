@@ -1,10 +1,12 @@
+import { useEffect, useRef } from "react";
 import { unitLabel } from "../../../shared/labels";
 import type { StatLine } from "../../../shared/types";
 import type { PlayEntry } from "./playOrder";
 
 /**
  * Every unit to play, in list order, each with the characters leading it and
- * its main stat line, so units compare at a glance. Tap one to open it.
+ * its main stat line, so units compare at a glance. Tap one to open it. The
+ * current unit stays in view, so a long list opens where you are.
  */
 export function UnitList({
   entries,
@@ -17,6 +19,11 @@ export function UnitList({
   selectedKey?: string;
   onPick: (entry: PlayEntry) => void;
 }) {
+  const current = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (selectedKey && current.current) reveal(current.current);
+  }, [selectedKey]);
+
   return (
     <ul className="divide-y divide-line bg-panel hairline">
       {entries.map((entry) => {
@@ -25,6 +32,7 @@ export function UnitList({
         return (
           <li key={entry.key}>
             <button
+              ref={active ? current : undefined}
               type="button"
               onClick={() => onPick(entry)}
               aria-current={active ? "true" : undefined}
@@ -49,6 +57,26 @@ export function UnitList({
       })}
     </ul>
   );
+}
+
+/**
+ * Scrolls the list's own box (the tablet column, or the sheet) to show an
+ * item. scrollIntoView would move the whole page too when the column runs
+ * past the bottom of the screen.
+ */
+function reveal(item: HTMLElement): void {
+  let box = item.parentElement;
+  while (
+    box &&
+    !(box.scrollHeight > box.clientHeight && /auto|scroll/.test(getComputedStyle(box).overflowY))
+  ) {
+    box = box.parentElement;
+  }
+  if (!box) return;
+  const shown = box.getBoundingClientRect();
+  const place = item.getBoundingClientRect();
+  if (place.top < shown.top) box.scrollTop -= shown.top - place.top;
+  else if (place.bottom > shown.bottom) box.scrollTop += place.bottom - shown.bottom;
 }
 
 function MiniStats({ line }: { line: StatLine }) {
