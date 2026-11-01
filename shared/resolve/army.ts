@@ -116,6 +116,7 @@ export function buildArmy(
     stratagems,
     armyRules: armyRules(bundle, detachments.matched, units),
     glossary: glossary(bundle, units),
+    ruleBook: Object.values(bundle.rules),
     crossCheck: crossCheck(bundle, units),
     warnings: uniqueWarnings,
     data: {

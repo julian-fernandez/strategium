@@ -4,19 +4,23 @@ import { type ReactNode, useEffect, useRef } from "react";
  * A full-height sheet over the page, for phones: a title bar with a close
  * button, and content that scrolls inside it. Escape or tapping outside closes it.
  * As a `dialog` it stays a sheet on phones but sits centred, at reading width,
- * on wider screens, with an optional micro label over the title.
+ * on wider screens, with an optional micro label over the title. With
+ * `onBack`, a Back button returns to what was open before (a rule followed
+ * from another rule's text).
  */
 export function BottomSheet({
   title,
   eyebrow,
   dialog = false,
   onClose,
+  onBack,
   children,
 }: {
   title: string;
   eyebrow?: string;
   dialog?: boolean;
   onClose: () => void;
+  onBack?: () => void;
   children: ReactNode;
 }) {
   const closeButton = useRef<HTMLButtonElement>(null);
@@ -65,6 +69,16 @@ export function BottomSheet({
             dialog ? "bg-faction" : "bg-panel-strong"
           }`}
         >
+          {onBack ? (
+            <button
+              type="button"
+              onClick={onBack}
+              className="btn min-h-9 shrink-0 px-3 text-[11px]"
+              aria-label="Back"
+            >
+              ‹ Back
+            </button>
+          ) : null}
           <div className="min-w-0 flex-1">
             {eyebrow ? (
               <p className="micro text-ink/80">

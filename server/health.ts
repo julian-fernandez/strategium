@@ -4,6 +4,7 @@ import path from "node:path";
 import { DataAudit, type DataHealth } from "../shared/audit";
 import { COMPILER_VERSION } from "../shared/bundle";
 import { FACTIONS } from "../shared/factions";
+import { loadCoreRules } from "./coreRules";
 import { readFactionBundle } from "./data";
 import { CACHE_DIR, readMeta } from "./store";
 import { onDataChanged } from "./updates";
@@ -64,6 +65,7 @@ async function audit(): Promise<DataHealth | undefined> {
     // A faction can take a second to compile; let waiting requests through between them.
     await new Promise((resolve) => setImmediate(resolve));
   }
+  auditor.coreRules(await loadCoreRules());
   const health = auditor.result({
     bsdataSha: meta.bsdata.sha,
     wahapediaUpdate: meta.wahapedia.lastUpdate,

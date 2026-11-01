@@ -15,7 +15,9 @@ that army needs:
   enhancements taken, on the first card.
 - **Rules reference:** the full text of every core ability, faction rule and
   weapon keyword the cards name, at the back of the deck. On screen, tap any of
-  those names to read it.
+  those names to read it, and inside a rule tap the rules it names in turn: a
+  keyword ("[DEVASTATING WOUNDS]") or a core rule ("assault shooting (10.05)",
+  "critical hit"), with Back to return.
 - **Points:** every unit priced from the current data: its size, wargear that
   costs extra (a meltagun, a multi-melta), its enhancement, and the surcharge on
   a repeated datasheet. When the list's own total differs, the army says so.
@@ -43,7 +45,8 @@ Paste a list, open a roster file, or paste a Listhammer link (for example
 
 ## Printing
 
-The Cards tab shows the deck as it will print: A5 landscape, one card per page.
+A list opens on the Cards tab, which shows the deck as it will print: A5
+landscape, one card per page.
 Printed double-sided, each sheet is one card with its back. On screen, each
 sheet has a flip button to show its back. Every option is on by default:
 
@@ -147,7 +150,8 @@ Army. The cards and the data are for before the game, under Army.
   tap on a phone or tablet, the printed cards on a wider screen.
 - **Rules:** every rule the army uses, alphabetically: the army and detachment
   rules, enhancements, core abilities, weapon keywords and each unit's
-  abilities, with the units that have it. Tap a unit to open it in Play.
+  abilities, with the units that have it. Tap a unit to open it in Play, or a
+  rule named in a rule's text to read that one.
 
 On a phone held sideways, the search and the unit share one bar, so the
 datasheet keeps most of the screen.
@@ -193,6 +197,12 @@ browser: Web Worker ─ detect format ─ read list ─ resolve units ─► Arm
   - detachments, enhancements, stratagems and which units can use them;
   - the text of every rule, including the ones only one datasheet's weapons
     name ("Conversion", "Linked Fire"), from Wahapedia's datasheet abilities.
+
+  The core rules other rules name ("assault shooting (10.05)", "critical hit")
+  aren't in either export, so the server also reads Wahapedia's core rules
+  page with each sync (`shared/coreRules.ts`): every term the page links to a
+  rule, and that rule's text. The app links those names wherever a rule's
+  text uses them (`shared/ruleLinks.ts`).
 
   BSData modifiers that depend only on the unit are applied while compiling;
   ones that depend on a selection travel with the bundle and apply when the

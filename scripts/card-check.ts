@@ -222,7 +222,8 @@ async function checkList(
         localStorage.setItem(key, JSON.stringify(value));
       }
     },
-    { list: job.text, storage: job.storage ?? {} },
+    // A list opens on Cards; start on Army, whose roster shows the list has loaded.
+    { list: job.text, storage: { "army-cards:tab": "army", ...job.storage } },
   );
 
   try {

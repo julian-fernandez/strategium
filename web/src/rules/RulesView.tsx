@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { ruleKey } from "../../../shared/bundle";
 import { unitLabel } from "../../../shared/labels";
 import type { Army } from "../../../shared/types";
 import { Rich } from "../cards/parts";
@@ -76,7 +77,7 @@ export function RulesView({
                   {expanded ? (
                     <div className="px-4 pb-4">
                       <div className="rules-text text-[14px] leading-relaxed text-ink-dim [&_b]:text-ink">
-                        <Rich html={rule.html} />
+                        <Rich html={rule.html} self={`rule:${ruleKey(rule.name)}`} />
                       </div>
                       <UnitChips
                         title="Has it"

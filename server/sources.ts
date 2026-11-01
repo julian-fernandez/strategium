@@ -55,6 +55,12 @@ export async function fetchWahapediaFile(file: WahapediaFile): Promise<string> {
   return response.text();
 }
 
+/** Wahapedia's core rules page, read for the core rules that other rules name (shared/coreRules.ts). */
+export async function fetchWahapediaCoreRules(): Promise<string> {
+  const response = await get(`${WAHAPEDIA_BASE}the-rules/core-rules/`, "text/html");
+  return response.text();
+}
+
 /** Wahapedia's own "last updated" stamp, e.g. `2026-10-28 23:48:19`. */
 export async function fetchWahapediaLastUpdate(): Promise<string> {
   const rows = parsePipeCsv(await fetchWahapediaFile("Last_update"));
