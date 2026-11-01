@@ -4,6 +4,7 @@ import path from "node:path";
 import {
   fetchBsdataCatalogue,
   fetchBsdataCatalogueNames,
+  fetchWahapediaCoreRules,
   fetchWahapediaFile,
   WAHAPEDIA_FILES,
   type WahapediaFile,
@@ -12,6 +13,8 @@ import {
 export const CACHE_DIR = path.resolve(import.meta.dirname, "..", "data", "cache");
 const META_PATH = path.join(CACHE_DIR, "meta.json");
 const WAHAPEDIA_DIR = path.join(CACHE_DIR, "wahapedia");
+/** The core rules page, kept with each Wahapedia snapshot beside the export files. */
+const CORE_RULES_FILE = "Core_rules.html";
 const BSDATA_DIR = path.join(CACHE_DIR, "bsdata");
 
 export type WahapediaSnapshot = { lastUpdate: string; dir: string; syncedAt: string };
@@ -50,6 +53,7 @@ export async function syncWahapedia(meta: Meta, lastUpdate: string): Promise<Met
   for (const file of WAHAPEDIA_FILES) {
     await writeFile(path.join(staging, `${file}.csv`), await fetchWahapediaFile(file));
   }
+  await writeFile(path.join(staging, CORE_RULES_FILE), await fetchWahapediaCoreRules());
   await rm(target, { recursive: true, force: true });
   await rename(staging, target);
 
@@ -81,6 +85,15 @@ export async function pinBsdataCommit(
 
 export function wahapediaFilePath(snapshot: WahapediaSnapshot, file: WahapediaFile): string {
   return path.join(WAHAPEDIA_DIR, snapshot.dir, `${file}.csv`);
+}
+
+/** The snapshot's copy of the core rules page, fetched now if the snapshot is older than reading it. */
+export async function readCoreRulesPage(snapshot: WahapediaSnapshot): Promise<string> {
+  const file = path.join(WAHAPEDIA_DIR, snapshot.dir, CORE_RULES_FILE);
+  if (existsSync(file)) return readFile(file, "utf8");
+  const page = await fetchWahapediaCoreRules();
+  await writeFile(file, page);
+  return page;
 }
 
 export async function readWahapediaFile(

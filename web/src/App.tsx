@@ -35,9 +35,10 @@ export function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>();
   const [showLoader, setShowLoader] = useState(false);
-  // Remembered, so a reload mid-game comes back to the same tab and unit.
-  const [storedTab, setTab] = useStored<Tab>("army-cards:tab", "army");
-  const tab = TABS.some((t) => t.id === storedTab) ? storedTab : "army";
+  // Remembered, so a reload mid-game comes back to the same tab and unit. The cards are
+  // what Strategium is for, so a list opens on them.
+  const [storedTab, setTab] = useStored<Tab>("army-cards:tab", "cards");
+  const tab = TABS.some((t) => t.id === storedTab) ? storedTab : "cards";
   const [playUnit, setPlayUnit] = useStored<string | null>("army-cards:play-unit", null);
   const [selectedId, setSelectedId] = useState<string>();
   const [options, setOptions] = useState<DeckOptions>(loadSavedOptions);
@@ -45,24 +46,29 @@ export function App() {
   const [checking, setChecking] = useState(false);
   const fontsReady = useFontsReady();
 
-  const load = useCallback(async (next: ListSource) => {
-    setLoading(true);
-    setError(undefined);
-    try {
-      const result = await engine.build(next);
-      setArmy(result.army);
-      setListText(result.text);
-      // A file is remembered as the text read from it, so a reload rebuilds the same list.
-      const kept = "file" in next ? { text: result.text } : next;
-      setSource(kept);
-      saveSource(kept);
-      setShowLoader(false);
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : String(cause));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  /** Builds a list's army. A list just loaded opens on its cards; a reload keeps the tab you were on. */
+  const load = useCallback(
+    async (next: ListSource, { opened = false } = {}) => {
+      setLoading(true);
+      setError(undefined);
+      try {
+        const result = await engine.build(next);
+        setArmy(result.army);
+        setListText(result.text);
+        // A file is remembered as the text read from it, so a reload rebuilds the same list.
+        const kept = "file" in next ? { text: result.text } : next;
+        setSource(kept);
+        saveSource(kept);
+        setShowLoader(false);
+        if (opened) setTab("cards");
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : String(cause));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [setTab],
+  );
 
   // Reload the last list on start. A linked list is fetched again, so edits there show up.
   const started = useRef(false);
@@ -129,7 +135,7 @@ export function App() {
   const icon = useFactionIcon(army?.faction);
 
   return (
-    <RulesProvider glossary={army?.glossary ?? NO_RULES}>
+    <RulesProvider glossary={army?.glossary ?? NO_RULES} ruleBook={army?.ruleBook ?? NO_RULES}>
       <FactionIconContext.Provider value={icon}>
         <div
           className="relative min-h-screen"
@@ -174,7 +180,7 @@ export function App() {
                 initialText={source && "text" in source ? source.text : listText}
                 loading={loading}
                 error={error}
-                onLoad={(next) => void load(next)}
+                onLoad={(next) => void load(next, { opened: true })}
                 onCancel={army ? () => setShowLoader(false) : undefined}
               />
             ) : null}

@@ -4,6 +4,7 @@ import { compress } from "hono/compress";
 import { etag } from "hono/etag";
 import { z } from "zod";
 import type { DataVersions } from "../shared/types";
+import { loadCoreRules } from "./coreRules";
 import { loadBundle } from "./data";
 import { dataHealth } from "./health";
 import { factionIcon } from "./icons";
@@ -22,9 +23,15 @@ const listCache = new Map<string, { text: string; at: number }>();
  */
 export const app = new Hono()
   .use("/api/bundle", compress(), etag())
+  .use("/api/core-rules", compress(), etag())
   .get("/api/meta", async (c) => c.json(versions(await readMeta())))
   .post("/api/updates/check", async (c) => c.json(versions(await checkForUpdates())))
   .get("/api/health", async (c) => c.json(await dataHealth()))
+  .get("/api/core-rules", async (c) => {
+    // Revalidate on every load; the ETag makes unchanged rules a 304.
+    c.header("Cache-Control", "no-cache");
+    return c.json({ rules: await loadCoreRules() });
+  })
   .get("/api/lan", async (c) => c.json(await lanAddresses()))
   .get(
     "/api/bundle",

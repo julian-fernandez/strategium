@@ -8,6 +8,7 @@
  *   pnpm data-check Orks Necrons
  *   pnpm data-check --notes    list the notes too, not just count them
  */
+import { loadCoreRules } from "../server/coreRules";
 import { loadFactionBundle } from "../server/data";
 import { readMeta } from "../server/store";
 import { DataAudit } from "../shared/audit";
@@ -32,6 +33,7 @@ for (const faction of factions) {
     audit.failed(faction.name, error);
   }
 }
+audit.coreRules(await loadCoreRules());
 const meta = await readMeta();
 const health = audit.result({
   bsdataSha: meta.bsdata?.sha,

@@ -5,6 +5,7 @@ import {
   ruleKey,
   type UnitData,
 } from "./bundle";
+import type { CoreRule } from "./coreRules";
 
 /**
  * Audits everything compiled data can show: each unit's stat lines, weapons
@@ -114,6 +115,20 @@ export class DataAudit {
   failed(faction: string, error: unknown): void {
     const reason = (error instanceof Error ? error.message : String(error)).split("\n")[0];
     this.note("error", "faction that didn't compile", `${faction}: ${reason}`);
+  }
+
+  /** The core rules read from Wahapedia's page; none means its layout changed. */
+  coreRules(rules: CoreRule[]): void {
+    if (!rules.length)
+      this.note(
+        "error",
+        "core rules that didn't read (rules won't open the core rules they name)",
+        "Wahapedia's core rules page",
+      );
+    for (const rule of rules) {
+      if (!rule.html.trim())
+        this.note("error", "core rule with no text", `${rule.section ?? ""} ${rule.name}`.trim());
+    }
   }
 
   result(sources: { bsdataSha?: string; wahapediaUpdate?: string }): DataHealth {

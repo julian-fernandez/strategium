@@ -137,6 +137,8 @@ export type Army = {
   armyRules: ArmyRules;
   /** The text of every rule the army's cards name: core abilities, faction rules, weapon keywords. */
   glossary: Ability[];
+  /** Every rule the faction has text for, so a rule's text can open another the cards don't name. */
+  ruleBook: Ability[];
   crossCheck: CrossCheckIssue[];
   warnings: string[];
   data: DataVersions;

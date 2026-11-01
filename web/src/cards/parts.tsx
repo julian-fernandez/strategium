@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useMemo } from "react";
 import type { Ability, Datasheet, StatLine, WeaponRow } from "../../../shared/types";
-import { RuleTerms } from "../rules/Rules";
+import { RuleTerms, useRules } from "../rules/Rules";
 import { BladesIcon, CrosshairIcon, ShieldShape } from "./Glyphs";
 
 const STAT_FIELDS = [
@@ -260,10 +260,29 @@ export function CompositionBlock({ sheet }: { sheet: Datasheet }) {
   );
 }
 
-export function Rich({ html }: { html: string }) {
-  // Sanitized on the server: only b, u, br, p, ul, li and keyword spans survive.
-  // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized rules text.
-  return <span dangerouslySetInnerHTML={{ __html: html }} />;
+/**
+ * Rules text, with the names of other rules in it opening them on a tap.
+ * `self` is the rule this text belongs to, which needn't link to itself.
+ */
+export function Rich({ html, self }: { html: string; self?: string }) {
+  const { link, follow } = useRules();
+  const linked = useMemo(() => link(html, self), [link, html, self]);
+  return (
+    // biome-ignore lint/a11y/useKeyWithClickEvents: the clicks come from the links' own buttons, which keys press too.
+    // biome-ignore lint/a11y/noStaticElementInteractions: see above; the span only hears its buttons' clicks.
+    <span
+      onClick={(event) => {
+        const id = (event.target as HTMLElement).closest<HTMLElement>("[data-rule]")?.dataset.rule;
+        if (!id) return;
+        event.stopPropagation();
+        follow(id);
+      }}
+      // Sanitized on the server: only b, u, br, p, ul, li and keyword spans survive, plus
+      // the rule links added here.
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitized rules text.
+      dangerouslySetInnerHTML={{ __html: linked }}
+    />
+  );
 }
 
 /** "Canoness with Jump Pack" → ["Canoness", "with Jump Pack"], like the official title. */
