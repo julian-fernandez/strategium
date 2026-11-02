@@ -9,12 +9,10 @@
     "battleSize": 2000,
     "units": 17,
     "models": 61,
-    "points": 1980,
+    "points": 2000,
     "attachedGroups": 4,
     "stratagems": 16,
-    "warnings": [
-      "The list adds up to 2,000 pts; at the current points it's 1,980."
-    ],
+    "warnings": [],
     "crossCheck": []
   },
   "lists/adeptus-custodes.txt": {
@@ -101,12 +99,10 @@
     "battleSize": 2000,
     "units": 15,
     "models": 32,
-    "points": 1950,
+    "points": 2000,
     "attachedGroups": 3,
     "stratagems": 20,
-    "warnings": [
-      "The list adds up to 2,000 pts; at the current points it's 1,950."
-    ],
+    "warnings": [],
     "crossCheck": []
   },
   "lists/blood-angels.txt": {
@@ -223,7 +219,7 @@
     "battleSize": 2000,
     "units": 11,
     "models": 68,
-    "points": 2150,
+    "points": 2240,
     "attachedGroups": 2,
     "stratagems": 15,
     "warnings": [
@@ -232,7 +228,7 @@
       "BSData has no wargear named \"Deathwatch thunder hammer\" in Deathwatch Veterans.",
       "BSData has no wargear named \"Close combat weapon\" in Lieutenant.",
       "BSData has no wargear named \"Close combat weapon\" in Talonstrike Kill Team.",
-      "The list adds up to 1,985 pts; at the current points it's 2,150."
+      "The list adds up to 1,985 pts; at the current points it's 2,240."
     ],
     "crossCheck": []
   },
@@ -299,12 +295,10 @@
     "battleSize": 2000,
     "units": 12,
     "models": 43,
-    "points": 1975,
+    "points": 2000,
     "attachedGroups": 2,
     "stratagems": 20,
-    "warnings": [
-      "The list adds up to 2,000 pts; at the current points it's 1,975."
-    ],
+    "warnings": [],
     "crossCheck": [
       "Strike Squad: Close combat weapon S 5 / 4"
     ]
@@ -463,12 +457,10 @@
     "battleSize": 2000,
     "units": 14,
     "models": 43,
-    "points": 1980,
+    "points": 1990,
     "attachedGroups": 2,
     "stratagems": 20,
-    "warnings": [
-      "The list adds up to 1,990 pts; at the current points it's 1,980."
-    ],
+    "warnings": [],
     "crossCheck": [
       "Invader ATVs: Twin Bolt Rifle BS/WS 3+ / 2"
     ]
@@ -483,11 +475,11 @@
     "battleSize": 2000,
     "units": 13,
     "models": 49,
-    "points": 2020,
+    "points": 2050,
     "attachedGroups": 3,
     "stratagems": 20,
     "warnings": [
-      "The list adds up to 2,000 pts; at the current points it's 2,020."
+      "The list adds up to 2,000 pts; at the current points it's 2,050."
     ],
     "crossCheck": [
       "Venerable Dreadnought: Venerable Dreadnought M 8\" / 6\""
@@ -502,12 +494,10 @@
     "battleSize": 2000,
     "units": 16,
     "models": 57,
-    "points": 1955,
+    "points": 2000,
     "attachedGroups": 3,
     "stratagems": 17,
-    "warnings": [
-      "The list adds up to 2,000 pts; at the current points it's 1,955."
-    ],
+    "warnings": [],
     "crossCheck": [
       "Commander in Enforcer Battlesuit: Missile pod BS/WS 5+ / 3",
       "Crisis Fireknife Battlesuits: Missile pod BS/WS 5+ / 4"
@@ -586,12 +576,10 @@
     "battleSize": 2000,
     "units": 18,
     "models": 45,
-    "points": 1990,
+    "points": 2000,
     "attachedGroups": 2,
     "stratagems": 20,
-    "warnings": [
-      "The list adds up to 2,000 pts; at the current points it's 1,990."
-    ],
+    "warnings": [],
     "crossCheck": [
       "Suboden Khan: Onslaught Gatling Cannon AP -1 / 0",
       "Invader ATVs: Twin Bolt Rifle BS/WS 3+ / 2"
@@ -624,12 +612,10 @@
     "battleSize": 2000,
     "units": 13,
     "models": 34,
-    "points": 1975,
+    "points": 2000,
     "attachedGroups": 3,
     "stratagems": 16,
-    "warnings": [
-      "The list adds up to 2,000 pts; at the current points it's 1,975."
-    ],
+    "warnings": [],
     "crossCheck": []
   },
   "formats/battlebase.chaos-daemons.txt": {
@@ -673,11 +659,11 @@
     "battleSize": 2000,
     "units": 9,
     "models": 9,
-    "points": 2005,
+    "points": 2020,
     "attachedGroups": 0,
     "stratagems": 16,
     "warnings": [
-      "The list adds up to 1,995 pts; at the current points it's 2,005."
+      "The list adds up to 1,995 pts; at the current points it's 2,020."
     ],
     "crossCheck": []
   },
@@ -739,11 +725,11 @@
     "battleSize": 2000,
     "units": 14,
     "models": 50,
-    "points": 2030,
+    "points": 2040,
     "attachedGroups": 4,
     "stratagems": 20,
     "warnings": [
-      "The list adds up to 2,000 pts; at the current points it's 2,030."
+      "The list adds up to 2,000 pts; at the current points it's 2,040."
     ],
     "crossCheck": []
   },
@@ -898,12 +884,10 @@
     "battleSize": 2000,
     "units": 6,
     "models": 6,
-    "points": 1980,
+    "points": 1995,
     "attachedGroups": 0,
     "stratagems": 18,
-    "warnings": [
-      "The list adds up to 1,995 pts; at the current points it's 1,980."
-    ],
+    "warnings": [],
     "crossCheck": [
       "Knight Destrier: Titanic feet S 7 / 8"
     ]
@@ -1015,12 +999,10 @@
     "battleSize": 2000,
     "units": 11,
     "models": 13,
-    "points": 1890,
+    "points": 1910,
     "attachedGroups": 0,
     "stratagems": 20,
-    "warnings": [
-      "The list adds up to 1,910 pts; at the current points it's 1,890."
-    ],
+    "warnings": [],
     "crossCheck": []
   }
 }

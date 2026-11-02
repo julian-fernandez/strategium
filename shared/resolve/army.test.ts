@@ -24,11 +24,10 @@ describe("buildArmy on the demo list", () => {
     army = buildArmy(list, snapshotBundle(list.faction), {});
   });
 
-  it("loads without warnings, but that points changed since it was exported", () => {
-    // Retributors were 125 when the list was made; BSData has them at 105 now.
-    expect(army.warnings).toEqual([
-      "The list adds up to 2,000 pts; at the current points it's 1,980.",
-    ]);
+  it("loads without warnings, priced as the list prices it", () => {
+    expect(army.warnings).toEqual([]);
+    // 105, and 5 for each multi-melta: BSData prices the option on the squad's link to it.
+    expect(army.units.find((u) => u.name === "Retributor Squad")?.points).toBe(125);
     expect(army.battleSize).toEqual({ name: "Strike Force", points: 2000, supported: true });
     expect(army.detachments).toEqual(["Champions of Faith", "Sanctified Orators"]);
   });

@@ -130,7 +130,12 @@ export class Catalogues {
     return id ? this.byId.get(id) : undefined;
   }
 
-  /** Follows a link to its target, keeping the link's own modifiers and, if it has any, constraints. */
+  /**
+   * Follows a link to its target, keeping the link's own modifiers and, if it
+   * has any, constraints and costs. A unit prices an option on its link to a
+   * shared entry: the Retributor Squad's link to the Multi-melta costs 5 points,
+   * the Multi-melta itself nothing. Costs on both add up (none in the data do).
+   */
   resolve(node: BsNode): BsNode {
     if (!node.targetId) return node;
     const target = this.byId.get(node.targetId)?.node;
@@ -139,6 +144,7 @@ export class Catalogues {
       ...target,
       modifiers: [...(node.modifiers ?? []), ...(target.modifiers ?? [])],
       constraints: node.constraints?.length ? node.constraints : target.constraints,
+      costs: node.costs?.length ? addCosts(target.costs ?? [], node.costs) : target.costs,
     };
   }
 
@@ -290,4 +296,17 @@ export function normalizeName(name: string | undefined): string {
       .replace(/\s+/g, " ")
       .trim()
   );
+}
+
+type Cost = NonNullable<BsNode["costs"]>[number];
+
+/** Two cost lists as one, each cost type summed. */
+function addCosts(base: Cost[], extra: Cost[]): Cost[] {
+  const sum = base.map((cost) => ({ ...cost }));
+  for (const cost of extra) {
+    const same = sum.find((c) => (c.typeId ?? c.name) === (cost.typeId ?? cost.name));
+    if (same) same.value = (Number(same.value) || 0) + (Number(cost.value) || 0);
+    else sum.push({ ...cost });
+  }
+  return sum;
 }

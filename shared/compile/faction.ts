@@ -740,7 +740,8 @@ function withDatasheetRules(
     for (const name of named) {
       const key = ruleKey(name);
       const rule = rules[key] ? undefined : own.find((r) => ruleKey(r.name) === key);
-      if (rule) rules[key] = { name: rule.name, html: sanitizeWahapediaHtml(rule.description) };
+      // Named as the card names it: Wahapedia writes some in capitals ("SUPREME COMMANDER").
+      if (rule) rules[key] = { name, html: sanitizeWahapediaHtml(rule.description) };
     }
   }
   return rules;
