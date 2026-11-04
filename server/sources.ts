@@ -81,3 +81,18 @@ export async function fetchListhammerListText(listId: string): Promise<string> {
   if (!text) throw new Error(`Listhammer returned no list text for ${listId}`);
   return text;
 }
+
+/** A Listhammer list link; the list's id is the first group. */
+export const LISTHAMMER_URL = /listhammer\.info\/list\/([A-Za-z0-9]+)/;
+const LIST_CACHE_MS = 10 * 60 * 1000;
+const listCache = new Map<string, { text: string; at: number }>();
+
+/** A Listhammer list's text by its link, refetched at most every 10 minutes so edits there show up. */
+export async function listhammerText(url: string): Promise<string> {
+  const id = LISTHAMMER_URL.exec(url)?.[1] ?? "";
+  const cached = listCache.get(id);
+  if (cached && Date.now() - cached.at < LIST_CACHE_MS) return cached.text;
+  const text = await fetchListhammerListText(id);
+  listCache.set(id, { text, at: Date.now() });
+  return text;
+}

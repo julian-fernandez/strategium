@@ -20,6 +20,8 @@ export function DataPanel({
   onCheck: () => void;
 }) {
   const versions = meta ?? army.data;
+  // The hosted site's data stays as deployed; only the local server checks for updates.
+  const hosted = Boolean(versions.deployedAt);
   return (
     <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[420px_1fr] lg:gap-8">
       <section className="bg-panel hairline">
@@ -47,6 +49,7 @@ export function DataPanel({
             <span className="text-ink-dim">{formatDate(versions.bsdataDate)}</span>
           </Row>
           <Row label="Wahapedia">{versions.wahapediaUpdate ?? "–"}</Row>
+          {hosted ? <Row label="Deployed">{formatDate(versions.deployedAt)}</Row> : null}
           <Row label="Last checked">{formatDate(versions.checkedAt)}</Row>
           <Row label="Last change">{formatDate(versions.changedAt)}</Row>
           {versions.lastError ? (
@@ -56,13 +59,22 @@ export function DataPanel({
           ) : null}
         </dl>
         <div className="border-t border-line px-6 py-4">
-          <button type="button" className="btn w-full" disabled={checking} onClick={onCheck}>
-            {checking ? "Checking…" : "Check for updates now"}
-          </button>
-          <p className="mt-3 text-[12px] leading-relaxed text-ink-dim">
-            The server also checks on its own every six hours. Datasheets come from BSData;
-            stratagems and background text from Wahapedia.
-          </p>
+          {hosted ? (
+            <p className="text-[12px] leading-relaxed text-ink-dim">
+              This site's data stays as it was deployed, until it's deployed again. Datasheets come
+              from BSData; stratagems and background text from Wahapedia.
+            </p>
+          ) : (
+            <>
+              <button type="button" className="btn w-full" disabled={checking} onClick={onCheck}>
+                {checking ? "Checking…" : "Check for updates now"}
+              </button>
+              <p className="mt-3 text-[12px] leading-relaxed text-ink-dim">
+                The server also checks on its own every six hours. Datasheets come from BSData;
+                stratagems and background text from Wahapedia.
+              </p>
+            </>
+          )}
         </div>
       </section>
 
@@ -104,7 +116,7 @@ export function DataPanel({
 
       <DataHealthPanel changedAt={versions.changedAt} />
 
-      <OnYourNetwork />
+      <OnYourNetwork hosted={hosted} />
     </div>
   );
 }
@@ -224,8 +236,11 @@ function Finding({ finding, open }: { finding: AuditFinding; open?: boolean }) {
   );
 }
 
-/** How to open the app on a phone or tablet on the same Wi-Fi, with a QR code to scan. */
-function OnYourNetwork() {
+/**
+ * How to open the app on a phone or tablet: the hosted site's own address, or
+ * a local copy on the same Wi-Fi, with a QR code to scan.
+ */
+function OnYourNetwork({ hosted }: { hosted: boolean }) {
   const [addresses, setAddresses] = useState<LanAddress[]>();
   const onLan = !["localhost", "127.0.0.1", "[::1]"].includes(location.hostname);
 
@@ -248,7 +263,12 @@ function OnYourNetwork() {
         </h2>
       </div>
       <div className="px-6 py-5 text-[14px] leading-relaxed text-ink-dim">
-        {onLan ? (
+        {hosted ? (
+          <p>
+            Open <span className="font-semibold text-ink">{location.host}</span> on the phone or
+            tablet, then the Play tab.
+          </p>
+        ) : onLan ? (
           <p>You're already on it: this device is using the network address.</p>
         ) : addresses === undefined ? (
           <p>Looking for this computer's network address…</p>

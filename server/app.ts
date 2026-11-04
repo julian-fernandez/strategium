@@ -9,13 +9,9 @@ import { loadBundle } from "./data";
 import { dataHealth } from "./health";
 import { factionIcon } from "./icons";
 import { lanAddresses } from "./lan";
-import { fetchListhammerListText } from "./sources";
+import { LISTHAMMER_URL, listhammerText } from "./sources";
 import { type Meta, readMeta } from "./store";
 import { checkForUpdates } from "./updates";
-
-const LISTHAMMER_URL = /listhammer\.info\/list\/([A-Za-z0-9]+)/;
-const LIST_CACHE_MS = 10 * 60 * 1000;
-const listCache = new Map<string, { text: string; at: number }>();
 
 /**
  * The API. Its type is exported, so the web app's client (hono/client) knows
@@ -75,16 +71,6 @@ export const app = new Hono()
   );
 
 export type AppType = typeof app;
-
-/** Listhammer lists are refetched at most every 10 minutes, so edits there show up. */
-async function listhammerText(url: string): Promise<string> {
-  const id = LISTHAMMER_URL.exec(url)?.[1] ?? "";
-  const cached = listCache.get(id);
-  if (cached && Date.now() - cached.at < LIST_CACHE_MS) return cached.text;
-  const text = await fetchListhammerListText(id);
-  listCache.set(id, { text, at: Date.now() });
-  return text;
-}
 
 /** Invalid input answers like every other failure: `{ error }`, here with a 400. */
 function rejectInvalid(

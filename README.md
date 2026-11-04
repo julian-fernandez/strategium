@@ -28,9 +28,11 @@ A5 landscape page.
 Strategium reads lists; it doesn't build or edit them. Change a list in the
 app you built it with, then load it again.
 
-A personal tool. It reproduces Games Workshop's rules text and faction
-emblems, so don't host it publicly. Neither is in the repo: both are fetched
-into `data/cache/` when the app runs.
+A personal tool, hosted for a local playgroup at
+https://strategium.hipolitafv.workers.dev. It reproduces Games Workshop's
+rules text and faction emblems. Neither is in the repo: both are fetched into
+`data/cache/` when the app runs, and built into the hosted site when it's
+deployed.
 
 ## Run it
 
@@ -42,6 +44,21 @@ pnpm dev         # API on :8787, app on http://localhost:5173
 
 Paste a list, open a roster file, or paste a Listhammer link (for example
 `https://listhammer.info/list/b29e2c836943545e89`, the demo list).
+
+## Hosting
+
+The hosted site runs on Cloudflare: the web app and every faction's data as
+static files, and a small Worker (`worker/index.ts`) that answers the API from
+them. Only Listhammer links are fetched live. The data stays as deployed until
+the next deploy.
+
+```bash
+pnpm exec wrangler login   # once, to sign in to Cloudflare
+pnpm deploy:site           # syncs the data, builds the site into dist/, deploys it
+```
+
+`pnpm build:site` builds without deploying; add `--no-sync` to build from the
+data already synced.
 
 ## Printing
 
@@ -158,10 +175,11 @@ datasheet keeps most of the screen.
 
 The app remembers the tab, the unit and the phase across reloads, and keeps
 the screen from dimming in Play, Stratagems and Rules. Phones only allow that
-on a secure (https) page, so it works once the app is hosted, not over
+on a secure (https) page, so it works on the hosted site, not over
 `dev:lan`.
 
-To open it on a phone or tablet on the same Wi-Fi, start the app with:
+On a phone or tablet, open the hosted site's address. To use a local copy on
+the same Wi-Fi instead, start the app with:
 
 ```bash
 pnpm dev:lan     # like `pnpm dev`, but the app is also served on your network
@@ -296,7 +314,6 @@ change to the parsers or the compiler shows up as a diff.
 
 - Unit photos: a custom upload per unit, and a default render. The card keeps an
   emblem placeholder in that slot.
-- Use away from home: that would need hosting, which should stay private.
 - Crusade.
 - BSData modifiers inside condition groups or modifier groups, and ones that
   depend on the rest of the army.

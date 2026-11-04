@@ -20,6 +20,7 @@
     "shared",
     "web/src",
     "scripts",
+    "worker",
     "fixtures",
     "vite.config.ts",
     "vitest.config.ts"

@@ -111,6 +111,8 @@ export type DataVersions = {
   checkedAt?: string;
   changedAt?: string;
   lastError?: string;
+  /** When the hosted site was built with this data; absent when the local server answers. */
+  deployedAt?: string;
 };
 
 /** What goes on the army rules card. */
