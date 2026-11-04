@@ -260,7 +260,14 @@ function cutShort(phone: boolean): string[] {
   for (const element of document.querySelectorAll<HTMLElement>("body *")) {
     const style = getComputedStyle(element);
     const text = `“${(element.textContent ?? "").trim().replace(/\s+/g, " ").slice(0, 60)}”`;
-    if (style.textOverflow === "ellipsis" && element.scrollWidth > element.clientWidth + 1) {
+    // Cut short on purpose with the whole text on hover (the header's title) is fine.
+    const hover = element.getAttribute("title")?.trim();
+    const wholeOnHover = Boolean(hover) && hover === (element.textContent ?? "").trim();
+    if (
+      style.textOverflow === "ellipsis" &&
+      element.scrollWidth > element.clientWidth + 1 &&
+      !wholeOnHover
+    ) {
       found.push(`ellipsis ${text}`);
     } else if (
       style.webkitLineClamp !== "none" &&

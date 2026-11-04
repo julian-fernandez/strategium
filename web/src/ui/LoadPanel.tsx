@@ -29,7 +29,7 @@ export function LoadPanel({
   };
 
   return (
-    <div className="mx-auto grid max-w-[1100px] grid-cols-1 gap-4 lg:grid-cols-[1fr_340px] lg:gap-6">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_340px] lg:gap-6">
       {onCancel ? (
         <button
           type="button"

@@ -63,38 +63,47 @@ export function TopBar({
   factionColor: string;
 }) {
   const points = army?.units.reduce((sum, unit) => sum + unit.points, 0) ?? 0;
+  const subtitle = army
+    ? `// ${army.battleSize?.name ?? "Unknown size"} · ${points.toLocaleString()} pts · ${army.detachments.join(" + ") || "No detachment"}`
+    : "// Datasheets for the army you actually brought";
 
   return (
     <header
       className="no-print relative border-b border-line bg-panel-strong"
       style={{ "--color-faction": factionColor } as CSSProperties}
     >
-      <div className="mx-auto flex max-w-[1400px] flex-wrap items-stretch gap-x-6 px-4 md:px-8">
+      {/* One row at every width. The title gives way, cut short with an ellipsis, and below 1400px the tabs and buttons tighten up, so the header never grows a second row. */}
+      <div className="mx-auto flex max-w-[1400px] items-stretch gap-x-6 px-4 md:px-8">
         <div className="flex min-w-0 flex-1 basis-[240px] items-center gap-3 py-3 md:basis-[320px] md:gap-4 md:py-4">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center bg-faction md:h-14 md:w-14">
             <Emblem className="h-7 w-7 text-ink md:h-9 md:w-9" />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="text-[18px] font-extrabold uppercase leading-tight tracking-[0.04em] md:text-[22px]">
+            <h1
+              className="truncate text-[18px] font-extrabold uppercase leading-tight tracking-[0.04em] md:text-[22px]"
+              title={army ? army.faction : "Strategium"}
+            >
               {army ? army.faction : "Strategium"}
             </h1>
-            <p className="micro mt-1.5 leading-relaxed">
-              {army
-                ? `// ${army.battleSize?.name ?? "Unknown size"} · ${points.toLocaleString()} pts · ${army.detachments.join(" + ") || "No detachment"}`
-                : "// Datasheets for the army you actually brought"}
+            {/* One line, so the header keeps its height whatever the list holds; the rest on hover. */}
+            <p className="micro mt-1.5 truncate leading-relaxed" title={subtitle}>
+              {subtitle}
             </p>
           </div>
         </div>
 
         {army ? (
-          <nav className="ml-auto hidden items-stretch gap-1 lg:flex" aria-label="Sections">
-            <span className="key-hint self-center">Q</span>
+          <nav
+            className="ml-auto hidden shrink-0 items-stretch gap-1 lg:flex"
+            aria-label="Sections"
+          >
+            <span className="key-hint hidden self-center min-[1400px]:inline-flex">Q</span>
             {TABS.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => onTab(item.id)}
-                className={`relative px-5 text-[13px] font-semibold uppercase tracking-[0.2em] transition-colors duration-150 ${
+                className={`relative px-3 text-[13px] font-semibold uppercase tracking-[0.12em] transition-colors duration-150 min-[1400px]:px-5 min-[1400px]:tracking-[0.2em] ${
                   tab === item.id ? "text-ink" : "text-ink-faint hover:text-ink-dim"
                 }`}
                 aria-current={tab === item.id ? "page" : undefined}
@@ -105,18 +114,24 @@ export function TopBar({
                 ) : null}
               </button>
             ))}
-            <span className="key-hint self-center">E</span>
+            <span className="key-hint hidden self-center min-[1400px]:inline-flex">E</span>
           </nav>
         ) : null}
 
         {army ? (
-          <div className="hidden items-center gap-3 py-4 lg:flex">
-            <button type="button" className="btn" onClick={onChangeList}>
+          <div className="hidden shrink-0 items-center gap-3 py-4 lg:flex">
+            <button type="button" className="btn px-3 min-[1400px]:px-5" onClick={onChangeList}>
               Change list
             </button>
-            <button type="button" className="btn btn-action" onClick={onPrint}>
+            <button
+              type="button"
+              className="btn btn-action px-3 min-[1400px]:px-5"
+              onClick={onPrint}
+            >
               Print
-              <span className="key-hint border-white/50 text-white/80">P</span>
+              <span className="key-hint hidden border-white/50 text-white/80 min-[1400px]:inline-flex">
+                P
+              </span>
             </button>
           </div>
         ) : null}
