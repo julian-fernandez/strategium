@@ -1,7 +1,7 @@
 node_modules/
 dist/
 data/cache/
-.wrangler/
+.vercel/
 *.log
 .DS_Store
 .env*.local

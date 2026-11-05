@@ -29,7 +29,7 @@ Strategium reads lists; it doesn't build or edit them. Change a list in the
 app you built it with, then load it again.
 
 A personal tool, hosted for a local playgroup at
-https://strategium.hipolitafv.workers.dev. It reproduces Games Workshop's
+https://strategium-mauve.vercel.app. It reproduces Games Workshop's
 rules text and faction emblems. Neither is in the repo: both are fetched into
 `data/cache/` when the app runs, and built into the hosted site when it's
 deployed.
@@ -47,18 +47,19 @@ Paste a list, open a roster file, or paste a Listhammer link (for example
 
 ## Hosting
 
-The hosted site runs on Cloudflare: the web app and every faction's data as
-static files, and a small Worker (`worker/index.ts`) that answers the API from
-them. Only Listhammer links are fetched live. The data stays as deployed until
-the next deploy.
+The hosted site runs on Vercel and deploys on every push to `main`. Each
+deploy runs `pnpm build:vercel`, which:
 
-```bash
-pnpm exec wrangler login   # once, to sign in to Cloudflare
-pnpm deploy:site           # syncs the data, builds the site into dist/, deploys it
-```
+1. syncs BSData and Wahapedia;
+2. builds the web app and every faction's data as static files;
+3. bundles the API (`server/hosted.ts`) into one edge function that answers
+   from those files.
 
-`pnpm build:site` builds without deploying; add `--no-sync` to build from the
-data already synced.
+Only Listhammer links are fetched live. The data stays as deployed until the
+next deploy, so to pick up new data, redeploy from Vercel's dashboard.
+
+`pnpm build:site` builds the site into `dist/` on its own; add `--no-sync` to
+build from the data already synced.
 
 ## Printing
 

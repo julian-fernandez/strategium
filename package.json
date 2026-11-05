@@ -11,7 +11,7 @@
     "dev:lan": "concurrently -k -n server,web -c blue,magenta \"pnpm dev:server\" \"vite --host\"",
     "build": "vite build",
     "build:site": "vite build && tsx scripts/build-site.ts",
-    "deploy:site": "pnpm build:site && wrangler deploy",
+    "build:vercel": "pnpm build:site && tsx scripts/build-vercel.ts",
     "sync-data": "tsx server/sync-cli.ts",
     "print-check": "tsx scripts/print-check.ts",
     "card-check": "tsx scripts/card-check.ts",
@@ -49,7 +49,6 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.3.5",
-    "vitest": "^5.0.5",
-    "wrangler": "^4.156.2"
+    "vitest": "^5.0.5"
   }
 }
