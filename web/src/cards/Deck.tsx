@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import type { Army } from "../../../shared/types";
 import { FitToWidth } from "../ui/FitToWidth";
@@ -6,7 +6,7 @@ import { ArmyRulesCard } from "./ArmyRulesCard";
 import { DatasheetCard } from "./DatasheetCard";
 import { GlossaryCard } from "./GlossaryCard";
 import { FlipIcon } from "./Glyphs";
-import type { DeckPage, Squeeze } from "./printOrder";
+import type { Binding, DeckPage, Squeeze } from "./printOrder";
 import { StratagemCard } from "./StratagemCard";
 import { type CardTheme, themeFor } from "./themes";
 import type { SharedFit } from "./useFitText";
@@ -21,6 +21,7 @@ export function Deck({
   pages,
   numbers,
   duplex,
+  binding,
   fontsReady,
   onSpill,
 }: {
@@ -29,6 +30,7 @@ export function Deck({
   numbers: Map<string, number>;
   /** Double-sided: every second page is the back of the one before. */
   duplex: boolean;
+  binding: Binding;
   fontsReady: boolean;
   /** A rules page that doesn't fit even at its smallest type: its card needs more pages. */
   onSpill: (kind: keyof Squeeze) => void;
@@ -56,7 +58,7 @@ export function Deck({
       },
     };
   };
-  const faces = { army, numbers, theme, fontsReady, sharedFor };
+  const faces = { army, numbers, theme, fontsReady, sharedFor, binding };
   const sheets: { front: DeckPage; back?: DeckPage }[] = [];
   for (let i = 0; i < pages.length; i += duplex ? 2 : 1) {
     const front = pages[i];
@@ -102,7 +104,35 @@ type Faces = {
   theme: CardTheme;
   fontsReady: boolean;
   sharedFor: (page: DeckPage) => SharedFit | undefined;
+  binding: Binding;
 };
+
+/** The strip kept clear for a spiral or rings, and the A5 landscape page it comes off. */
+const BINDING_MM = 10;
+const PAGE_MM = { width: 210, height: 148 };
+
+/**
+ * A page's content scaled down just enough to leave the binding strip clear,
+ * shrinking toward the opposite edge. A back's binding edge is across from its
+ * front's, since the sheet turns over it: right for a left binding, bottom for
+ * a top one. Scaled rather than re-laid, so text fits as it does at full size.
+ */
+function bindingStyle(binding: Binding, back: boolean): CSSProperties | undefined {
+  if (binding === "none") return undefined;
+  const scale =
+    binding === "left"
+      ? (PAGE_MM.width - BINDING_MM) / PAGE_MM.width
+      : (PAGE_MM.height - BINDING_MM) / PAGE_MM.height;
+  const origin =
+    binding === "left"
+      ? back
+        ? "left center"
+        : "right center"
+      : back
+        ? "center top"
+        : "center bottom";
+  return { transform: `scale(${scale})`, transformOrigin: origin };
+}
 
 /** A page's identity for its shared type size: its place and what it holds, so another list starts afresh. */
 function fitId(page: DeckPage): string {
@@ -153,7 +183,7 @@ function Sheet({
       <FitToWidth>
         <div className="grid print:block">
           <Face page={front} visible={!flipped || !back} {...faces} />
-          {back ? <Face page={back} visible={flipped} {...faces} /> : null}
+          {back ? <Face page={back} visible={flipped} back {...faces} /> : null}
         </div>
       </FitToWidth>
     </section>
@@ -164,12 +194,14 @@ function Sheet({
 function Face({
   page,
   visible,
+  back = false,
   army,
   numbers,
   theme,
   fontsReady,
   sharedFor,
-}: { page: DeckPage; visible: boolean } & Faces) {
+  binding,
+}: { page: DeckPage; visible: boolean; back?: boolean } & Faces) {
   return (
     <div
       aria-hidden={!visible}
@@ -177,48 +209,53 @@ function Face({
         visible ? "opacity-100" : "pointer-events-none invisible opacity-0"
       } ${page.kind === "blank" ? "outline outline-1 outline-dashed outline-line" : "bg-white/5"}`}
     >
-      {page.kind === "datasheet" ? (
-        <DatasheetCard
-          sheet={page.unit}
-          number={numbers.get(page.unit.id)}
-          theme={theme}
-          fontsReady={fontsReady}
-        />
-      ) : null}
-      {page.kind === "army-rules" ? (
-        <ArmyRulesCard
-          army={army}
-          sections={page.sections}
-          part={page.part}
-          parts={page.parts}
-          theme={theme}
-          fontsReady={fontsReady}
-          shared={sharedFor(page)}
-        />
-      ) : null}
-      {page.kind === "glossary" ? (
-        <GlossaryCard
-          army={army}
-          rules={page.rules}
-          part={page.part}
-          parts={page.parts}
-          theme={theme}
-          fontsReady={fontsReady}
-          shared={sharedFor(page)}
-        />
-      ) : null}
-      {page.kind === "stratagems" ? (
-        <div className="grid grid-cols-2 gap-[5mm]">
-          {page.stratagems.map((stratagem) => (
-            <StratagemCard
-              key={stratagem.id}
-              stratagem={stratagem}
-              theme={theme}
-              fontsReady={fontsReady}
-            />
-          ))}
-        </div>
-      ) : null}
+      <div
+        className="flex h-full w-full items-center justify-center"
+        style={bindingStyle(binding, back)}
+      >
+        {page.kind === "datasheet" ? (
+          <DatasheetCard
+            sheet={page.unit}
+            number={numbers.get(page.unit.id)}
+            theme={theme}
+            fontsReady={fontsReady}
+          />
+        ) : null}
+        {page.kind === "army-rules" ? (
+          <ArmyRulesCard
+            army={army}
+            sections={page.sections}
+            part={page.part}
+            parts={page.parts}
+            theme={theme}
+            fontsReady={fontsReady}
+            shared={sharedFor(page)}
+          />
+        ) : null}
+        {page.kind === "glossary" ? (
+          <GlossaryCard
+            army={army}
+            rules={page.rules}
+            part={page.part}
+            parts={page.parts}
+            theme={theme}
+            fontsReady={fontsReady}
+            shared={sharedFor(page)}
+          />
+        ) : null}
+        {page.kind === "stratagems" ? (
+          <div className="grid grid-cols-2 gap-[5mm]">
+            {page.stratagems.map((stratagem) => (
+              <StratagemCard
+                key={stratagem.id}
+                stratagem={stratagem}
+                theme={theme}
+                fontsReady={fontsReady}
+              />
+            ))}
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -226,13 +226,30 @@ function armyRules(
   };
 }
 
-/** The text of every rule the army's cards name, alphabetically. */
+/**
+ * Rules that only matter while building or mustering the army, never during a
+ * game: who can lead whom, who must be Warlord, what the army may include.
+ * They stay on the cards' CORE and FACTION lines, but not in the reference.
+ */
+const LIST_BUILDING_RULES = new Set(
+  [
+    "Leader",
+    "Support",
+    "Supreme Commander",
+    "Crucible",
+    "Assigned Agents",
+    "Disparate Paths",
+    "Independent Power",
+  ].map(ruleKey),
+);
+
+/** The text of every rule the army's cards name that matters in a game, alphabetically. */
 function glossary(bundle: FactionBundle, units: Datasheet[]): Ability[] {
   const found = new Map<string, Ability>();
   const add = (name: string) => {
     const key = ruleKey(name);
     const rule = bundle.rules[key];
-    if (rule && !found.has(key)) found.set(key, rule);
+    if (rule && !found.has(key) && !LIST_BUILDING_RULES.has(key)) found.set(key, rule);
   };
   for (const unit of units) {
     for (const name of [...unit.coreAbilities, ...unit.factionAbilities]) add(name);

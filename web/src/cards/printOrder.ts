@@ -14,7 +14,12 @@ export type DeckOptions = {
   armyRules: boolean;
   /** Reference pages at the end with every core ability and weapon keyword the cards name. */
   glossary: boolean;
+  /** A strip kept clear along one edge of every page, for a spiral or rings. */
+  binding: Binding;
 };
+
+/** Where printed cards are bound, if they are: the edge whose strip stays clear. */
+export type Binding = "none" | "left" | "top";
 
 export const DEFAULT_DECK_OPTIONS: DeckOptions = {
   leadersOnBack: true,
@@ -23,6 +28,7 @@ export const DEFAULT_DECK_OPTIONS: DeckOptions = {
   numberDuplicates: true,
   armyRules: true,
   glossary: true,
+  binding: "none",
 };
 
 /** A titled run of rules on the army rules card: the army rule, one detachment, the enhancements. */

@@ -14,7 +14,9 @@ that army needs:
 - **Army rules card:** the army rule, each detachment's rules and the
   enhancements taken, on the first card.
 - **Rules reference:** the full text of every core ability, faction rule and
-  weapon keyword the cards name, at the back of the deck. On screen, tap any of
+  weapon keyword the cards name, at the back of the deck. Rules that only
+  matter while building the army (Leader, Support, Supreme Commander,
+  Crucible) stay on the cards but not in the reference. On screen, tap any of
   those names to read it, and inside a rule tap the rules it names in turn: a
   keyword ("[DEVASTATING WOUNDS]") or a core rule ("assault shooting (10.05)",
   "critical hit"), with Back to return.
@@ -76,9 +78,16 @@ sheet has a flip button to show its back. Every option is on by default:
 | Army rules card     | The army rule, detachment rules and enhancements taken, on the first card.                                 |
 | Rules reference     | Every core ability and weapon keyword the cards name, in full, at the end. Its pages back onto each other. |
 | Number repeats      | Units that share a name become #1, #2, #3, easy to call out mid-game.                                      |
+| Binding margin      | None (the default), Left or Top: a 10 mm strip kept clear for a spiral or rings. See below.                |
 
-On a phone the cards are reflowed for reading instead, and Double-sided, which
-only means something on paper, stays visible but greyed out.
+With a binding margin, each card is scaled down just enough to leave the strip
+clear, and a back's strip is across from its front's, so both land on the bound
+edge. Printed double-sided, flip on the short edge for a left binding and on
+the long edge for a top one.
+
+On a phone the cards are reflowed for reading instead, and Double-sided and
+Binding margin, which only mean something on paper, stay visible but greyed
+out.
 
 No text is cut short. Long text shrinks to fit its card, and an army rules
 card or rules reference that still doesn't fit at its smallest size takes

@@ -54,7 +54,6 @@ export function RulesProvider({
   }, []);
 
   const rules = useMemo<Rules>(() => {
-    const byKey = new Map(glossary.map((rule) => [ruleKey(rule.name), rule]));
     const book = new Map([...ruleBook, ...glossary].map((rule) => [ruleKey(rule.name), rule]));
     const coreById = new Map(core.map((rule) => [rule.id, rule]));
     const coreByName = new Map(core.map((rule) => [termKey(rule.name), rule]));
@@ -106,7 +105,8 @@ export function RulesProvider({
     };
 
     return {
-      find: (name) => byKey.get(ruleKey(name)),
+      // The whole rule book, so a name the reference leaves out (Leader) still opens on a tap.
+      find: (name) => book.get(ruleKey(name)),
       show: (rule, eyebrow = "Rule", footer) =>
         setStack([{ rule, eyebrow, footer, id: `rule:${ruleKey(rule.name)}` }]),
       link: (html, self) => linkRules(html, index, self),

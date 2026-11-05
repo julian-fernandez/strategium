@@ -1,14 +1,17 @@
 import { useCallback, useState } from "react";
 import type { Army } from "../../../shared/types";
 import { Deck } from "../cards/Deck";
-import { buildDeck, type DeckOptions, type Squeeze } from "../cards/printOrder";
+import { type Binding, buildDeck, type DeckOptions, type Squeeze } from "../cards/printOrder";
 import { ReadableDeck } from "../cards/ReadableDeck";
 import { READABLE_CARD_WIDTH, useWidth } from "./layout";
 
 /** The least of a budget a rules page is held to, so a rule too long for any page can't split forever. */
 const MIN_SQUEEZE = 0.4;
 
-const OPTIONS: { key: keyof DeckOptions; label: string; hint: string }[] = [
+/** The options that are on or off; where to bind has three choices of its own. */
+type Toggle = Exclude<keyof DeckOptions, "binding">;
+
+const OPTIONS: { key: Toggle; label: string; hint: string }[] = [
   {
     key: "leadersOnBack",
     label: "Leaders on the back",
@@ -39,6 +42,12 @@ const OPTIONS: { key: keyof DeckOptions; label: string; hint: string }[] = [
     label: "Number repeats",
     hint: "Units that share a name become #1, #2, #3, easy to call out mid-game.",
   },
+];
+
+const BINDINGS: { value: Binding; label: string }[] = [
+  { value: "none", label: "None" },
+  { value: "left", label: "Left" },
+  { value: "top", label: "Top" },
 ];
 
 export function CardsView({
@@ -80,7 +89,14 @@ export function CardsView({
   // On a phone the A5 cards would be too small to read, so they're reflowed instead.
   const readable = width > 0 && width < READABLE_CARD_WIDTH;
   // Double-sided means nothing on a phone; it stays in place, greyed out.
-  const unavailable = (key: keyof DeckOptions): boolean => readable && key === "duplex";
+  // Neither does a binding margin: the reflowed cards aren't pages.
+  const unavailable = (key: keyof DeckOptions): boolean =>
+    readable && (key === "duplex" || key === "binding");
+  // Bound at the top, a double-sided sheet turns over its long edge.
+  const hintFor = (option: (typeof OPTIONS)[number]): string =>
+    option.key === "duplex" && options.binding === "top"
+      ? "Every card gets a back, so each stays on its own sheet. Flip on the long edge, for a top binding."
+      : option.hint;
 
   return (
     <div ref={area} className="flex flex-col gap-6 md:gap-8">
@@ -102,11 +118,41 @@ export function CardsView({
                 {option.label}
               </span>
               <span className="mt-1 hidden text-[12px] leading-relaxed text-ink-dim md:block">
-                {option.hint}
+                {hintFor(option)}
               </span>
             </span>
           </button>
         ))}
+        <div
+          className={`flex min-w-0 flex-col gap-2 bg-panel p-3 hairline md:min-w-[220px] md:flex-1 md:p-4 ${
+            unavailable("binding") ? "opacity-45" : ""
+          }`}
+        >
+          <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] md:text-[13px] md:tracking-[0.16em]">
+            Binding margin
+          </span>
+          <fieldset className="flex gap-1" aria-label="Binding margin">
+            {BINDINGS.map((choice) => (
+              <button
+                key={choice.value}
+                type="button"
+                disabled={unavailable("binding")}
+                onClick={() => onOptions({ ...options, binding: choice.value })}
+                aria-pressed={options.binding === choice.value}
+                className={`flex-1 border px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] transition duration-150 disabled:cursor-default ${
+                  options.binding === choice.value
+                    ? "border-ink bg-ink text-ground"
+                    : "border-line-strong text-ink-dim enabled:hover:text-ink"
+                }`}
+              >
+                {choice.label}
+              </button>
+            ))}
+          </fieldset>
+          <span className="hidden text-[12px] leading-relaxed text-ink-dim md:block">
+            A 10 mm strip kept clear along one edge, for a spiral or rings.
+          </span>
+        </div>
         {readable ? null : (
           <div className="flex w-[180px] flex-col justify-center bg-panel-strong px-4 py-3 hairline">
             <span className="micro">{"// "}Paper</span>
@@ -129,6 +175,7 @@ export function CardsView({
           pages={pages}
           numbers={numbers}
           duplex={options.duplex}
+          binding={options.binding}
           fontsReady={fontsReady}
           onSpill={onSpill}
         />
