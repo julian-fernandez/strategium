@@ -1,5 +1,6 @@
-import type { CSSProperties, ReactNode } from "react";
+import { type CSSProperties, type ReactNode, use } from "react";
 import type { Datasheet } from "../../../shared/types";
+import { BindingPad, padding } from "./bindingPad";
 import { Emblem } from "./Glyphs";
 import {
   AbilitiesBlock,
@@ -43,6 +44,9 @@ export function CardShell({
   factionKeywords: string[];
 }) {
   const style = { "--accent": theme.accent } as CSSProperties;
+  // Bound, the card keeps its size and place: the header and footer bands run on to its
+  // edge, and only what's in them, and the body between, keep clear of the binding.
+  const pad = padding(use(BindingPad));
   return (
     <article
       className={`${CARD_SIZE} flex flex-col overflow-hidden rounded-[2mm] bg-paper font-card text-card-ink`}
@@ -50,13 +54,33 @@ export function CardShell({
     >
       {/* Grows past 38 mm only for a unit with more stat lines than fit; the body gives way. */}
       <header
-        className="relative flex min-h-[38mm] shrink-0 overflow-hidden text-white"
-        style={{ backgroundColor: theme.header, backgroundImage: HATCH }}
+        className="relative flex shrink-0 overflow-hidden text-white"
+        style={{
+          backgroundColor: theme.header,
+          backgroundImage: HATCH,
+          minHeight: `${38 + pad.top}mm`,
+        }}
       >
-        {header}
+        <div
+          className="relative flex min-w-0 flex-1"
+          style={{ margin: `${pad.top}mm ${pad.right}mm 0 ${pad.left}mm` }}
+        >
+          {header}
+        </div>
       </header>
-      {children}
-      <footer className="flex h-[9mm] shrink-0 items-center gap-[3mm] bg-card-footer px-[3mm] font-condensed text-[6.5pt] uppercase text-white">
+      <div
+        className="flex min-h-0 flex-1 flex-col"
+        style={{ margin: `0 ${pad.right}mm 0 ${pad.left}mm` }}
+      >
+        {children}
+      </div>
+      <footer
+        className="flex shrink-0 items-center gap-[3mm] bg-card-footer font-condensed text-[6.5pt] uppercase text-white"
+        style={{
+          height: `${9 + pad.bottom}mm`,
+          padding: `0 ${3 + pad.right}mm ${pad.bottom}mm ${3 + pad.left}mm`,
+        }}
+      >
         <p className="min-w-0 flex-1 leading-tight">
           {keywords.length ? (
             <>

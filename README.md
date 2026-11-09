@@ -80,11 +80,14 @@ sheet has a flip button to show its back. Every option is on by default:
 | Number repeats      | Units that share a name become #1, #2, #3, easy to call out mid-game.                                      |
 | Binding margin      | None (the default), Left or Top: room for a spiral or rings on that edge. See below.                       |
 
-With a binding margin, each card keeps its size and moves 5 mm away from the
-bound edge, leaving about 10 mm there; the opposite edge comes up to the edge
-of the page. A back moves the other way, so its room lands on the same bound
-edge. Printed double-sided, flip on the short edge for a left binding and on
-the long edge for a top one.
+With a binding margin, each card keeps its size and its place on the page, and
+gets 5 mm of padding inside along the bound edge. The faction-coloured header
+and the dark keyword band run on into it; only the text and the rest of the
+card's contents keep clear, which with the page's own margin leaves about 10 mm
+for the holes. On a stratagem page, only the cards along that edge are padded.
+A back pads the opposite edge, so its padding lands on the same bound edge.
+Printed double-sided, flip on the short edge for a left binding and on the long
+edge for a top one.
 
 On a phone the cards are reflowed for reading instead, and Double-sided and
 Binding margin, which only mean something on paper, stay visible but greyed

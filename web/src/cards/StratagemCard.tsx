@@ -1,6 +1,7 @@
-import type { CSSProperties } from "react";
+import { type CSSProperties, use } from "react";
 import { usersOf } from "../../../shared/stratagems";
 import type { Stratagem } from "../../../shared/types";
+import { BindingPad, padding } from "./bindingPad";
 import { Rich } from "./parts";
 import type { CardTheme } from "./themes";
 import { useFitText } from "./useFitText";
@@ -39,15 +40,22 @@ export function StratagemCard({
   const users = usersOf(stratagem) || "Your army";
   const usersLine = useFitText<HTMLElement>(5.8, 4.4, users, fontsReady);
   const band = stratagem.detachment ? theme.header : CORE_COLOR;
+  // Bound, the card keeps its size and place: the band runs on to its edge, and only what's
+  // in it and the text below keep clear of the binding. A bound bottom edge is paper anyway.
+  const pad = padding(use(BindingPad));
 
   return (
     <article
       className="flex h-[64mm] w-[96mm] flex-col overflow-hidden rounded-[1.6mm] bg-paper font-card text-card-ink"
-      style={{ "--accent": theme.accent } as CSSProperties}
+      style={{ "--accent": theme.accent, paddingBottom: `${pad.bottom}mm` } as CSSProperties}
     >
       <header
-        className="flex h-[12mm] shrink-0 items-center gap-[2mm] px-[2.5mm] text-white"
-        style={{ backgroundColor: band }}
+        className="flex shrink-0 items-center gap-[2mm] text-white"
+        style={{
+          backgroundColor: band,
+          height: `${12 + pad.top}mm`,
+          padding: `${pad.top}mm ${2.5 + pad.right}mm 0 ${2.5 + pad.left}mm`,
+        }}
       >
         <span className="flex h-[6.5mm] min-w-[6.5mm] items-center justify-center border border-white/60 px-[0.8mm] font-condensed text-[7pt] font-bold">
           {phaseNumeral(stratagem.phase)}
@@ -74,16 +82,24 @@ export function StratagemCard({
       </header>
       <div
         ref={body}
-        className="min-h-0 flex-1 overflow-hidden px-[2.5mm] py-[1.6mm] leading-snug [&_b]:font-condensed [&_b]:uppercase"
-        style={{ fontSize: "calc(var(--fit) * 1pt)" }}
+        className="min-h-0 flex-1 overflow-hidden py-[1.6mm] leading-snug [&_b]:font-condensed [&_b]:uppercase"
+        style={{
+          fontSize: "calc(var(--fit) * 1pt)",
+          paddingLeft: `${2.5 + pad.left}mm`,
+          paddingRight: `${2.5 + pad.right}mm`,
+        }}
       >
         <Rich html={stratagem.html} />
       </div>
       {/* Held to a few lines, its text shrinking, so a long list of users can't crowd out the rule. */}
       <footer
         ref={usersLine}
-        className="max-h-[8mm] shrink-0 overflow-hidden border-t border-paper-rule px-[2.5mm] py-[1mm] font-condensed uppercase leading-tight text-[#4a4a44]"
-        style={{ fontSize: "calc(var(--fit) * 1pt)" }}
+        className="max-h-[8mm] shrink-0 overflow-hidden border-t border-paper-rule py-[1mm] font-condensed uppercase leading-tight text-[#4a4a44]"
+        style={{
+          fontSize: "calc(var(--fit) * 1pt)",
+          paddingLeft: `${2.5 + pad.left}mm`,
+          paddingRight: `${2.5 + pad.right}mm`,
+        }}
       >
         <b className="text-card-ink">Usable by: </b>
         {users}

@@ -1,8 +1,9 @@
-import { type CSSProperties, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import type { Army } from "../../../shared/types";
 import { FitToWidth } from "../ui/FitToWidth";
 import { ArmyRulesCard } from "./ArmyRulesCard";
+import { BindingPad, boundEdge, type PadEdge } from "./bindingPad";
 import { DatasheetCard } from "./DatasheetCard";
 import { GlossaryCard } from "./GlossaryCard";
 import { FlipIcon } from "./Glyphs";
@@ -107,25 +108,6 @@ type Faces = {
   binding: Binding;
 };
 
-/**
- * How far a bound page's card moves away from the binding. Cards sit about
- * 5 mm in from each edge, so this leaves about 10 mm on the bound edge.
- */
-const BINDING_SHIFT_MM = 5;
-
-/**
- * A page's card moved away from the binding edge, at its full size. A back's
- * binding edge is across from its front's, since the sheet turns over it:
- * right for a left binding, bottom for a top one.
- */
-function bindingStyle(binding: Binding, back: boolean): CSSProperties | undefined {
-  if (binding === "none") return undefined;
-  const away = back ? -BINDING_SHIFT_MM : BINDING_SHIFT_MM;
-  return {
-    transform: binding === "left" ? `translateX(${away}mm)` : `translateY(${away}mm)`,
-  };
-}
-
 /** A page's identity for its shared type size: its place and what it holds, so another list starts afresh. */
 function fitId(page: DeckPage): string {
   if (page.kind === "glossary") return `${page.key}|${page.rules.map((r) => r.name).join(",")}`;
@@ -194,6 +176,7 @@ function Face({
   sharedFor,
   binding,
 }: { page: DeckPage; visible: boolean; back?: boolean } & Faces) {
+  const edge = boundEdge(binding, back);
   return (
     <div
       aria-hidden={!visible}
@@ -201,10 +184,7 @@ function Face({
         visible ? "opacity-100" : "pointer-events-none invisible opacity-0"
       } ${page.kind === "blank" ? "outline outline-1 outline-dashed outline-line" : "bg-white/5"}`}
     >
-      <div
-        className="flex h-full w-full items-center justify-center"
-        style={bindingStyle(binding, back)}
-      >
+      <BindingPad value={edge}>
         {page.kind === "datasheet" ? (
           <DatasheetCard
             sheet={page.unit}
@@ -237,17 +217,29 @@ function Face({
         ) : null}
         {page.kind === "stratagems" ? (
           <div className="grid grid-cols-2 gap-[5mm]">
-            {page.stratagems.map((stratagem) => (
-              <StratagemCard
-                key={stratagem.id}
-                stratagem={stratagem}
-                theme={theme}
-                fontsReady={fontsReady}
-              />
+            {page.stratagems.map((stratagem, index) => (
+              <BindingPad key={stratagem.id} value={onGridEdge(edge, index)}>
+                <StratagemCard stratagem={stratagem} theme={theme} fontsReady={fontsReady} />
+              </BindingPad>
             ))}
           </div>
         ) : null}
-      </div>
+      </BindingPad>
     </div>
   );
+}
+
+/** A stratagem card's bound edge: only cards in the 2 by 2 grid's row or column along it have one. */
+function onGridEdge(edge: PadEdge | undefined, index: number): PadEdge | undefined {
+  const column = index % 2;
+  const row = Math.floor(index / 2);
+  const along =
+    edge === "left"
+      ? column === 0
+      : edge === "right"
+        ? column === 1
+        : edge === "top"
+          ? row === 0
+          : row === 1;
+  return edge && along ? edge : undefined;
 }

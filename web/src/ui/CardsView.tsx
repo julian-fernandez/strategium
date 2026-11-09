@@ -66,23 +66,30 @@ export function CardsView({
   fontsReady: boolean;
 }) {
   // A rules page that still spills at its smallest type is split again on a
-  // smaller budget until every page fits. Measured afresh for each army, and
-  // once the real fonts are in.
-  const [squeezed, setSqueezed] = useState({ army, fontsReady, squeeze: {} as Squeeze });
+  // smaller budget until every page fits. Measured afresh for each army, once
+  // the real fonts are in, and for each binding (a padded edge leaves less room).
+  const binding = options.binding;
+  const [squeezed, setSqueezed] = useState({ army, fontsReady, binding, squeeze: {} as Squeeze });
   const onSpill = useCallback(
     (kind: keyof Squeeze) =>
       setSqueezed((previous) => {
         const current =
-          previous.army === army && previous.fontsReady === fontsReady ? previous.squeeze : {};
+          previous.army === army &&
+          previous.fontsReady === fontsReady &&
+          previous.binding === binding
+            ? previous.squeeze
+            : {};
         const share = Math.max(MIN_SQUEEZE, (current[kind] ?? 1) * 0.9);
         return share === current[kind]
           ? previous
-          : { army, fontsReady, squeeze: { ...current, [kind]: share } };
+          : { army, fontsReady, binding, squeeze: { ...current, [kind]: share } };
       }),
-    [army, fontsReady],
+    [army, fontsReady, binding],
   );
   const squeeze =
-    squeezed.army === army && squeezed.fontsReady === fontsReady ? squeezed.squeeze : {};
+    squeezed.army === army && squeezed.fontsReady === fontsReady && squeezed.binding === binding
+      ? squeezed.squeeze
+      : {};
   const pages = buildDeck(army, options, squeeze);
   const sheets = options.duplex ? Math.ceil(pages.length / 2) : pages.length;
   const [area, width] = useWidth<HTMLDivElement>();
@@ -150,7 +157,7 @@ export function CardsView({
             ))}
           </fieldset>
           <span className="hidden text-[12px] leading-relaxed text-ink-dim md:block">
-            Moves each card 5 mm away from one edge, at full size, for a spiral or rings.
+            Pads each card along one edge, at the same size and place, for a spiral or rings.
           </span>
         </div>
         {readable ? null : (

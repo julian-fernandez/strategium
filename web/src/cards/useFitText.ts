@@ -1,4 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { use, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { BindingPad } from "./bindingPad";
 
 const STEP = 0.25;
 
@@ -27,6 +28,8 @@ export function useFitText<T extends HTMLElement>(
   const report = useRef(shared?.onFit);
   report.current = shared?.onFit;
   const fontLoads = useFontLoads();
+  // A bound edge pads the card, so the text has less room.
+  const pad = use(BindingPad);
   // The last measurement and what it was of: a new shared size alone needs no new one.
   const measured = useRef<{ of: unknown[]; best: Best }>(undefined);
 
@@ -35,7 +38,7 @@ export function useFitText<T extends HTMLElement>(
     if (!element || content === undefined) return;
 
     // A font arriving changes the text's width, so it counts as something new to measure.
-    const of = [base, min, content, fontsReady, fontLoads, widths];
+    const of = [base, min, content, fontsReady, fontLoads, widths, pad];
     const last = measured.current;
     const best = last?.of.every((value, index) => value === of[index])
       ? last.best
@@ -45,7 +48,7 @@ export function useFitText<T extends HTMLElement>(
     element.style.setProperty("--fit", String(Math.min(best.size, cap ?? best.size)));
     element.dataset.fitReady = String(fontsReady);
     report.current?.(best.size, best.over > 0);
-  }, [base, min, content, fontsReady, fontLoads, widths, cap]);
+  }, [base, min, content, fontsReady, fontLoads, widths, pad, cap]);
 
   return ref;
 }
