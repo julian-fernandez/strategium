@@ -78,10 +78,11 @@ sheet has a flip button to show its back. Every option is on by default:
 | Army rules card     | The army rule, detachment rules and enhancements taken, on the first card.                                 |
 | Rules reference     | Every core ability and weapon keyword the cards name, in full, at the end. Its pages back onto each other. |
 | Number repeats      | Units that share a name become #1, #2, #3, easy to call out mid-game.                                      |
-| Binding margin      | None (the default), Left or Top: a 10 mm strip kept clear for a spiral or rings. See below.                |
+| Binding margin      | None (the default), Left or Top: room for a spiral or rings on that edge. See below.                       |
 
-With a binding margin, each card is scaled down just enough to leave the strip
-clear, and a back's strip is across from its front's, so both land on the bound
+With a binding margin, each card keeps its size and moves 5 mm away from the
+bound edge, leaving about 10 mm there; the opposite edge comes up to the edge
+of the page. A back moves the other way, so its room lands on the same bound
 edge. Printed double-sided, flip on the short edge for a left binding and on
 the long edge for a top one.
 

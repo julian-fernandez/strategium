@@ -150,7 +150,7 @@ export function CardsView({
             ))}
           </fieldset>
           <span className="hidden text-[12px] leading-relaxed text-ink-dim md:block">
-            A 10 mm strip kept clear along one edge, for a spiral or rings.
+            Moves each card 5 mm away from one edge, at full size, for a spiral or rings.
           </span>
         </div>
         {readable ? null : (

@@ -107,31 +107,23 @@ type Faces = {
   binding: Binding;
 };
 
-/** The strip kept clear for a spiral or rings, and the A5 landscape page it comes off. */
-const BINDING_MM = 10;
-const PAGE_MM = { width: 210, height: 148 };
+/**
+ * How far a bound page's card moves away from the binding. Cards sit about
+ * 5 mm in from each edge, so this leaves about 10 mm on the bound edge.
+ */
+const BINDING_SHIFT_MM = 5;
 
 /**
- * A page's content scaled down just enough to leave the binding strip clear,
- * shrinking toward the opposite edge. A back's binding edge is across from its
- * front's, since the sheet turns over it: right for a left binding, bottom for
- * a top one. Scaled rather than re-laid, so text fits as it does at full size.
+ * A page's card moved away from the binding edge, at its full size. A back's
+ * binding edge is across from its front's, since the sheet turns over it:
+ * right for a left binding, bottom for a top one.
  */
 function bindingStyle(binding: Binding, back: boolean): CSSProperties | undefined {
   if (binding === "none") return undefined;
-  const scale =
-    binding === "left"
-      ? (PAGE_MM.width - BINDING_MM) / PAGE_MM.width
-      : (PAGE_MM.height - BINDING_MM) / PAGE_MM.height;
-  const origin =
-    binding === "left"
-      ? back
-        ? "left center"
-        : "right center"
-      : back
-        ? "center top"
-        : "center bottom";
-  return { transform: `scale(${scale})`, transformOrigin: origin };
+  const away = back ? -BINDING_SHIFT_MM : BINDING_SHIFT_MM;
+  return {
+    transform: binding === "left" ? `translateX(${away}mm)` : `translateY(${away}mm)`,
+  };
 }
 
 /** A page's identity for its shared type size: its place and what it holds, so another list starts afresh. */
