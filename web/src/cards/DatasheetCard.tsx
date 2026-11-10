@@ -24,7 +24,8 @@ export const CARD_SIZE = "h-[135mm] w-[200mm]";
  */
 export const SIDE_WIDTHS = [68, 80, 92, 56, 104, 116];
 
-const HATCH =
+/** The fine diagonal lines over a faction's colour, on headers and the cover. */
+export const HATCH =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M0 6L6 0' stroke='%23000' stroke-opacity='0.12' stroke-width='1'/%3E%3C/svg%3E\")";
 
 export function CardShell({

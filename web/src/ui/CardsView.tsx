@@ -3,7 +3,9 @@ import type { Army } from "../../../shared/types";
 import { Deck } from "../cards/Deck";
 import { type Binding, buildDeck, type DeckOptions, type Squeeze } from "../cards/printOrder";
 import { ReadableDeck } from "../cards/ReadableDeck";
+import { CoverPanel } from "./CoverPanel";
 import { READABLE_CARD_WIDTH, useWidth } from "./layout";
+import { useCover } from "./useCover";
 
 /** The least of a budget a rules page is held to, so a rule too long for any page can't split forever. */
 const MIN_SQUEEZE = 0.4;
@@ -26,6 +28,11 @@ const OPTIONS: { key: Toggle; label: string; hint: string }[] = [
     key: "stratagems",
     label: "Stratagem deck",
     hint: "Four stratagem cards per page, after the datasheets.",
+  },
+  {
+    key: "cover",
+    label: "Cover",
+    hint: "A first page with the faction, and the list's name, a message and an image if you like. The army rules print on its back.",
   },
   {
     key: "armyRules",
@@ -91,14 +98,15 @@ export function CardsView({
       ? squeezed.squeeze
       : {};
   const pages = buildDeck(army, options, squeeze);
+  const cover = useCover(army);
   const sheets = options.duplex ? Math.ceil(pages.length / 2) : pages.length;
   const [area, width] = useWidth<HTMLDivElement>();
   // On a phone the A5 cards would be too small to read, so they're reflowed instead.
   const readable = width > 0 && width < READABLE_CARD_WIDTH;
   // Double-sided means nothing on a phone; it stays in place, greyed out.
-  // Neither does a binding margin: the reflowed cards aren't pages.
+  // Neither does a binding margin or a cover: the reflowed cards aren't pages.
   const unavailable = (key: keyof DeckOptions): boolean =>
-    readable && (key === "duplex" || key === "binding");
+    readable && (key === "duplex" || key === "binding" || key === "cover");
   // Bound at the top, a double-sided sheet turns over its long edge.
   const hintFor = (option: (typeof OPTIONS)[number]): string =>
     option.key === "duplex" && options.binding === "top"
@@ -174,6 +182,7 @@ export function CardsView({
           </div>
         )}
       </div>
+      {options.cover && !readable ? <CoverPanel army={army} cover={cover} /> : null}
       {width === 0 ? null : readable ? (
         <ReadableDeck army={army} options={options} numbers={numbers} fontsReady={fontsReady} />
       ) : (
@@ -183,6 +192,7 @@ export function CardsView({
           numbers={numbers}
           duplex={options.duplex}
           binding={options.binding}
+          cover={cover}
           fontsReady={fontsReady}
           onSpill={onSpill}
         />

@@ -87,6 +87,46 @@ describe("buildDeck", () => {
     expect(kinds({ ...DEFAULT_DECK_OPTIONS, duplex: false }).at(-1)).toBe("glossary:");
   });
 
+  it("puts a cover first, with the army rules on its back", () => {
+    const covered = { ...DEFAULT_DECK_OPTIONS, cover: true };
+    // The cover takes the army rules card's blank back: no more sheets than without it.
+    expect(kinds(covered).slice(0, 3)).toEqual(["cover:", "army-rules:", "datasheet:u2"]);
+    expect(kinds(covered).length).toBe(kinds(DEFAULT_DECK_OPTIONS).length);
+    // Without the army rules card the cover gets a blank back; single-sided, none.
+    expect(kinds({ ...covered, armyRules: false }).slice(0, 3)).toEqual([
+      "cover:",
+      "blank:",
+      "datasheet:u2",
+    ]);
+    expect(kinds({ ...covered, duplex: false }).slice(0, 3)).toEqual([
+      "cover:",
+      "army-rules:",
+      "datasheet:u2",
+    ]);
+  });
+
+  it("gives army rules pages after the first a sheet each, behind a cover too", () => {
+    const long = {
+      ...army,
+      armyRules: {
+        ...army.armyRules,
+        detachments: ["One", "Two", "Three"].map((name) => ({
+          name,
+          rules: [{ name, html: "x".repeat(4000) }],
+        })),
+      },
+    } as Army;
+    const pages = buildDeck(long, { ...DEFAULT_DECK_OPTIONS, cover: true }).map((p) => p.kind);
+    expect(pages.slice(0, 6)).toEqual([
+      "cover",
+      "army-rules",
+      "army-rules",
+      "blank",
+      "army-rules",
+      "blank",
+    ]);
+  });
+
   it("leaves the army rule out of the reference only when the army rules card prints it", () => {
     const reference = (options: DeckOptions) =>
       buildDeck(army, options).flatMap((page) =>

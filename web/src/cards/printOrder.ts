@@ -10,6 +10,8 @@ export type DeckOptions = {
   stratagems: boolean;
   /** "Paragon Warsuits #1, #2, #3" for units that share a name. */
   numberDuplicates: boolean;
+  /** A cover first: the faction, and the list's name, your message and an image if you like. */
+  cover: boolean;
   /** A first card with the army rule, the detachment rules and the enhancements taken. */
   armyRules: boolean;
   /** Reference pages at the end with every core ability and weapon keyword the cards name. */
@@ -26,6 +28,7 @@ export const DEFAULT_DECK_OPTIONS: DeckOptions = {
   duplex: true,
   stratagems: true,
   numberDuplicates: true,
+  cover: false,
   armyRules: true,
   glossary: true,
   binding: "none",
@@ -35,6 +38,7 @@ export const DEFAULT_DECK_OPTIONS: DeckOptions = {
 export type RulesSection = { title: string; rules: (Ability & { note?: string })[] };
 
 export type DeckPage =
+  | { kind: "cover"; key: string }
   | { kind: "datasheet"; key: string; unit: Datasheet }
   | { kind: "stratagems"; key: string; stratagems: Stratagem[] }
   | { kind: "army-rules"; key: string; sections: RulesSection[]; part: number; parts: number }
@@ -57,8 +61,9 @@ const GLOSSARY_BUDGET = 7600;
 export type Squeeze = Partial<Record<"army-rules" | "glossary", number>>;
 
 /**
- * The print order: the army rules card, each datasheet followed by its back,
- * the stratagem deck, then the rules reference. Every unit, characters
+ * The print order: the cover, the army rules card (its first page on the
+ * cover's back), each datasheet followed by its back, the stratagem deck,
+ * then the rules reference. Every unit, characters
  * included, prints on the same full datasheet. An attached unit's characters
  * follow it, the first on its back. Double-sided, a unit with nothing behind it
  * gets a blank back.
@@ -78,14 +83,19 @@ export function buildDeck(army: Army, options: DeckOptions, squeeze: Squeeze = {
     if (options.duplex) pages.push({ kind: "blank", key: `blank-${key}` });
   };
 
+  if (options.cover) pages.push({ kind: "cover", key: "cover" });
+
   if (options.armyRules) {
     const budget = ARMY_RULES_BUDGET * (squeeze["army-rules"] ?? 1);
     const parts = paginate(splitSections(armyRulesSections(army), budget), sectionLength, budget);
     parts.forEach((sections, index) => {
       const key = `army-rules-${index}`;
       pages.push({ kind: "army-rules", key, sections, part: index + 1, parts: parts.length });
-      pushBlank(key);
+      // The first page backs the cover, if there is one; the others each get a sheet.
+      if (!(options.cover && index === 0)) pushBlank(key);
     });
+  } else if (options.cover) {
+    pushBlank("cover");
   }
 
   for (const unit of army.units) {

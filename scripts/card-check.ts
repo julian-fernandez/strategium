@@ -105,6 +105,8 @@ function fixtureJobs(): Job[] {
         [PHONE, EVERY_TAB],
         [DESKTOP, EVERY_TAB],
       ],
+      // With the cover, so each list's own name is fitted on it too.
+      storage: { "army-cards:options": { cover: true } },
     }));
 }
 

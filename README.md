@@ -68,13 +68,15 @@ build from the data already synced.
 A list opens on the Cards tab, which shows the deck as it will print: A5
 landscape, one card per page.
 Printed double-sided, each sheet is one card with its back. On screen, each
-sheet has a flip button to show its back. Every option is on by default:
+sheet has a flip button to show its back. Every option but Cover and Binding
+margin is on by default:
 
 | Option              | What it does                                                                                               |
 | ------------------- | ---------------------------------------------------------------------------------------------------------- |
 | Leaders on the back | A character's datasheet prints on the back of the unit it joins.                                           |
 | Double-sided        | Every card gets a back, so each stays on its own sheet. Flip on the short edge.                            |
 | Stratagem deck      | Four stratagem cards per page, after the datasheets. Its pages back onto each other.                       |
+| Cover               | A first page with the faction and your list's details. The army rules print on its back. See below.        |
 | Army rules card     | The army rule, detachment rules and enhancements taken, on the first card.                                 |
 | Rules reference     | Every core ability and weapon keyword the cards name, in full, at the end. Its pages back onto each other. |
 | Number repeats      | Units that share a name become #1, #2, #3, easy to call out mid-game.                                      |
@@ -89,9 +91,23 @@ A back pads the opposite edge, so its padding lands on the same bound edge.
 Printed double-sided, flip on the short edge for a left binding and on the long
 edge for a top one.
 
-On a phone the cards are reflowed for reading instead, and Double-sided and
-Binding margin, which only mean something on paper, stay visible but greyed
-out.
+The cover shows the faction's name and emblem on its colour. When it's on, a
+panel below the options sets the rest, each part optional: the list's name (the
+first line of the title it came with, without the points, or one you give a
+list that has none), its detachments and points, a message of up to 280
+characters, and an image. An image fills the right of the cover, top to bottom,
+fading into the colour on its left, with the words beside it and the
+detachments and points under them. Without one, the words are centred under the
+emblem, over a dark band with the detachments and points. An uploaded image is
+scaled to print size and kept in this browser only; a linked one has to still
+load when you print. Each list keeps its own cover, by faction and name, so
+changing its units doesn't lose it. Double-sided, the army rules card's first
+page prints on the cover's back, so the cover takes no extra sheet; without the
+army rules card it gets a blank back.
+
+On a phone the cards are reflowed for reading instead, and Double-sided,
+Binding margin and Cover, which only mean something on paper, stay visible but
+greyed out.
 
 No text is cut short. Long text shrinks to fit its card, and an army rules
 card or rules reference that still doesn't fit at its smallest size takes

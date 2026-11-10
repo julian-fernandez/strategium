@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import type { Army } from "../../../shared/types";
 import { FitToWidth } from "../ui/FitToWidth";
+import type { Cover } from "../ui/useCover";
 import { ArmyRulesCard } from "./ArmyRulesCard";
 import { BindingPad, boundEdge, type PadEdge } from "./bindingPad";
+import { CoverCard } from "./CoverCard";
 import { DatasheetCard } from "./DatasheetCard";
 import { GlossaryCard } from "./GlossaryCard";
 import { FlipIcon } from "./Glyphs";
@@ -23,6 +25,7 @@ export function Deck({
   numbers,
   duplex,
   binding,
+  cover,
   fontsReady,
   onSpill,
 }: {
@@ -32,6 +35,8 @@ export function Deck({
   /** Double-sided: every second page is the back of the one before. */
   duplex: boolean;
   binding: Binding;
+  /** What the cover page shows, when the deck has one. */
+  cover: Pick<Cover, "settings" | "image">;
   fontsReady: boolean;
   /** A rules page that doesn't fit even at its smallest type: its card needs more pages. */
   onSpill: (kind: keyof Squeeze) => void;
@@ -59,7 +64,7 @@ export function Deck({
       },
     };
   };
-  const faces = { army, numbers, theme, fontsReady, sharedFor, binding };
+  const faces = { army, numbers, theme, fontsReady, sharedFor, binding, cover };
   const sheets: { front: DeckPage; back?: DeckPage }[] = [];
   for (let i = 0; i < pages.length; i += duplex ? 2 : 1) {
     const front = pages[i];
@@ -106,6 +111,7 @@ type Faces = {
   fontsReady: boolean;
   sharedFor: (page: DeckPage) => SharedFit | undefined;
   binding: Binding;
+  cover: Pick<Cover, "settings" | "image">;
 };
 
 /** A page's identity for its shared type size: its place and what it holds, so another list starts afresh. */
@@ -175,6 +181,7 @@ function Face({
   fontsReady,
   sharedFor,
   binding,
+  cover,
 }: { page: DeckPage; visible: boolean; back?: boolean } & Faces) {
   const edge = boundEdge(binding, back);
   return (
@@ -185,6 +192,15 @@ function Face({
       } ${page.kind === "blank" ? "outline outline-1 outline-dashed outline-line" : "bg-white/5"}`}
     >
       <BindingPad value={edge}>
+        {page.kind === "cover" ? (
+          <CoverCard
+            army={army}
+            settings={cover.settings}
+            image={cover.image}
+            theme={theme}
+            fontsReady={fontsReady}
+          />
+        ) : null}
         {page.kind === "datasheet" ? (
           <DatasheetCard
             sheet={page.unit}
