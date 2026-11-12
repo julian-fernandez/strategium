@@ -1,5 +1,5 @@
-import { use, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { BindingPad } from "./bindingPad";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCardFrame } from "./bindingPad";
 
 const STEP = 0.25;
 
@@ -29,7 +29,7 @@ export function useFitText<T extends HTMLElement>(
   report.current = shared?.onFit;
   const fontLoads = useFontLoads();
   // A bound edge pads the card, so the text has less room.
-  const pad = use(BindingPad);
+  const pad = useCardFrame().key;
   // The last measurement and what it was of: a new shared size alone needs no new one.
   const measured = useRef<{ of: unknown[]; best: Best }>(undefined);
 

@@ -1,6 +1,6 @@
-import { type CSSProperties, type ReactNode, use } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { Datasheet } from "../../../shared/types";
-import { BindingPad, padding } from "./bindingPad";
+import { cardSize, useCardFrame } from "./bindingPad";
 import { Emblem } from "./Glyphs";
 import {
   AbilitiesBlock,
@@ -14,8 +14,11 @@ import {
 import type { CardTheme } from "./themes";
 import { useFitText } from "./useFitText";
 
-/** 200 × 135 mm: the official card's proportions, centred on an A5 landscape page. */
-export const CARD_SIZE = "h-[135mm] w-[200mm]";
+/**
+ * 200 × 135 mm: the official card's proportions, centred on an A5 landscape
+ * page. Printed, it bleeds out to the page's edges around that.
+ */
+export const CARD_MM = { width: 200, height: 135 };
 
 /**
  * Widths the abilities column may take. The official proportion comes first,
@@ -44,13 +47,16 @@ export function CardShell({
   keywordsLabel?: string;
   factionKeywords: string[];
 }) {
-  const style = { "--accent": theme.accent } as CSSProperties;
-  // Bound, the card keeps its size and place: the header and footer bands run on to its
-  // edge, and only what's in them, and the body between, keep clear of the binding.
-  const pad = padding(use(BindingPad));
+  // Printed, the card fills its page and is bound along one edge: the header and footer
+  // bands run on to the paper's edge, and only what's in them, and the body between, keep in.
+  const { bleed, inset: pad, flush } = useCardFrame();
+  const style = {
+    "--accent": theme.accent,
+    ...cardSize(CARD_MM.width, CARD_MM.height, bleed),
+  } as CSSProperties;
   return (
     <article
-      className={`${CARD_SIZE} flex flex-col overflow-hidden rounded-[2mm] bg-paper font-card text-card-ink`}
+      className={`flex flex-col overflow-hidden bg-paper font-card text-card-ink ${flush ? "" : "rounded-[2mm]"}`}
       style={style}
     >
       {/* Grows past 38 mm only for a unit with more stat lines than fit; the body gives way. */}

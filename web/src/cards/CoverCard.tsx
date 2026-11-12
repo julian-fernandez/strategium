@@ -1,8 +1,8 @@
-import { use, useState } from "react";
+import { useState } from "react";
 import type { Army } from "../../../shared/types";
-import { BindingPad, padding } from "./bindingPad";
+import { cardSize, useCardFrame } from "./bindingPad";
 import { type CoverSettings, coverTitle, pointsLine } from "./cover";
-import { CARD_SIZE, HATCH } from "./DatasheetCard";
+import { CARD_MM, HATCH } from "./DatasheetCard";
 import { Emblem } from "./Glyphs";
 import type { CardTheme } from "./themes";
 import { useFitText } from "./useFitText";
@@ -48,9 +48,14 @@ export function CoverCard({
     `${army.faction}|${title}|${message}|${detachments}|${points}|${shown ? "image" : ""}`,
     fontsReady,
   );
-  // Bound, the colour (and an image) runs on to the card's edge; only the words keep clear.
-  const pad = padding(use(BindingPad));
-  const background = { backgroundColor: theme.header, backgroundImage: HATCH };
+  // Printed, the colour (and an image) runs on to the paper's edges; only the words keep in.
+  const { bleed, inset: pad, flush } = useCardFrame();
+  const background = {
+    backgroundColor: theme.header,
+    backgroundImage: HATCH,
+    ...cardSize(CARD_MM.width, CARD_MM.height, bleed),
+  };
+  const corners = flush ? "" : "rounded-[2mm]";
   const detachmentsLine = detachments ? (
     <>
       <span className="font-bold text-white/70">Detachments: </span>
@@ -77,7 +82,7 @@ export function CoverCard({
   if (shown) {
     return (
       <article
-        className={`${CARD_SIZE} relative overflow-hidden rounded-[2mm] font-card text-white`}
+        className={`relative overflow-hidden font-card text-white ${corners}`}
         style={background}
       >
         <img
@@ -85,7 +90,7 @@ export function CoverCard({
           alt=""
           onError={() => setBroken(shown)}
           className="absolute inset-y-0 right-0 h-full object-cover"
-          style={{ width: `${IMAGE_MM}mm`, maskImage: FADE, WebkitMaskImage: FADE }}
+          style={{ width: `${IMAGE_MM + bleed.right}mm`, maskImage: FADE, WebkitMaskImage: FADE }}
         />
         {/* The words, centred in the colour beside the image; the detachments and points below them. */}
         <div
@@ -93,7 +98,7 @@ export function CoverCard({
           className="relative flex h-full flex-col items-start overflow-hidden text-left"
           style={{
             fontSize: "calc(var(--fit) * 1pt)",
-            padding: `${10 + pad.top}mm ${IMAGE_MM - 10}mm ${9 + pad.bottom}mm ${10 + pad.left}mm`,
+            padding: `${10 + pad.top}mm ${IMAGE_MM - 10 + bleed.right}mm ${9 + pad.bottom}mm ${10 + pad.left}mm`,
           }}
         >
           <span className="min-h-0 flex-1" />
@@ -113,7 +118,7 @@ export function CoverCard({
 
   return (
     <article
-      className={`${CARD_SIZE} flex flex-col overflow-hidden rounded-[2mm] font-card text-white`}
+      className={`flex flex-col overflow-hidden font-card text-white ${corners}`}
       style={background}
     >
       <div

@@ -4,7 +4,7 @@ import type { Army } from "../../../shared/types";
 import { FitToWidth } from "../ui/FitToWidth";
 import type { Cover } from "../ui/useCover";
 import { ArmyRulesCard } from "./ArmyRulesCard";
-import { BindingPad, boundEdge, type PadEdge } from "./bindingPad";
+import { boundEdge, CardFrame, type Edges, type PadEdge } from "./bindingPad";
 import { CoverCard } from "./CoverCard";
 import { DatasheetCard } from "./DatasheetCard";
 import { GlossaryCard } from "./GlossaryCard";
@@ -189,9 +189,16 @@ function Face({
       aria-hidden={!visible}
       className={`print-page col-start-1 row-start-1 flex h-[148mm] w-[210mm] items-center justify-center transition-opacity duration-150 print:visible print:opacity-100 ${
         visible ? "opacity-100" : "pointer-events-none invisible opacity-0"
-      } ${page.kind === "blank" ? "outline outline-1 outline-dashed outline-line" : "bg-white/5"}`}
+      } ${
+        page.kind === "blank"
+          ? "outline outline-1 outline-dashed outline-line"
+          : // A stratagem page is paper between and around its cards, so nothing on it prints white.
+            page.kind === "stratagems"
+            ? "bg-paper"
+            : "bg-white/5"
+      }`}
     >
-      <BindingPad value={edge}>
+      <CardFrame value={{ bleed: PAGE_BLEED, bound: edge }}>
         {page.kind === "cover" ? (
           <CoverCard
             army={army}
@@ -232,17 +239,40 @@ function Face({
           />
         ) : null}
         {page.kind === "stratagems" ? (
-          <div className="grid grid-cols-2 gap-[5mm]">
+          // Each card in its corner of the page, whether or not the page is full.
+          <div className="grid h-full w-full grid-cols-2 grid-rows-2 gap-[5mm]">
             {page.stratagems.map((stratagem, index) => (
-              <BindingPad key={stratagem.id} value={onGridEdge(edge, index)}>
+              <CardFrame
+                key={stratagem.id}
+                value={{ bleed: stratagemBleed(index), bound: onGridEdge(edge, index) }}
+              >
                 <StratagemCard stratagem={stratagem} theme={theme} fontsReady={fontsReady} />
-              </BindingPad>
+              </CardFrame>
             ))}
           </div>
         ) : null}
-      </BindingPad>
+      </CardFrame>
     </div>
   );
+}
+
+/** A full card's reach past its 200 × 135 mm to the edges of the 210 × 148 mm page. */
+const PAGE_BLEED: Edges = { left: 5, right: 5, top: 6.5, bottom: 6.5 };
+
+/**
+ * A stratagem card's reach to the page's edges: four 96 × 64 mm cards, 5 mm
+ * apart, leave 6.5 mm at the sides and 7.5 mm at the top and bottom. Only the
+ * outer sides reach; the gaps between cards stay.
+ */
+function stratagemBleed(index: number): Edges {
+  const column = index % 2;
+  const row = Math.floor(index / 2);
+  return {
+    left: column === 0 ? 6.5 : 0,
+    right: column === 1 ? 6.5 : 0,
+    top: row === 0 ? 7.5 : 0,
+    bottom: row === 1 ? 7.5 : 0,
+  };
 }
 
 /** A stratagem card's bound edge: only cards in the 2 by 2 grid's row or column along it have one. */

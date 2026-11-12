@@ -66,7 +66,12 @@ build from the data already synced.
 ## Printing
 
 A list opens on the Cards tab, which shows the deck as it will print: A5
-landscape, one card per page.
+landscape, one card per page. Each card fills its page, with nothing white
+around it: the card is laid out at the official 200 × 135 mm, and its colours
+run on to the paper's edges, 5 mm at the sides and 6.5 mm at the top and
+bottom. On a stratagem page the four cards reach the edges the same way, with
+paper between them. Print at 100% with the margins set to none; a printer that
+can't print to the edge leaves a thin unprinted border, but no text sits there.
 Printed double-sided, each sheet is one card with its back. On screen, each
 sheet has a flip button to show its back. Every option but Cover and Binding
 margin is on by default:
@@ -83,10 +88,10 @@ margin is on by default:
 | Binding margin      | None (the default), Left or Top: room for a spiral or rings on that edge. See below.                       |
 
 With a binding margin, each card keeps its size and its place on the page, and
-gets 5 mm of padding inside along the bound edge. The faction-coloured header
+gets 5 mm more padding inside along the bound edge. The faction-coloured header
 and the dark keyword band run on into it; only the text and the rest of the
-card's contents keep clear, which with the page's own margin leaves about 10 mm
-for the holes. On a stratagem page, only the cards along that edge are padded.
+card's contents keep clear, so no text comes within about 13 mm of that edge of
+the paper, room for the holes. On a stratagem page, only the cards along that edge are padded.
 A back pads the opposite edge, so its padding lands on the same bound edge.
 Printed double-sided, flip on the short edge for a left binding and on the long
 edge for a top one.

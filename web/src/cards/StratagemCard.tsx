@@ -1,7 +1,7 @@
-import { type CSSProperties, use } from "react";
+import type { CSSProperties } from "react";
 import { usersOf } from "../../../shared/stratagems";
 import type { Stratagem } from "../../../shared/types";
-import { BindingPad, padding } from "./bindingPad";
+import { cardSize, useCardFrame } from "./bindingPad";
 import { Rich } from "./parts";
 import type { CardTheme } from "./themes";
 import { useFitText } from "./useFitText";
@@ -40,14 +40,21 @@ export function StratagemCard({
   const users = usersOf(stratagem) || "Your army";
   const usersLine = useFitText<HTMLElement>(5.8, 4.4, users, fontsReady);
   const band = stratagem.detachment ? theme.header : CORE_COLOR;
-  // Bound, the card keeps its size and place: the band runs on to its edge, and only what's
-  // in it and the text below keep clear of the binding. A bound bottom edge is paper anyway.
-  const pad = padding(use(BindingPad));
+  // Printed, the card reaches out to the page's edges, and is bound along one: the band runs
+  // on to the paper's edge, and only what's in it and the text below keep in. A bottom edge is
+  // paper anyway.
+  const { bleed, inset: pad, flush } = useCardFrame();
 
   return (
     <article
-      className="flex h-[64mm] w-[96mm] flex-col overflow-hidden rounded-[1.6mm] bg-paper font-card text-card-ink"
-      style={{ "--accent": theme.accent, paddingBottom: `${pad.bottom}mm` } as CSSProperties}
+      className={`flex flex-col overflow-hidden bg-paper font-card text-card-ink ${flush ? "" : "rounded-[1.6mm]"}`}
+      style={
+        {
+          "--accent": theme.accent,
+          ...cardSize(96, 64, bleed),
+          paddingBottom: `${pad.bottom}mm`,
+        } as CSSProperties
+      }
     >
       <header
         className="flex shrink-0 items-center gap-[2mm] text-white"
