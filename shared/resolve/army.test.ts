@@ -188,3 +188,19 @@ describe("an option listed with the weapon inside it", () => {
     expect(inquisitor?.ranged.filter((r) => r.name === "Psychic Shock Wave")).toHaveLength(1);
   });
 });
+
+describe("a model's own abilities", () => {
+  it("shows those lists never name, such as Aestred Thurga's and Agathae Dolan's", () => {
+    const list = parseArmyList(readFixture(LISTS_DIR, "adepta-sororitas-thurga.txt"));
+    const army = buildArmy(list, snapshotBundle(list.faction), {});
+    const thurga = army.units.find((unit) => unit.name === "Aestred Thurga and Agathae Dolan");
+    expect(thurga?.abilities.map((ability) => ability.name)).toEqual(
+      expect.arrayContaining([
+        "Auto-Tapestry of the Emperor's Judgement",
+        "Recount the Deeds of the Saints",
+      ]),
+    );
+    // Not again among the wargear abilities.
+    expect(thurga?.wargearAbilities).toEqual([]);
+  });
+});

@@ -1,4 +1,19 @@
 {
+  "lists/adepta-sororitas-thurga.txt": {
+    "format": "gw-app",
+    "faction": "Adepta Sororitas",
+    "detachments": [
+      "Hallowed Martyrs"
+    ],
+    "battleSize": 1000,
+    "units": 2,
+    "models": 12,
+    "points": 230,
+    "attachedGroups": 1,
+    "stratagems": 14,
+    "warnings": [],
+    "crossCheck": []
+  },
   "lists/adepta-sororitas.txt": {
     "format": "gw-app",
     "faction": "Adepta Sororitas",

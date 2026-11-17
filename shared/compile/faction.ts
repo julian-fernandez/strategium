@@ -208,7 +208,7 @@ class UnitCompiler {
     for (const node of this.descendants(root)) {
       const key = normalizeName(node.name);
       if (node.type === "model") {
-        unit.models[key] ??= this.model(node, context, unit.modifiers);
+        unit.models[key] ??= this.model(node, context, unit.modifiers, true, unit.abilities);
         continue;
       }
       if (!unit.items[key]) {
@@ -356,13 +356,16 @@ class UnitCompiler {
    * One model type. `inSquad` is false for a single-model unit, whose own
    * abilities are the unit's; a squad's model type can carry an ability that
    * is really wargear (a Battle Sister w/ Simulacrum Imperialis), which lists
-   * name like any option.
+   * name like any option. An ability on a model the unit always has (Aestred
+   * Thurga's Auto-Tapestry, Agathae Dolan's Recount the Deeds of the Saints)
+   * is also the unit's own, added to `unitAbilities`: lists never name it.
    */
   private model(
     node: BsNode,
     context: Set<string>,
     modifiers: ModifierData[],
     inSquad = true,
+    unitAbilities?: Ability[],
   ): ModelData {
     const model: ModelData = {
       name: node.name ?? "",
@@ -390,6 +393,7 @@ class UnitCompiler {
         (weaponKind(profile) === "ranged" ? item.ranged : item.melee).push(weapon);
         model.items[normalizeName(profile.name)] = item;
       } else if (inSquad && profile.typeName === "Abilities" && profile.name) {
+        if (unitAbilities && model.min > 0) pushAbility(unitAbilities, profile);
         const ability: Ability[] = [];
         pushAbility(ability, profile);
         model.items[normalizeName(profile.name)] ??= {

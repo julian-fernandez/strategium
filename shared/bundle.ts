@@ -8,7 +8,7 @@ import { z } from "zod";
  * Bump COMPILER_VERSION whenever the shape or the compile rules change, so
  * cached bundles are rebuilt.
  */
-export const COMPILER_VERSION = 19;
+export const COMPILER_VERSION = 20;
 
 export const weaponProfileSchema = z.object({
   name: z.string(),

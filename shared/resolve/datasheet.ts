@@ -176,8 +176,10 @@ export function resolveDatasheet(
       carriers.set(row, byCarrier);
     }
     for (const ability of found.abilities) {
-      if (!sheet.wargearAbilities.some((a) => a.name === ability.name))
-        sheet.wargearAbilities.push(ability);
+      // A model's own ability (Aestred Thurga's Auto-Tapestry) is already the unit's,
+      // even when a list names it like wargear.
+      const shown = [...sheet.abilities, ...sheet.wargearAbilities];
+      if (!shown.some((a) => a.name === ability.name)) sheet.wargearAbilities.push(ability);
     }
   };
 
