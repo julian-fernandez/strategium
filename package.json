@@ -20,7 +20,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "biome check .",
     "format": "biome format --write .",
-    "coverage": "tsx scripts/coverage.ts"
+    "coverage": "tsx scripts/coverage.ts",
+    "data-drift": "tsx scripts/data-drift.ts"
   },
   "dependencies": {
     "@fontsource/barlow": "^5.3.0",

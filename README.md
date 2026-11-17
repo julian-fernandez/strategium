@@ -40,7 +40,7 @@ deployed.
 
 ```bash
 pnpm install
-pnpm sync-data   # first run only: downloads Wahapedia's export and pins a BSData commit
+pnpm sync-data   # first run only: downloads Wahapedia's export (BSData: see below)
 pnpm dev         # API on :8787, app on http://localhost:5173
 ```
 
@@ -59,6 +59,11 @@ deploy runs `pnpm build:vercel`, which:
 
 Only Listhammer links are fetched live. The data stays as deployed until the
 next deploy, so to pick up new data, redeploy from Vercel's dashboard.
+
+Since GW took BSData down (see below), a build on Vercel can't get the
+datasheets, so deploys from `main` fail and the site stays on its last
+deploy, from 12 November 2026. Building on a machine that has the data and
+uploading the result is the way forward, and isn't set up yet.
 
 `pnpm build:site` builds the site into `dist/` on its own; add `--no-sync` to
 build from the data already synced.
@@ -307,9 +312,52 @@ browser: Web Worker ─ detect format ─ read list ─ resolve units ─► Arm
 | Stratagems, detachment rules, enhancements, which units can use them, background text | [Wahapedia's data export](https://wahapedia.ru/wh40k11ed/the-rules/data-export/)                    |
 | Faction emblems on the cards and in the app                                           | [warhammer40kgroup/wh40k-icon](https://github.com/warhammer40kgroup/wh40k-icon), at a pinned commit |
 
-The server checks BSData and Wahapedia on start and every six hours, syncs
-anything new into `data/cache/`, and keeps the previous snapshot. The app then
-shows a "Data updated" banner.
+GW's DMCA notice took BSData's repositories down on 12 November 2026, so
+the app stays on BSData's last commit, `f015101` from 11 November
+(`BSDATA_FROZEN` in `shared/config.ts`), and no longer asks BSData for
+updates. A new setup needs that commit's files in `data/cache/bsdata/` from a
+saved copy. Wahapedia is still checked on start and every six hours: anything
+new is synced into `data/cache/`, the previous snapshot is kept, and the app
+shows a "Data updated" banner. Besides the rules text, the app reads
+Wahapedia's wargear options (for full datasheets), points and keywords (for
+the changes report below).
+
+### Keeping the data current
+
+Changes since BSData froze (points lists, errata, new units) go in private
+overrides, one file per faction in `data/overrides/`, named after its bundle
+(`imperium-adepta-sororitas.json`). They're laid over the compiled data,
+never committed, since they're GW's numbers and text:
+
+```json
+{
+  "source": "Munitorum Field Manual, December 2026",
+  "units": {
+    "Celestian Insidiants": { "points": { "10": 120 } },
+    "Retributor Squad": { "weapons": { "Heavy bolter": { "attacks": "4" } } }
+  },
+  "enhancements": { "Saintly Example": 15 }
+}
+```
+
+A unit can change its points by squad size, what later copies cost, option
+costs, stat lines, weapon profiles, keywords and abilities, or go; a unit the
+data doesn't have can be added in full. A name that matches nothing is an
+error, never skipped. The format is in `shared/overrides.ts`. An edit takes
+effect on the next request, without a restart, and the compiled data is
+rebuilt for it.
+
+`pnpm data-drift` compares the data, overrides included, with Wahapedia today:
+points by squad size, later copies and option costs, stat lines, weapon
+numbers and keywords, unit keywords, enhancement costs, and datasheets
+Wahapedia has that the data doesn't. It writes `data/drift/report.md` with
+the overrides that would match Wahapedia, to check against the source before
+copying. Most differences are old disagreements between the two sources, so
+the report keeps the last run's and lists what's new first: a points list
+reaching Wahapedia shows up there. A unit priced by which models it has (a
+Kill Team) isn't compared by squad size. The GW app can be ahead of
+Wahapedia: a list whose exported total differs from the app's is the other
+sign that something changed.
 
 A faction's emblem is fetched the first time an army of that faction loads,
 and kept in `data/cache/icons/`. The set has no emblem for Aeldari, Drukhari,
@@ -328,6 +376,8 @@ pnpm print-check  # with `pnpm dev` running: prints the demo deck to print-check
 pnpm card-check   # with `pnpm dev` running: every fixture list, phone and desktop, every tab
 pnpm data-check   # every faction's compiled data, in seconds
 pnpm card-check --all   # with `pnpm dev` running: everything the data can show, rendered
+pnpm card-check --full  # the same checks with full datasheets
+pnpm data-drift   # where the data and Wahapedia disagree, and what's new
 ```
 
 `pnpm card-check` fails if any text is cut short (a card's text spilling past
@@ -355,7 +405,8 @@ The fixtures cover a fraction of the data, so two checks cover the rest:
 
 The tests run on `fixtures/`:
 
-- `lists/`: one real tournament list for each of the 34 factions and chapters.
+- `lists/`: one real tournament list for each of the 34 factions and chapters,
+  and a made-up one with Aestred Thurga and Agathae Dolan.
 - `formats/`: one list in each export format.
 - `bundles/`: those factions' compiled bundles, trimmed to the units the
   fixtures use, with every piece of rules text removed.

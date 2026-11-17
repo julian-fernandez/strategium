@@ -29,6 +29,8 @@ export type DataHealth = {
   compilerVersion: number;
   bsdataSha?: string;
   wahapediaUpdate?: string;
+  /** A fingerprint of the private overrides it read, when there were any. */
+  overrides?: string;
   factions: number;
   units: number;
   stratagems: number;
@@ -131,7 +133,11 @@ export class DataAudit {
     }
   }
 
-  result(sources: { bsdataSha?: string; wahapediaUpdate?: string }): DataHealth {
+  result(sources: {
+    bsdataSha?: string;
+    wahapediaUpdate?: string;
+    overrides?: string;
+  }): DataHealth {
     const findings = [...this.found]
       .map(([kind, { severity, places }]) => ({ kind, severity, places: [...places] }))
       .sort((a, b) =>

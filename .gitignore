@@ -1,6 +1,7 @@
 node_modules/
 dist/
-data/cache/
+# Synced data, private overrides and drift reports: GW content, never committed.
+data/
 .vercel/
 *.log
 .DS_Store

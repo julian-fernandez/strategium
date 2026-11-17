@@ -17,6 +17,8 @@ export const WAHAPEDIA_FILES = [
   "Datasheets_wargear",
   "Datasheets_abilities",
   "Datasheets_options",
+  "Datasheets_models_cost",
+  "Datasheets_keywords",
 ] as const;
 
 export type WahapediaFile = (typeof WAHAPEDIA_FILES)[number];
@@ -77,6 +79,7 @@ const COLUMNS = {
   Datasheets_wargear: {
     datasheet_id: text,
     name: text,
+    description: text,
     range: text,
     type: text,
     A: text,
@@ -87,6 +90,8 @@ const COLUMNS = {
   },
   Datasheets_abilities: { datasheet_id: text, name: text, description: text, type: text },
   Datasheets_options: { datasheet_id: text, line: text, button: text, description: text },
+  Datasheets_models_cost: { datasheet_id: text, line: text, description: text, cost: text },
+  Datasheets_keywords: { datasheet_id: text, keyword: text, model: text, is_faction_keyword: text },
 } satisfies Record<WahapediaFile, z.ZodRawShape>;
 
 /** Every column the app reads is text. */
@@ -136,6 +141,8 @@ export type WahapediaModel = {
 
 export type WahapediaWeapon = {
   name: string;
+  /** Its keywords as Wahapedia writes them: "anti-psyker 4+, devastating wounds, pistol". */
+  keywords: string;
   type: string;
   range: string;
   attacks: string;
@@ -178,6 +185,14 @@ export type Wahapedia = {
    * ("The Sister Superior's boltgun can be replaced with…"). A footnote starts with "*".
    */
   options: Map<string, string[]>;
+  /**
+   * datasheet id -> its points lines, in order: section headings with no cost
+   * ("YOUR UNIT COSTS", "YOUR 3RD+ UNIT COSTS", "WARGEAR OPTIONS") and the
+   * prices under them ("10 models" 115, "per Multi-melta" 10).
+   */
+  costs: Map<string, { description: string; cost: string }[]>;
+  /** datasheet id -> its keywords; a model's own name the model it's on. */
+  keywords: Map<string, { keyword: string; model: string; faction: boolean }[]>;
 };
 
 export function buildWahapedia(files: Record<WahapediaFile, string>): Wahapedia {
@@ -211,6 +226,7 @@ export function buildWahapedia(files: Record<WahapediaFile, string>): Wahapedia 
     const list = wargear.get(row.datasheet_id) ?? [];
     list.push({
       name: row.name,
+      keywords: row.description,
       type: row.type,
       range: row.range,
       attacks: row.A,
@@ -244,6 +260,30 @@ export function buildWahapedia(files: Record<WahapediaFile, string>): Wahapedia 
       lines.sort((a, b) => a.line - b.line).map((line) => line.description),
     ]),
   );
+
+  const costLines = new Map<string, { line: number; description: string; cost: string }[]>();
+  for (const row of wahapediaTable("Datasheets_models_cost", files.Datasheets_models_cost)) {
+    const list = costLines.get(row.datasheet_id) ?? [];
+    list.push({ line: Number(row.line) || 0, description: row.description, cost: row.cost });
+    costLines.set(row.datasheet_id, list);
+  }
+  const costs = new Map(
+    [...costLines].map(([id, lines]) => [
+      id,
+      lines.sort((a, b) => a.line - b.line).map(({ description, cost }) => ({ description, cost })),
+    ]),
+  );
+
+  const keywords = new Map<string, { keyword: string; model: string; faction: boolean }[]>();
+  for (const row of wahapediaTable("Datasheets_keywords", files.Datasheets_keywords)) {
+    const list = keywords.get(row.datasheet_id) ?? [];
+    list.push({
+      keyword: row.keyword,
+      model: row.model,
+      faction: row.is_faction_keyword === "true",
+    });
+    keywords.set(row.datasheet_id, list);
+  }
 
   const abilityIds = new Set<string>();
   const abilities = wahapediaTable("Abilities", files.Abilities)
@@ -302,6 +342,8 @@ export function buildWahapedia(files: Record<WahapediaFile, string>): Wahapedia 
     wargear,
     datasheetRules,
     options,
+    costs,
+    keywords,
   };
 }
 

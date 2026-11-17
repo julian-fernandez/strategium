@@ -1,12 +1,14 @@
-import { existsSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, watch } from "node:fs";
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { type CatalogueFile, Catalogues } from "../shared/bsdata/catalogues";
-import { COMPILER_VERSION, type FactionBundle } from "../shared/bundle";
+import { COMPILER_VERSION, type FactionBundle, factionBundleSchema } from "../shared/bundle";
 import { compactBundle, hydrateBundle, type StoredBundle } from "../shared/compact";
 import { parseBsdataFile } from "../shared/compile/bsdataSchema";
-import { compileFaction } from "../shared/compile/faction";
+import { compileFaction, crossCheckUnit } from "../shared/compile/faction";
 import { findFaction } from "../shared/factions";
+import { applyOverrides, type Overrides, overridesSchema } from "../shared/overrides";
 import {
   buildWahapedia,
   WAHAPEDIA_FILES,
@@ -75,17 +77,34 @@ async function buildBundle(faction: string): Promise<StoredBundle> {
   if (!catalogue) throw new Error(`BSData has no catalogue for "${faction}".`);
 
   const version = `v${COMPILER_VERSION}-${sha.slice(0, 12)}-${meta.wahapedia.dir}`;
-  const file = path.join(BUNDLE_DIR, version, `${slug(catalogue)}.json`);
+  // The faction's overrides are part of its name on disk, so editing them recompiles it.
+  const overrides = await readOverrides(slug(catalogue));
+  const suffix = overrides ? `.o${overrides.fingerprint}` : "";
+  const file = path.join(BUNDLE_DIR, version, `${slug(catalogue)}${suffix}.json`);
   if (existsSync(file)) return JSON.parse(await readFile(file, "utf8")) as StoredBundle;
 
   const started = performance.now();
-  const { bundle: compiled, stats } = compileFaction({
+  const wahapedia = await loadWahapedia();
+  let { bundle: compiled, stats } = compileFaction({
     faction,
     catalogue,
     catalogues: await loadCatalogues(sha, names, catalogue),
-    wahapedia: await loadWahapedia(),
+    wahapedia,
     bsdataSha: sha,
   });
+  if (overrides) {
+    const applied = applyOverrides(compiled, overrides.data);
+    // What changed is compared with Wahapedia again, so the cross-check reports today's numbers.
+    for (const key of applied.changed) {
+      const unit = applied.bundle.units[key];
+      if (unit?.wahapedia) unit.crossCheck = crossCheckUnit(wahapedia, unit.wahapedia.id, unit);
+    }
+    compiled = factionBundleSchema.parse({
+      ...applied.bundle,
+      sources: { ...applied.bundle.sources, overrides: overrides.fingerprint },
+    });
+    stats = { ...stats, units: Object.keys(compiled.units).length };
+  }
   const bundle = compactBundle(compiled);
   await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, JSON.stringify(bundle));
@@ -186,6 +205,42 @@ export function pickFactionCatalogue(names: string[], faction: string): string |
   }
   const partial = names.findIndex((name) => name.toLowerCase().includes(wanted));
   return partial === -1 ? undefined : names[partial];
+}
+
+/** Private corrections to the frozen data, one file per faction (see shared/overrides.ts). */
+export const OVERRIDES_DIR = path.join(CACHE_DIR, "..", "overrides");
+
+/** One fingerprint for every faction's overrides together, or none when there are none. */
+export async function overridesFingerprint(): Promise<string | undefined> {
+  if (!existsSync(OVERRIDES_DIR)) return undefined;
+  const files = (await readdir(OVERRIDES_DIR)).filter((file) => file.endsWith(".json")).sort();
+  if (!files.length) return undefined;
+  const hash = createHash("sha256");
+  for (const file of files)
+    hash.update(file).update(await readFile(path.join(OVERRIDES_DIR, file)));
+  return hash.digest("hex").slice(0, 10);
+}
+
+// An edited override takes effect without a restart: the next request compiles again.
+// Unreferenced, so a script that reads bundles still exits when it's done.
+mkdirSync(OVERRIDES_DIR, { recursive: true });
+watch(OVERRIDES_DIR, () => bundleCache.clear()).unref();
+
+/** A faction's overrides and a fingerprint of them, if it has any. */
+async function readOverrides(
+  name: string,
+): Promise<{ data: Overrides; fingerprint: string } | undefined> {
+  const file = path.join(OVERRIDES_DIR, `${name}.json`);
+  if (!existsSync(file)) return undefined;
+  const text = await readFile(file, "utf8");
+  const parsed = overridesSchema.safeParse(JSON.parse(text));
+  if (!parsed.success) {
+    throw new Error(`data/overrides/${name}.json isn't valid: ${parsed.error.message}`);
+  }
+  return {
+    data: parsed.data,
+    fingerprint: createHash("sha256").update(text).digest("hex").slice(0, 10),
+  };
 }
 
 function slug(name: string): string {

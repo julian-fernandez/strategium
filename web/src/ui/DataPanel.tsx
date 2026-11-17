@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { LanAddress } from "../../../server/lan";
 import type { AuditFinding, DataHealth } from "../../../shared/audit";
+import { BSDATA_FROZEN } from "../../../shared/config";
 import type { Army, DataVersions } from "../../../shared/types";
 import { fetchHealth } from "../api";
 import { api, read } from "../client";
@@ -34,7 +35,12 @@ export function DataPanel({
         <dl className="flex flex-col px-6 py-2 text-[13px]">
           {army.format ? <Row label="List read as">{army.format.label}</Row> : null}
           <Row label="BSData commit">
-            {versions.bsdataSha ? (
+            {/* BSData's repository is gone since GW's takedown: its last commit has no page. */}
+            {versions.bsdataSha && versions.bsdataSha === BSDATA_FROZEN ? (
+              <>
+                {versions.bsdataSha.slice(0, 7)} <span className="text-ink-dim">· frozen</span>
+              </>
+            ) : versions.bsdataSha ? (
               <a
                 className="underline decoration-line-strong underline-offset-4 hover:decoration-ink"
                 href={`https://github.com/BSData/wh40k-11e/commit/${versions.bsdataSha}`}

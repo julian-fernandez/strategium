@@ -5,7 +5,7 @@ import { DataAudit, type DataHealth } from "../shared/audit";
 import { COMPILER_VERSION } from "../shared/bundle";
 import { FACTIONS } from "../shared/factions";
 import { loadCoreRules } from "./coreRules";
-import { readFactionBundle } from "./data";
+import { overridesFingerprint, readFactionBundle } from "./data";
 import { CACHE_DIR, readMeta } from "./store";
 import { onDataChanged } from "./updates";
 
@@ -69,6 +69,7 @@ async function audit(): Promise<DataHealth | undefined> {
   const health = auditor.result({
     bsdataSha: meta.bsdata.sha,
     wahapediaUpdate: meta.wahapedia.lastUpdate,
+    overrides: await overridesFingerprint(),
   });
   console.log(
     `Data audit: ${health.errors} errors, ${health.factions} factions, ` +
@@ -83,7 +84,8 @@ async function isCurrent(health: DataHealth): Promise<boolean> {
   return (
     health.compilerVersion === COMPILER_VERSION &&
     health.bsdataSha === meta.bsdata?.sha &&
-    health.wahapediaUpdate === meta.wahapedia?.lastUpdate
+    health.wahapediaUpdate === meta.wahapedia?.lastUpdate &&
+    health.overrides === (await overridesFingerprint())
   );
 }
 

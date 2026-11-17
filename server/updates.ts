@@ -1,3 +1,4 @@
+import { BSDATA_FROZEN } from "../shared/config";
 import { fetchBsdataHead, fetchWahapediaLastUpdate } from "./sources";
 import {
   cachedBsdataCatalogues,
@@ -54,7 +55,14 @@ async function run(): Promise<Meta> {
     }
   });
 
+  // BSData stays on its frozen commit, which is never replaced or pruned.
   await attempt("BSData", async () => {
+    if (BSDATA_FROZEN) {
+      if (meta.bsdata?.sha !== BSDATA_FROZEN) {
+        throw new Error(`frozen at ${BSDATA_FROZEN.slice(0, 7)}, which isn't in the cache`);
+      }
+      return;
+    }
     const head = await fetchBsdataHead();
     if (meta.bsdata?.sha !== head.sha) {
       const previousSha = meta.bsdata?.sha;

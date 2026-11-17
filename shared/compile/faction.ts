@@ -785,7 +785,7 @@ function compileRules(
 }
 
 /** Where this unit's BSData numbers differ from Wahapedia's, across every option it has. */
-function crossCheckUnit(
+export function crossCheckUnit(
   wahapedia: Wahapedia,
   datasheetId: string,
   unit: UnitData,
@@ -1032,7 +1032,7 @@ function weaponAliases(unit: UnitData, weapons: WahapediaWeapon[]): Record<strin
     ...Object.entries(unit.items),
     ...Object.values(unit.models).flatMap((model) => Object.entries(model.items)),
   ];
-  const profile = (type: string, w: Omit<WahapediaWeapon, "name" | "type">) =>
+  const profile = (type: string, w: Omit<WahapediaWeapon, "name" | "type" | "keywords">) =>
     [type, w.range, w.attacks, w.skill, w.strength, w.ap, w.damage].map(cleanValue).join("|");
   const bySignature = new Map<string, Set<string>>();
   for (const [key, item] of items) {
@@ -1058,6 +1058,6 @@ function weaponAliases(unit: UnitData, weapons: WahapediaWeapon[]): Record<strin
   return aliases;
 }
 
-function stripArrow(name: string): string {
+export function stripArrow(name: string): string {
   return name.replace(/^➤\s*/, "");
 }

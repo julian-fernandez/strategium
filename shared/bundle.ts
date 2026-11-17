@@ -200,7 +200,12 @@ export const factionBundleSchema = z.object({
   faction: z.string(),
   catalogue: z.string(),
   wahapediaFactionId: z.string().optional(),
-  sources: z.object({ bsdataSha: z.string(), wahapediaUpdate: z.string() }),
+  sources: z.object({
+    bsdataSha: z.string(),
+    wahapediaUpdate: z.string(),
+    /** A fingerprint of the private overrides laid over the data, when there are any. */
+    overrides: z.string().optional(),
+  }),
   /** Units by normalized name. */
   units: z.record(z.string(), unitSchema),
   detachments: z.array(detachmentSchema),
