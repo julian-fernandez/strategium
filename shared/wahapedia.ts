@@ -16,6 +16,7 @@ export const WAHAPEDIA_FILES = [
   "Datasheets_models",
   "Datasheets_wargear",
   "Datasheets_abilities",
+  "Datasheets_options",
 ] as const;
 
 export type WahapediaFile = (typeof WAHAPEDIA_FILES)[number];
@@ -85,6 +86,7 @@ const COLUMNS = {
     D: text,
   },
   Datasheets_abilities: { datasheet_id: text, name: text, description: text, type: text },
+  Datasheets_options: { datasheet_id: text, line: text, button: text, description: text },
 } satisfies Record<WahapediaFile, z.ZodRawShape>;
 
 /** Every column the app reads is text. */
@@ -171,6 +173,11 @@ export type Wahapedia = {
    * among its abilities ("Supreme Commander").
    */
   datasheetRules: Map<string, { name: string; description: string }[]>;
+  /**
+   * datasheet id -> its wargear options, in order, as Wahapedia writes them
+   * ("The Sister Superior's boltgun can be replaced with…"). A footnote starts with "*".
+   */
+  options: Map<string, string[]>;
 };
 
 export function buildWahapedia(files: Record<WahapediaFile, string>): Wahapedia {
@@ -223,6 +230,20 @@ export function buildWahapedia(files: Record<WahapediaFile, string>): Wahapedia 
     list.push({ name: row.name, description: row.description });
     datasheetRules.set(row.datasheet_id, list);
   }
+
+  const optionLines = new Map<string, { line: number; description: string }[]>();
+  for (const row of wahapediaTable("Datasheets_options", files.Datasheets_options)) {
+    if (!row.description) continue;
+    const list = optionLines.get(row.datasheet_id) ?? [];
+    list.push({ line: Number(row.line) || 0, description: row.description });
+    optionLines.set(row.datasheet_id, list);
+  }
+  const options = new Map(
+    [...optionLines].map(([id, lines]) => [
+      id,
+      lines.sort((a, b) => a.line - b.line).map((line) => line.description),
+    ]),
+  );
 
   const abilityIds = new Set<string>();
   const abilities = wahapediaTable("Abilities", files.Abilities)
@@ -280,6 +301,7 @@ export function buildWahapedia(files: Record<WahapediaFile, string>): Wahapedia 
     models,
     wargear,
     datasheetRules,
+    options,
   };
 }
 

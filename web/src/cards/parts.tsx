@@ -128,7 +128,11 @@ export function WeaponTable({ rows, melee }: { rows: WeaponRow[]; melee: boolean
         columns={columns}
       />
       {rows.map((row) => (
-        <div key={row.name} className="border-b border-paper-rule">
+        // Two weapons can share a name with different profiles (a Power fist on two model types).
+        <div
+          key={`${row.name}|${JSON.stringify(row.profiles)}`}
+          className="border-b border-paper-rule"
+        >
           {row.profiles.length > 1 ? (
             <div className="px-[1.6mm] pt-[0.6mm] font-semibold">
               <Count value={row.count} />
@@ -184,10 +188,11 @@ export function CarrierTag({ carrier }: { carrier?: string }) {
 }
 
 /** "4×" in front of a weapon: how many models in the unit carry it. */
+/** How many models carry a weapon. A weapon the unit didn't take (the full datasheet) has none. */
 function Count({ value }: { value: number }) {
   return (
     <span className="mr-[1mm] inline-block min-w-[1.9em] font-condensed font-extrabold text-[var(--accent)]">
-      {value}×
+      {value ? `${value}×` : ""}
     </span>
   );
 }
@@ -237,6 +242,30 @@ export function AbilitiesBlock({ sheet }: { sheet: Datasheet }) {
           </div>
         </>
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * The datasheet's wargear options, as Wahapedia writes them, for the full
+ * datasheet. A footnote ("* That model's storm bolter cannot be replaced.")
+ * goes without a bullet.
+ */
+export function WargearOptionsBlock({ options }: { options: string[] }) {
+  if (options.length === 0) return null;
+  return (
+    <div>
+      <SectionBar title="Wargear options" />
+      <div className="px-[1.6mm] pb-[1mm] leading-snug [&_li]:ml-[3mm] [&_li]:list-[circle]">
+        {options.map((html) => (
+          <div key={html} className="mt-[0.7mm] flex gap-[1mm]">
+            {html.startsWith("*") ? null : <span className="text-[0.75em]">■</span>}
+            <div className="min-w-0 flex-1">
+              <Rich html={html} />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

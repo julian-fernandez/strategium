@@ -6,18 +6,26 @@ import type { Cover } from "../ui/useCover";
 import { ArmyRulesCard } from "./ArmyRulesCard";
 import { boundEdge, CardFrame, type Edges, type PadEdge } from "./bindingPad";
 import { CoverCard } from "./CoverCard";
-import { DatasheetCard } from "./DatasheetCard";
+import { DatasheetCard, WargearCard } from "./DatasheetCard";
 import { GlossaryCard } from "./GlossaryCard";
 import { FlipIcon } from "./Glyphs";
-import type { Binding, DeckPage, Squeeze } from "./printOrder";
+import {
+  type Binding,
+  type DeckPage,
+  impose,
+  type Paper,
+  type PaperSide,
+  type Squeeze,
+} from "./printOrder";
 import { StratagemCard } from "./StratagemCard";
 import { type CardTheme, themeFor } from "./themes";
 import type { SharedFit } from "./useFitText";
 
 /**
- * A5 landscape pages, as they print. Double-sided, each sheet shows one face
- * at a time on screen with a control to turn it over, so the deck scrolls at
- * half the length; printing still sends every page, fronts and backs in order.
+ * The deck as it prints: A5 landscape pages, or two of them to each A4 sheet.
+ * Double-sided, each sheet shows one side at a time on screen with a control to
+ * turn it over, so the deck scrolls at half the length; printing still sends
+ * every side, fronts and backs in order.
  */
 export function Deck({
   army,
@@ -25,9 +33,12 @@ export function Deck({
   numbers,
   duplex,
   binding,
+  paper,
   cover,
   fontsReady,
   onSpill,
+  onWargearSpill,
+  eager = false,
 }: {
   army: Army;
   pages: DeckPage[];
@@ -35,11 +46,16 @@ export function Deck({
   /** Double-sided: every second page is the back of the one before. */
   duplex: boolean;
   binding: Binding;
+  paper: Paper;
   /** What the cover page shows, when the deck has one. */
   cover: Pick<Cover, "settings" | "image">;
   fontsReady: boolean;
   /** A rules page that doesn't fit even at its smallest type: its card needs more pages. */
   onSpill: (kind: keyof Squeeze) => void;
+  /** A unit's wargear page that doesn't fit even at its smallest type: it needs another page. */
+  onWargearSpill: (unitId: string) => void;
+  /** Render every sheet at once, as for printing straight away, rather than a few at a time. */
+  eager?: boolean;
 }) {
   const theme = themeFor(army.faction);
 
@@ -64,18 +80,28 @@ export function Deck({
       },
     };
   };
-  const faces = { army, numbers, theme, fontsReady, sharedFor, binding, cover };
-  const sheets: { front: DeckPage; back?: DeckPage }[] = [];
-  for (let i = 0; i < pages.length; i += duplex ? 2 : 1) {
-    const front = pages[i];
-    if (front) sheets.push({ front, back: duplex ? pages[i + 1] : undefined });
-  }
+  const faces = {
+    army,
+    numbers,
+    theme,
+    fontsReady,
+    sharedFor,
+    onWargearSpill,
+    binding,
+    paper,
+    cover,
+  };
+  const sheets = impose(pages, { duplex, paper, binding });
 
   // A long deck renders a few sheets at a time, letting the page paint in between: each card
   // fits its text as it mounts, and all of them at once froze the page. Printing needs every
   // page, so it renders the rest at once first. A new army starts from the top again.
   const [progress, setProgress] = useState({ army, shown: FIRST_SHEETS });
-  const shown = progress.army === army ? progress.shown : FIRST_SHEETS;
+  const shown = eager
+    ? Number.POSITIVE_INFINITY
+    : progress.army === army
+      ? progress.shown
+      : FIRST_SHEETS;
   const complete = shown >= sheets.length;
   useEffect(() => {
     if (complete) return;
@@ -93,8 +119,15 @@ export function Deck({
       className="flex flex-col items-center gap-8 print:gap-0"
       data-deck-complete={complete ? "" : undefined}
     >
+      {/* The page size the browser prints to: A5 landscape is the stylesheet's own. */}
+      {paper === "a4" ? <style>{"@page { size: A4 portrait; margin: 0; }"}</style> : null}
       {sheets.slice(0, shown).map((sheet, index) => (
-        <Sheet key={sheet.front.key} number={index + 1} {...sheet} {...faces} />
+        <Sheet
+          key={(sheet.front.find(Boolean) ?? sheet.back?.find(Boolean))?.key ?? index}
+          number={index + 1}
+          {...sheet}
+          {...faces}
+        />
       ))}
     </div>
   );
@@ -110,7 +143,9 @@ type Faces = {
   theme: CardTheme;
   fontsReady: boolean;
   sharedFor: (page: DeckPage) => SharedFit | undefined;
+  onWargearSpill: (unitId: string) => void;
   binding: Binding;
+  paper: Paper;
   cover: Pick<Cover, "settings" | "image">;
 };
 
@@ -123,6 +158,9 @@ function fitId(page: DeckPage): string {
   return page.key;
 }
 
+/** Nothing printed on this side: no page, or only blank ones. */
+const isBlank = (side: PaperSide) => side.every((page) => !page || page.kind === "blank");
+
 /**
  * One sheet of paper: its front, and its back behind it. Both stay laid out
  * (the hidden one is only invisible) so text fitting can measure them and
@@ -133,17 +171,18 @@ function Sheet({
   front,
   back,
   ...faces
-}: { number: number; front: DeckPage; back?: DeckPage } & Faces) {
+}: { number: number; front: PaperSide; back?: PaperSide } & Faces) {
   const [flipped, setFlipped] = useState(false);
   const shown = flipped && back ? back : front;
+  const size = faces.paper === "a4" ? "A4 sheet" : "Sheet";
 
   return (
     <section className="flex w-full flex-col gap-2 print:gap-0">
       <div className="print-page-label mx-auto flex w-full max-w-[210mm] items-center justify-between gap-4">
         <p className="micro">
           {"// "}
-          {back ? `Sheet ${number} · ${flipped ? "back" : "front"}` : `Page ${number}`}
-          {shown.kind === "blank" ? " · blank" : ""}
+          {back ? `${size} ${number} · ${flipped ? "back" : "front"}` : `Page ${number}`}
+          {isBlank(shown) ? " · blank" : ""}
         </p>
         {back ? (
           <button
@@ -162,44 +201,80 @@ function Sheet({
       </div>
       <FitToWidth>
         <div className="grid print:block">
-          <Face page={front} visible={!flipped || !back} {...faces} />
-          {back ? <Face page={back} visible={flipped} back {...faces} /> : null}
+          <Face side={front} visible={!flipped || !back} {...faces} />
+          {back ? <Face side={back} visible={flipped} back {...faces} /> : null}
         </div>
       </FitToWidth>
     </section>
   );
 }
 
-/** One printed page. Both faces of a sheet share a grid cell; the one not shown is invisible. */
+/**
+ * One side of a sheet, as it prints: an A5 page, or two A5 pages stacked on A4.
+ * Both sides of a sheet share a grid cell; the one not shown is invisible.
+ */
 function Face({
-  page,
+  side,
   visible,
   back = false,
+  paper,
+  ...faces
+}: { side: PaperSide; visible: boolean; back?: boolean } & Faces) {
+  // Two A5 pages to an A4 sheet: each takes half of its 297 mm.
+  const height = paper === "a4" ? 148.5 : 148;
+  return (
+    <div
+      aria-hidden={!visible}
+      className={`print-page col-start-1 row-start-1 flex w-[210mm] flex-col transition-opacity duration-150 print:visible print:opacity-100 ${
+        paper === "a4" ? "h-[297mm]" : "h-[148mm]"
+      } ${visible ? "opacity-100" : "pointer-events-none invisible opacity-0"}`}
+    >
+      {side.map((page, index) => (
+        <Page
+          // biome-ignore lint/suspicious/noArrayIndexKey: a side's halves are fixed places, top and bottom.
+          key={index}
+          page={page}
+          height={height}
+          back={back}
+          paper={paper}
+          {...faces}
+        />
+      ))}
+    </div>
+  );
+}
+
+/** One A5 page in its place on a side of paper: a card filling it, four stratagems, or nothing. */
+function Page({
+  page,
+  height,
+  back,
   army,
   numbers,
   theme,
   fontsReady,
   sharedFor,
+  onWargearSpill,
   binding,
   cover,
-}: { page: DeckPage; visible: boolean; back?: boolean } & Faces) {
+}: { page?: DeckPage; height: number; back: boolean } & Faces) {
   const edge = boundEdge(binding, back);
+  // A full card reaches past its 200 × 135 mm to the page's edges all round.
+  const bleed: Edges = { left: 5, right: 5, top: (height - 135) / 2, bottom: (height - 135) / 2 };
   return (
     <div
-      aria-hidden={!visible}
-      className={`print-page col-start-1 row-start-1 flex h-[148mm] w-[210mm] items-center justify-center transition-opacity duration-150 print:visible print:opacity-100 ${
-        visible ? "opacity-100" : "pointer-events-none invisible opacity-0"
-      } ${
-        page.kind === "blank"
-          ? "outline outline-1 outline-dashed outline-line"
+      className={`flex w-[210mm] shrink-0 items-center justify-center ${
+        !page || page.kind === "blank"
+          ? "outline outline-1 -outline-offset-1 outline-dashed outline-line"
           : // A stratagem page is paper between and around its cards, so nothing on it prints white.
             page.kind === "stratagems"
             ? "bg-paper"
             : "bg-white/5"
       }`}
+      style={{ height: `${height}mm` }}
     >
-      <CardFrame value={{ bleed: PAGE_BLEED, bound: edge }}>
-        {page.kind === "cover" ? (
+      <CardFrame value={{ bleed, bound: edge }}>
+        {page?.kind === "cover" ? (
           <CoverCard
             army={army}
             settings={cover.settings}
@@ -208,7 +283,7 @@ function Face({
             fontsReady={fontsReady}
           />
         ) : null}
-        {page.kind === "datasheet" ? (
+        {page?.kind === "datasheet" ? (
           <DatasheetCard
             sheet={page.unit}
             number={numbers.get(page.unit.id)}
@@ -216,7 +291,19 @@ function Face({
             fontsReady={fontsReady}
           />
         ) : null}
-        {page.kind === "army-rules" ? (
+        {page?.kind === "wargear" ? (
+          <WargearCard
+            sheet={page.unit}
+            items={page.items}
+            part={page.part}
+            parts={page.parts}
+            number={numbers.get(page.unit.id)}
+            theme={theme}
+            fontsReady={fontsReady}
+            onSpill={() => onWargearSpill(page.unit.id)}
+          />
+        ) : null}
+        {page?.kind === "army-rules" ? (
           <ArmyRulesCard
             army={army}
             sections={page.sections}
@@ -227,7 +314,7 @@ function Face({
             shared={sharedFor(page)}
           />
         ) : null}
-        {page.kind === "glossary" ? (
+        {page?.kind === "glossary" ? (
           <GlossaryCard
             army={army}
             rules={page.rules}
@@ -238,13 +325,16 @@ function Face({
             shared={sharedFor(page)}
           />
         ) : null}
-        {page.kind === "stratagems" ? (
+        {page?.kind === "stratagems" ? (
           // Each card in its corner of the page, whether or not the page is full.
           <div className="grid h-full w-full grid-cols-2 grid-rows-2 gap-[5mm]">
             {page.stratagems.map((stratagem, index) => (
               <CardFrame
                 key={stratagem.id}
-                value={{ bleed: stratagemBleed(index), bound: onGridEdge(edge, index) }}
+                value={{
+                  bleed: stratagemBleed(index, height),
+                  bound: onGridEdge(edge, index),
+                }}
               >
                 <StratagemCard stratagem={stratagem} theme={theme} fontsReady={fontsReady} />
               </CardFrame>
@@ -256,22 +346,20 @@ function Face({
   );
 }
 
-/** A full card's reach past its 200 × 135 mm to the edges of the 210 × 148 mm page. */
-const PAGE_BLEED: Edges = { left: 5, right: 5, top: 6.5, bottom: 6.5 };
-
 /**
  * A stratagem card's reach to the page's edges: four 96 × 64 mm cards, 5 mm
- * apart, leave 6.5 mm at the sides and 7.5 mm at the top and bottom. Only the
- * outer sides reach; the gaps between cards stay.
+ * apart, leave 6.5 mm at the sides and the rest of the page's height (7.5 mm on
+ * A5) at the top and bottom. Only the outer sides reach; the gaps between cards stay.
  */
-function stratagemBleed(index: number): Edges {
+function stratagemBleed(index: number, height: number): Edges {
   const column = index % 2;
   const row = Math.floor(index / 2);
+  const vertical = (height - 133) / 2;
   return {
     left: column === 0 ? 6.5 : 0,
     right: column === 1 ? 6.5 : 0,
-    top: row === 0 ? 7.5 : 0,
-    bottom: row === 1 ? 7.5 : 0,
+    top: row === 0 ? vertical : 0,
+    bottom: row === 1 ? vertical : 0,
   };
 }
 

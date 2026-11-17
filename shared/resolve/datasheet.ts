@@ -240,6 +240,25 @@ export function resolveDatasheet(
     }
   }
 
+  // For the full datasheet: every other weapon the unit or any of its models could take,
+  // and its wargear options. Read before the selections change any profile, so a weapon
+  // taken is recognised by its own. Enhancements are a detachment's, not the datasheet's.
+  // Named as the enhancement matcher names them: "Thief of Secrets" is "The Thief of Secrets".
+  const plain = (name: string) =>
+    normalizeName(name)
+      .replace(/\s*\([^)]*\)$/, "")
+      .replace(/^the /, "");
+  const enhancements = new Set(
+    bundle.detachments.flatMap((d) => d.enhancements).map((e) => plain(e.name)),
+  );
+  const options = [
+    ...Object.values(data.items),
+    ...Object.values(data.models).flatMap((model) => Object.values(model.items)),
+  ].filter((item) => !enhancements.has(plain(item.name)));
+  sheet.otherRanged = otherWeapons(options, sheet.ranged, false);
+  sheet.otherMelee = otherWeapons(options, sheet.melee, true);
+  sheet.wargearOptions = [...(data.wahapedia?.options ?? [])];
+
   // Changes the list's selections make to profiles, e.g. an upgrade's extra keyword.
   for (const modifier of data.modifiers) {
     if (!selected.has(modifier.when)) continue;
@@ -299,11 +318,8 @@ function addWeapon(
   count: number,
   melee: boolean,
 ): WeaponRow {
-  // Several profiles on one option: name the row after the option, like the official cards.
-  const name = (profiles.length > 1 ? item.name : profiles[0]?.name) ?? item.name;
-  // One row per weapon as the card shows it, so the same gun reached through two options
-  // ("Bolt pistol", and "Bolt pistol and chainsword") is one row with both counted.
-  const key = `${melee ? "melee" : "ranged"}:${normalizeName(name)}:${JSON.stringify(profiles)}`;
+  const name = weaponName(item, profiles);
+  const key = weaponKey(item, profiles, melee);
   let row = rows.get(key);
   if (!row) {
     row = {
@@ -316,6 +332,56 @@ function addWeapon(
   }
   row.count += count;
   return row;
+}
+
+/**
+ * Every weapon in a unit's options that it didn't take, one row each, uncounted.
+ * Weapons, not options: BSData can file a choice of several weapons under one
+ * option ("Assault Cannon" with the power fist or chainfist that comes with it).
+ * A weapon's modes ("➤ Plasma cannon - standard", "- supercharge") share its
+ * row; two weapons of the same name but different numbers keep a row each.
+ */
+function otherWeapons(options: ItemData[], taken: WeaponRow[], melee: boolean): WeaponRow[] {
+  const seen = new Set(taken.flatMap((row) => row.profiles.map(profileKey)));
+  const rows = new Map<string, WeaponRow>();
+  for (const item of options) {
+    for (const profile of melee ? item.melee : item.ranged) {
+      const key = profileKey(profile);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const mode = WEAPON_MODE.exec(profile.name)?.[1];
+      const rowKey = mode ? `mode:${normalizeName(mode)}` : key;
+      let row = rows.get(rowKey);
+      if (!row) {
+        row = { name: mode ?? profile.name, count: 0, profiles: [] };
+        rows.set(rowKey, row);
+      }
+      row.profiles.push({ ...profile, keywords: [...profile.keywords] });
+    }
+  }
+  return [...rows.values()];
+}
+
+/** "➤ Plasma cannon - supercharge", "➤ Plasma pistol (Standard)": a mode of the weapon named first. */
+const WEAPON_MODE = /^➤\s*(.+?)(?:\s+-\s+.+|\s*\(.+\))$/;
+
+/** A weapon profile by what it is, whatever the capitals: its name and its numbers. */
+function profileKey(profile: WeaponProfileData): string {
+  const { range, attacks, skill, strength, ap, damage } = profile;
+  return [normalizeName(profile.name), range, attacks, skill, strength, ap, damage].join("|");
+}
+
+/** Several profiles on one option: the row is named after the option, like the official cards. */
+function weaponName(item: ItemData, profiles: WeaponProfileData[]): string {
+  return (profiles.length > 1 ? item.name : profiles[0]?.name) ?? item.name;
+}
+
+/**
+ * One row per weapon as the card shows it, so the same gun reached through two
+ * options ("Bolt pistol", and "Bolt pistol and chainsword") is one row with both counted.
+ */
+function weaponKey(item: ItemData, profiles: WeaponProfileData[], melee: boolean): string {
+  return `${melee ? "melee" : "ranged"}:${normalizeName(weaponName(item, profiles))}:${JSON.stringify(profiles)}`;
 }
 
 function pushStats(list: StatLine[], line: StatLine): void {

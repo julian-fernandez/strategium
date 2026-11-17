@@ -32,6 +32,18 @@ describe("buildArmy on the demo list", () => {
     expect(army.detachments).toEqual(["Champions of Faith", "Sanctified Orators"]);
   });
 
+  it("lists the other weapons a unit could take, for the full datasheet", () => {
+    const retributors = unit("Retributor Squad");
+    const others = [...(retributors.otherRanged ?? []), ...(retributors.otherMelee ?? [])];
+    expect(others.map((row) => row.name)).toEqual(
+      expect.arrayContaining(["Heavy bolter", "Ministorum heavy flamer", "Chainsword"]),
+    );
+    // None they took, and none counted.
+    const taken = [...retributors.ranged, ...retributors.melee].map((row) => row.name);
+    expect(others.filter((row) => taken.includes(row.name))).toEqual([]);
+    expect(others.every((row) => row.count === 0)).toBe(true);
+  });
+
   it("counts the Insidiants' weapons and keeps only their wargear abilities", () => {
     const insidiants = unit("Celestian Insidiants");
     expect(counts(insidiants.ranged)).toEqual({

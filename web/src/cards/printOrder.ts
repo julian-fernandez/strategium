@@ -1,9 +1,16 @@
 import { stripTags } from "../../../shared/markup";
-import type { Ability, Army, AttachedGroup, Datasheet, Stratagem } from "../../../shared/types";
+import type {
+  Ability,
+  Army,
+  AttachedGroup,
+  Datasheet,
+  Stratagem,
+  WeaponRow,
+} from "../../../shared/types";
 
 export type DeckOptions = {
-  /** Print leaders and supports right after the unit they join, the first on its back. */
-  leadersOnBack: boolean;
+  /** Where a unit's leaders and supports print: see LeaderPlacement. */
+  leaders: LeaderPlacement;
   /** Print double-sided: every card gets a back, so each stays on its own sheet. */
   duplex: boolean;
   /** Four stratagem cards to a page, after the datasheets; double-sided, the pages back onto each other. */
@@ -12,26 +19,46 @@ export type DeckOptions = {
   numberDuplicates: boolean;
   /** A cover first: the faction, and the list's name, your message and an image if you like. */
   cover: boolean;
+  /**
+   * Full datasheets: after each unit's card, a wargear page with every other
+   * weapon it could take and its wargear options, as on the back of the official cards.
+   */
+  fullDatasheets: boolean;
   /** A first card with the army rule, the detachment rules and the enhancements taken. */
   armyRules: boolean;
   /** Reference pages at the end with every core ability and weapon keyword the cards name. */
   glossary: boolean;
   /** A strip kept clear along one edge of every page, for a spiral or rings. */
   binding: Binding;
+  /** The paper: A5, or A4 with two A5 pages on each sheet, to cut in half. */
+  paper: Paper;
 };
 
 /** Where printed cards are bound, if they are: the edge whose strip stays clear. */
 export type Binding = "none" | "left" | "top";
 
+/** A5 pages, or two of them on each A4 sheet. */
+export type Paper = "a5" | "a4";
+
+/**
+ * Where a unit's leaders and supports print. "own": each on its own sheet, in
+ * list order. "back": right after the unit, the first on its back. "facing":
+ * double-sided, the unit on a back and its first leader on the next front, so
+ * an open booklet shows both; single-sided, as "back".
+ */
+export type LeaderPlacement = "own" | "back" | "facing";
+
 export const DEFAULT_DECK_OPTIONS: DeckOptions = {
-  leadersOnBack: true,
+  leaders: "back",
   duplex: true,
   stratagems: true,
   numberDuplicates: true,
   cover: false,
+  fullDatasheets: false,
   armyRules: true,
   glossary: true,
   binding: "none",
+  paper: "a5",
 };
 
 /** A titled run of rules on the army rules card: the army rule, one detachment, the enhancements. */
@@ -40,6 +67,14 @@ export type RulesSection = { title: string; rules: (Ability & { note?: string })
 export type DeckPage =
   | { kind: "cover"; key: string }
   | { kind: "datasheet"; key: string; unit: Datasheet }
+  | {
+      kind: "wargear";
+      key: string;
+      unit: Datasheet;
+      items: WargearItem[];
+      part: number;
+      parts: number;
+    }
   | { kind: "stratagems"; key: string; stratagems: Stratagem[] }
   | { kind: "army-rules"; key: string; sections: RulesSection[]; part: number; parts: number }
   | { kind: "glossary"; key: string; rules: Ability[]; part: number; parts: number }
@@ -65,18 +100,24 @@ export type Squeeze = Partial<Record<"army-rules" | "glossary", number>>;
  * cover's back), each datasheet followed by its back, the stratagem deck,
  * then the rules reference. Every unit, characters
  * included, prints on the same full datasheet. An attached unit's characters
- * follow it, the first on its back. Double-sided, a unit with nothing behind it
- * gets a blank back.
+ * follow it, the first on its back, or facing it (see LeaderPlacement).
+ * Double-sided, a unit with nothing behind it gets a blank back.
  */
-export function buildDeck(army: Army, options: DeckOptions, squeeze: Squeeze = {}): DeckPage[] {
+export function buildDeck(
+  army: Army,
+  options: DeckOptions,
+  squeeze: Squeeze = {},
+  /** Wargear pages to add, by unit id, for a unit whose wargear was seen to spill. */
+  wargearExtra: Record<string, number> = {},
+): DeckPage[] {
   const pages: DeckPage[] = [];
   const byId = new Map(army.units.map((unit) => [unit.id, unit]));
   const groupFor = (unit: Datasheet): AttachedGroup | undefined =>
     army.groups.find((group) => group.bodyguardId === unit.id && group.characterIds.length > 0);
+  const grouped = options.leaders !== "own";
+  const facing = options.leaders === "facing" && options.duplex;
   const onBack = new Set(
-    options.leadersOnBack
-      ? army.groups.filter((g) => g.bodyguardId).flatMap((g) => g.characterIds)
-      : [],
+    grouped ? army.groups.filter((g) => g.bodyguardId).flatMap((g) => g.characterIds) : [],
   );
 
   const pushBlank = (key: string) => {
@@ -100,17 +141,41 @@ export function buildDeck(army: Army, options: DeckOptions, squeeze: Squeeze = {
 
   for (const unit of army.units) {
     if (onBack.has(unit.id)) continue;
-    pages.push({ kind: "datasheet", key: unit.id, unit });
-
-    const group = options.leadersOnBack ? groupFor(unit) : undefined;
+    const group = grouped ? groupFor(unit) : undefined;
     const characters = (group?.characterIds ?? [])
       .map((id) => byId.get(id))
       .filter((c): c is Datasheet => Boolean(c));
+
+    // Facing: the unit goes on a back, a left-hand page, so its first leader on the next
+    // front faces it. It takes the blank back before it if there is one, else a front stays
+    // blank. Further leaders follow on the back of the first.
+    if (facing && characters.length && pages.length % 2 === 0) {
+      if (pages.at(-1)?.kind === "blank") pages.pop();
+      else pushBlank(`before-${unit.id}`);
+    }
+    pages.push({ kind: "datasheet", key: unit.id, unit });
     for (const character of characters) {
       pages.push({ kind: "datasheet", key: character.id, unit: character });
     }
+    // Full datasheets: the wargear pages come after the unit and its leaders, so a unit on
+    // its own has its wargear on its back, and facing cards have theirs facing on the next spread.
+    if (options.fullDatasheets) {
+      for (const sheet of [unit, ...characters]) {
+        const parts = wargearParts(sheet, wargearExtra[sheet.id] ?? 0);
+        parts.forEach((items, index) => {
+          pages.push({
+            kind: "wargear",
+            key: `wargear-${sheet.id}-${index}`,
+            unit: sheet,
+            items,
+            part: index + 1,
+            parts: parts.length,
+          });
+        });
+      }
+    }
     // Double-sided, a unit ends on a back so the next unit starts on a front.
-    if ((1 + characters.length) % 2) pushBlank(unit.id);
+    if (pages.length % 2) pushBlank(unit.id);
   }
 
   if (options.stratagems) {
@@ -146,6 +211,94 @@ export function buildDeck(army: Army, options: DeckOptions, squeeze: Squeeze = {
   }
 
   return pages;
+}
+
+/** What a wargear page lists: a weapon the unit didn't take, or one of its wargear options. */
+export type WargearItem =
+  | { kind: "ranged" | "melee"; row: WeaponRow }
+  | { kind: "option"; html: string };
+
+/**
+ * A unit's wargear, split over as many pages as it needs: none when it has
+ * nothing else to take. Weapons first, then the options, spread evenly by
+ * roughly how many lines each takes; `extra` adds pages for one seen to spill.
+ */
+export function wargearParts(sheet: Datasheet, extra = 0): WargearItem[][] {
+  const items: WargearItem[] = [
+    ...(sheet.otherRanged ?? []).map((row) => ({ kind: "ranged" as const, row })),
+    ...(sheet.otherMelee ?? []).map((row) => ({ kind: "melee" as const, row })),
+    ...(sheet.wargearOptions ?? []).map((html) => ({ kind: "option" as const, html })),
+  ];
+  if (items.length === 0) return [];
+  const total = items.reduce((sum, item) => sum + wargearLines(item), 0);
+  const parts = Math.min(MAX_WARGEAR_PAGES, Math.ceil(total / WARGEAR_BUDGET) + extra);
+  if (parts <= 1) return [items];
+  // Each item on the page its middle falls in, so there are never more pages than planned.
+  const share = total / parts;
+  const pages: WargearItem[][] = [];
+  let used = 0;
+  for (const item of items) {
+    const lines = wargearLines(item);
+    const index = Math.min(parts - 1, Math.floor((used + lines / 2) / share));
+    const page = pages[index] ?? [];
+    page.push(item);
+    pages[index] = page;
+    used += lines;
+  }
+  return pages.filter(Boolean);
+}
+
+/**
+ * Lines of a wargear page an item takes at the page's smallest type: a weapon
+ * row a line per profile, and one more for a weapon with several; an option
+ * its text at about a hundred characters a line.
+ */
+function wargearLines(item: WargearItem): number {
+  if (item.kind === "option") return 1 + stripTags(item.html).length / 100;
+  return item.row.profiles.length + (item.row.profiles.length > 1 ? 1 : 0);
+}
+
+/** Lines a wargear page holds comfortably, and the most pages one unit's wargear can take. */
+const WARGEAR_BUDGET = 34;
+const MAX_WARGEAR_PAGES = 6;
+
+/** One side of a sheet of paper: one A5 page, or two on A4, top then bottom. Undefined stays empty. */
+export type PaperSide = (DeckPage | undefined)[];
+export type PaperSheet = { front: PaperSide; back?: PaperSide };
+
+/**
+ * The deck on paper. A5: one page a side. A4: two A5 pages a side, top and
+ * bottom, for cutting in half. Double-sided, each A5 page's back prints right
+ * behind it: turned over its long edge (no binding, or a left one), an A4
+ * sheet keeps each back at the same height; turned over its short edge (a top
+ * binding), the two backs swap.
+ */
+export function impose(
+  pages: DeckPage[],
+  { duplex, paper, binding }: Pick<DeckOptions, "duplex" | "paper" | "binding">,
+): PaperSheet[] {
+  const a5: { front?: DeckPage; back?: DeckPage }[] = [];
+  for (let i = 0; i < pages.length; i += duplex ? 2 : 1) {
+    a5.push({ front: pages[i], back: duplex ? pages[i + 1] : undefined });
+  }
+  if (paper === "a5") {
+    return a5.map((sheet) => ({
+      front: [sheet.front],
+      back: sheet.back ? [sheet.back] : undefined,
+    }));
+  }
+  const sheets: PaperSheet[] = [];
+  for (let i = 0; i < a5.length; i += 2) {
+    const top = a5[i];
+    const bottom = a5[i + 1];
+    const front = [top?.front, bottom?.front];
+    const backs = [top?.back, bottom?.back];
+    sheets.push({
+      front,
+      back: !duplex ? undefined : binding === "top" ? [backs[1], backs[0]] : backs,
+    });
+  }
+  return sheets;
 }
 
 export function armyRulesSections(army: Army): RulesSection[] {

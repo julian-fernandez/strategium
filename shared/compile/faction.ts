@@ -120,6 +120,7 @@ export function compileFaction(input: {
         stratagemIds: [...(wahapedia.datasheetStratagems.get(sheet.id) ?? [])].filter((id) =>
           stratagemIds.has(id),
         ),
+        options: (wahapedia.options.get(sheet.id) ?? []).map(sanitizeWahapediaHtml),
       };
       unit.crossCheck = crossCheckUnit(wahapedia, sheet.id, unit);
       unit.aliases = weaponAliases(unit, wahapedia.wargear.get(sheet.id) ?? []);

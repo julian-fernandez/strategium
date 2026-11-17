@@ -53,7 +53,14 @@ const OPTIONS_KEY = "army-cards:options";
 export function loadSavedOptions(): DeckOptions {
   try {
     const raw = localStorage.getItem(OPTIONS_KEY);
-    return { ...DEFAULT_DECK_OPTIONS, ...(raw ? (JSON.parse(raw) as Partial<DeckOptions>) : {}) };
+    const saved = (raw ? JSON.parse(raw) : {}) as Partial<DeckOptions> & {
+      leadersOnBack?: boolean;
+    };
+    // "Leaders on the back" was a switch before leaders could face their unit.
+    const { leadersOnBack, ...rest } = saved;
+    const leaders =
+      rest.leaders ?? (leadersOnBack === undefined ? undefined : leadersOnBack ? "back" : "own");
+    return { ...DEFAULT_DECK_OPTIONS, ...rest, ...(leaders ? { leaders } : {}) };
   } catch {
     return DEFAULT_DECK_OPTIONS;
   }

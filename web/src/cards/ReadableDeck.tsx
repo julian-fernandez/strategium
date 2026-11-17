@@ -25,14 +25,15 @@ export function ReadableDeck({
   fontsReady: boolean;
 }) {
   const theme = themeFor(army.faction);
-  const cards: { key: string; unit: Datasheet; characters: Datasheet[] }[] = options.leadersOnBack
-    ? playEntries(army)
-    : army.units.map((unit) => ({ key: unit.id, unit, characters: [] }));
+  const cards: { key: string; unit: Datasheet; characters: Datasheet[] }[] =
+    options.leaders !== "own"
+      ? playEntries(army)
+      : army.units.map((unit) => ({ key: unit.id, unit, characters: [] }));
 
   return (
     <div className="flex flex-col gap-8">
       <p className="text-[13px] leading-relaxed text-ink-dim">
-        Shown for reading on this screen. Print from a computer for the A5 cards.
+        Shown for reading on this screen. Print sends the A5 cards, with the options above.
       </p>
       {options.armyRules ? <ArmyRulesPanel army={army} /> : null}
       {cards.map((card) => (

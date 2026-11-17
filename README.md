@@ -66,26 +66,27 @@ build from the data already synced.
 ## Printing
 
 A list opens on the Cards tab, which shows the deck as it will print: A5
-landscape, one card per page. Each card fills its page, with nothing white
+landscape, one card per page, or two to an A4 sheet. Each card fills its page, with nothing white
 around it: the card is laid out at the official 200 × 135 mm, and its colours
 run on to the paper's edges, 5 mm at the sides and 6.5 mm at the top and
 bottom. On a stratagem page the four cards reach the edges the same way, with
 paper between them. Print at 100% with the margins set to none; a printer that
 can't print to the edge leaves a thin unprinted border, but no text sits there.
 Printed double-sided, each sheet is one card with its back. On screen, each
-sheet has a flip button to show its back. Every option but Cover and Binding
-margin is on by default:
+sheet has a flip button to show its back. The options, with their defaults:
 
-| Option              | What it does                                                                                               |
-| ------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Leaders on the back | A character's datasheet prints on the back of the unit it joins.                                           |
-| Double-sided        | Every card gets a back, so each stays on its own sheet. Flip on the short edge.                            |
-| Stratagem deck      | Four stratagem cards per page, after the datasheets. Its pages back onto each other.                       |
-| Cover               | A first page with the faction and your list's details. The army rules print on its back. See below.        |
-| Army rules card     | The army rule, detachment rules and enhancements taken, on the first card.                                 |
-| Rules reference     | Every core ability and weapon keyword the cards name, in full, at the end. Its pages back onto each other. |
-| Number repeats      | Units that share a name become #1, #2, #3, easy to call out mid-game.                                      |
-| Binding margin      | None (the default), Left or Top: room for a spiral or rings on that edge. See below.                       |
+| Option          | What it does                                                                                               |
+| --------------- | ---------------------------------------------------------------------------------------------------------- |
+| Leaders         | Own card, On the back (the default) or Facing: where a character's datasheet prints. See below.            |
+| Double-sided    | Every card gets a back, so each stays on its own sheet. Flip on the short edge (A5) or long edge (A4).     |
+| Stratagem deck  | Four stratagem cards per page, after the datasheets. Its pages back onto each other.                       |
+| Full datasheets | Off by default: a wargear page after each unit's card, with everything else it could take. See below.      |
+| Cover           | Off by default: a first page with the faction and your list's details, the army rules on its back.         |
+| Army rules card | The army rule, detachment rules and enhancements taken, on the first card.                                 |
+| Rules reference | Every core ability and weapon keyword the cards name, in full, at the end. Its pages back onto each other. |
+| Number repeats  | Units that share a name become #1, #2, #3, easy to call out mid-game.                                      |
+| Binding margin  | None (the default), Left or Top: room for a spiral or rings on that edge. See below.                       |
+| Paper           | A5 (the default), or A4 with two A5 cards to each sheet, to cut in half. See below.                        |
 
 With a binding margin, each card keeps its size and its place on the page, and
 gets 5 mm more padding inside along the bound edge. The faction-coloured header
@@ -93,8 +94,28 @@ and the dark keyword band run on into it; only the text and the rest of the
 card's contents keep clear, so no text comes within about 13 mm of that edge of
 the paper, room for the holes. On a stratagem page, only the cards along that edge are padded.
 A back pads the opposite edge, so its padding lands on the same bound edge.
-Printed double-sided, flip on the short edge for a left binding and on the long
-edge for a top one.
+Printed double-sided on A5, flip on the short edge for a left binding and on
+the long edge for a top one; on A4, the other way round.
+
+Leaders print on their own card in list order, on the back of the unit they
+join, or facing it: double-sided, the unit prints on a back and its first
+leader on the next front, so an open booklet shows both side by side. The unit
+takes the blank back before it when there is one, so facing rarely costs paper;
+a second leader goes on the back of the first. Single-sided, a facing leader
+prints right after its unit.
+
+Full datasheets add a wargear page after each unit's card, as on the back of
+the official cards: every other weapon the unit could take, with its profile,
+and its wargear options as Wahapedia words them. A unit on its own gets it on
+its back, which was blank; a unit and its leaders get theirs after the group,
+facing each other when the leaders face the unit. A unit with nothing else to
+take gets none. Wargear too long for one page carries on over the next
+("Wargear · 2 of 3"), spread evenly; a page that still spills on screen gets
+another.
+
+A4 puts two A5 pages on each sheet, one above the other, for cutting in half.
+Double-sided, each card's back prints right behind it, so the cut cards are the
+same as A5 ones, binding margin and facing leaders included.
 
 The cover shows the faction's name and emblem on its colour. When it's on, a
 panel below the options sets the rest, each part optional: the list's name (the
@@ -110,9 +131,8 @@ changing its units doesn't lose it. Double-sided, the army rules card's first
 page prints on the cover's back, so the cover takes no extra sheet; without the
 army rules card it gets a blank back.
 
-On a phone the cards are reflowed for reading instead, and Double-sided,
-Binding margin and Cover, which only mean something on paper, stay visible but
-greyed out.
+On a phone the cards are reflowed for reading on screen. Print lays out the
+real A5 (or A4) deck off screen first and prints that, with every option above.
 
 No text is cut short. Long text shrinks to fit its card, and an army rules
 card or rules reference that still doesn't fit at its smallest size takes

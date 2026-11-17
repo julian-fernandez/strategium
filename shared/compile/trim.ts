@@ -39,7 +39,8 @@ function trimUnit(unit: UnitData): UnitData {
         { ...model, items: trimItems(model.items) },
       ]),
     ),
-    wahapedia: unit.wahapedia ? { ...unit.wahapedia, legend: "" } : undefined,
+    // Background text and wargear options are only shown, never checked: left out of the fixtures.
+    wahapedia: unit.wahapedia ? { ...unit.wahapedia, legend: "", options: [] } : undefined,
   };
 }
 

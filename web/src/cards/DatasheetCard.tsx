@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+import { type CSSProperties, type ReactNode, useMemo, useRef } from "react";
 import type { Datasheet } from "../../../shared/types";
 import { cardSize, useCardFrame } from "./bindingPad";
 import { Emblem } from "./Glyphs";
@@ -9,10 +9,12 @@ import {
   SectionBar,
   StatBadges,
   splitName,
+  WargearOptionsBlock,
   WeaponTable,
 } from "./parts";
+import type { WargearItem } from "./printOrder";
 import type { CardTheme } from "./themes";
-import { useFitText } from "./useFitText";
+import { type SharedFit, useFitText } from "./useFitText";
 
 /**
  * 200 × 135 mm: the official card's proportions, centred on an A5 landscape
@@ -198,3 +200,120 @@ export function DatasheetCard({
     </CardShell>
   );
 }
+
+/**
+ * The back of a full datasheet, as on the official cards: every other weapon
+ * the unit could take, with its profile, and its wargear options. A unit with
+ * more than a page holds carries on over the next ("Wargear · 2 of 3").
+ */
+export function WargearCard({
+  sheet,
+  items,
+  part,
+  parts,
+  number,
+  theme,
+  fontsReady,
+  onSpill,
+}: {
+  sheet: Datasheet;
+  /** This page's share of the unit's wargear. */
+  items: WargearItem[];
+  part: number;
+  parts: number;
+  number?: number;
+  theme: CardTheme;
+  fontsReady: boolean;
+  /** Even the smallest type doesn't fit: the unit's wargear needs another page. */
+  onSpill: () => void;
+}) {
+  const [title, suffix] = splitName(sheet.name);
+  const ranged = items.flatMap((item) => (item.kind === "ranged" ? [item.row] : []));
+  const melee = items.flatMap((item) => (item.kind === "melee" ? [item.row] : []));
+  const options = items.flatMap((item) => (item.kind === "option" ? [item.html] : []));
+  const weapons = ranged.length + melee.length > 0;
+  // Weapons on the left and options beside them; with no options, ranged beside melee.
+  // Anything alone takes the width.
+  const columns: ReactNode[] = [];
+  if (weapons && options.length) {
+    columns.push(
+      <>
+        <WeaponTable rows={ranged} melee={false} />
+        <WeaponTable rows={melee} melee />
+      </>,
+      <WargearOptionsBlock options={options} />,
+    );
+  } else if (weapons) {
+    if (ranged.length) columns.push(<WeaponTable rows={ranged} melee={false} />);
+    if (melee.length) columns.push(<WeaponTable rows={melee} melee />);
+  } else {
+    columns.push(<WargearOptionsBlock options={options} />);
+  }
+  const content = useMemo(() => ({ sheet, part, parts }), [sheet, part, parts]);
+  const spill = useRef(onSpill);
+  spill.current = onSpill;
+  const shared = useMemo<SharedFit>(
+    () => ({ onFit: (_size, spills) => (spills ? spill.current() : undefined) }),
+    [],
+  );
+  const body = useFitText<HTMLDivElement>(
+    7.6,
+    5,
+    content,
+    fontsReady,
+    columns.length > 1 ? WARGEAR_SIDE_WIDTHS : undefined,
+    shared,
+  );
+  const name = useFitText<HTMLHeadingElement>(20, 11, `${sheet.name}#${number}`, fontsReady);
+
+  return (
+    <CardShell
+      theme={theme}
+      keywords={sheet.keywords}
+      factionKeywords={sheet.factionKeywords}
+      header={
+        <>
+          <div className="relative z-10 flex min-w-0 flex-1 flex-col justify-center px-[4mm] py-[3mm]">
+            <p className="font-condensed text-[7pt] font-bold uppercase tracking-[0.18em] text-white/75">
+              {parts > 1 ? `Wargear · ${part} of ${parts}` : "Wargear"}
+            </p>
+            <h2
+              ref={name}
+              className="h-[9mm] shrink-0 overflow-hidden font-condensed font-extrabold uppercase leading-none"
+              style={{ fontSize: "calc(var(--fit) * 1pt)" }}
+            >
+              {title}
+              {suffix ? <span className="ml-[1.5mm] text-[0.55em] font-bold">{suffix}</span> : null}
+              {number ? <UnitNumber value={number} /> : null}
+            </h2>
+          </div>
+          <Emblem className="mr-[8mm] h-[24mm] w-[24mm] shrink-0 self-center text-white/25" />
+        </>
+      }
+    >
+      <div
+        ref={body}
+        className={`grid min-h-0 flex-1 gap-[2.5mm] overflow-hidden p-[2.5mm] ${
+          columns.length > 1 ? "grid-cols-[1fr_var(--side,92mm)]" : "grid-cols-1"
+        }`}
+        style={{ fontSize: "calc(var(--fit) * 1pt)" }}
+      >
+        {columns.map((column, index) => (
+          <div
+            // biome-ignore lint/suspicious/noArrayIndexKey: the columns are fixed places, left and right.
+            key={index}
+            data-fit-column
+            className={`flex min-h-0 flex-col gap-[1.5mm] overflow-hidden ${
+              index > 0 ? "border-l border-paper-rule pl-[2.5mm]" : ""
+            }`}
+          >
+            {column}
+          </div>
+        ))}
+      </div>
+    </CardShell>
+  );
+}
+
+/** Widths the right-hand column may take beside the left, half the body first. */
+const WARGEAR_SIDE_WIDTHS = [92, 80, 104, 68, 116];

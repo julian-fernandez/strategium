@@ -8,7 +8,7 @@ import { z } from "zod";
  * Bump COMPILER_VERSION whenever the shape or the compile rules change, so
  * cached bundles are rebuilt.
  */
-export const COMPILER_VERSION = 18;
+export const COMPILER_VERSION = 19;
 
 export const weaponProfileSchema = z.object({
   name: z.string(),
@@ -159,7 +159,13 @@ export const unitSchema = z.object({
   aliases: z.record(z.string(), z.string()),
   modifiers: z.array(modifierSchema),
   wahapedia: z
-    .object({ id: z.string(), legend: z.string(), stratagemIds: z.array(z.string()) })
+    .object({
+      id: z.string(),
+      legend: z.string(),
+      stratagemIds: z.array(z.string()),
+      /** The datasheet's wargear options, as sanitized HTML, for the full datasheet. */
+      options: z.array(z.string()),
+    })
     .optional(),
   /** Where BSData's numbers for this unit differ from Wahapedia's. */
   crossCheck: z.array(crossCheckIssueSchema),

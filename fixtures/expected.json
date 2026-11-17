@@ -34,9 +34,7 @@
       "BSData has no wargear named \"Close combat weapon\" in Prosecutors.",
       "The list adds up to 2,390 pts; at the current points it's 3,245."
     ],
-    "crossCheck": [
-      "Blade Champion: ➤ Vaultswords - Hurricanis AP -1 / -2"
-    ]
+    "crossCheck": []
   },
   "lists/adeptus-mechanicus.txt": {
     "format": "gw-app",
@@ -479,6 +477,7 @@
     "attachedGroups": 3,
     "stratagems": 20,
     "warnings": [
+      "BSData has no wargear named \"Dreadnought Combat Weapon\" in Venerable Dreadnought.",
       "The list adds up to 2,000 pts; at the current points it's 2,050."
     ],
     "crossCheck": [
@@ -748,10 +747,7 @@
     "attachedGroups": 1,
     "stratagems": 19,
     "warnings": [],
-    "crossCheck": [
-      "Prosecutor Squad: Gun Stock A 3 / 2",
-      "Witchseeker Squad: Gun Stock A 3 / 2"
-    ]
+    "crossCheck": []
   },
   "formats/listforge-simple.world-eaters.txt": {
     "format": "listforge",
@@ -801,10 +797,7 @@
     "attachedGroups": 1,
     "stratagems": 19,
     "warnings": [],
-    "crossCheck": [
-      "Prosecutor Squad: Gun Stock A 3 / 2",
-      "Witchseeker Squad: Gun Stock A 3 / 2"
-    ]
+    "crossCheck": []
   },
   "formats/newrecruit-gw-legacy.thousand-sons.txt": {
     "format": "gw-app",

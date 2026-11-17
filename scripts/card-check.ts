@@ -8,6 +8,7 @@
  *   pnpm card-check orks.txt tau.txt   just these
  *   pnpm card-check --all              everything the data can show (see below)
  *   pnpm card-check --all Orks         … for these factions
+ *   pnpm card-check --full             with full datasheets: every weapon and wargear option
  *
  * --all builds made-up lists (scripts/synthetic-lists.ts) naming every
  * datasheet, every detachment and every enhancement, and checks the deck, the
@@ -55,6 +56,7 @@ type Job = {
 
 const args = process.argv.slice(2);
 const all = args.includes("--all");
+const full = args.includes("--full");
 const wanted = args.filter((arg) => !arg.startsWith("--"));
 
 try {
@@ -106,7 +108,7 @@ function fixtureJobs(): Job[] {
         [DESKTOP, EVERY_TAB],
       ],
       // With the cover, so each list's own name is fitted on it too.
-      storage: { "army-cards:options": { cover: true } },
+      storage: { "army-cards:options": { cover: true, fullDatasheets: full } },
     }));
 }
 
@@ -119,7 +121,7 @@ async function everythingJobs(): Promise<Job[]> {
   );
   // The stratagem deck is checked once, on the Stratagems tab, rather than in every deck too.
   const storage = {
-    "army-cards:options": { stratagems: false },
+    "army-cards:options": { stratagems: false, fullDatasheets: full },
     "army-cards:play": { phase: "all", turn: "both" },
   };
   const seen = new Set<string>();

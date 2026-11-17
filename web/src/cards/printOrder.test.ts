@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
-import type { Army, Datasheet, Stratagem } from "../../../shared/types";
+import type { Army, Datasheet, Stratagem, WeaponRow } from "../../../shared/types";
 import {
   buildDeck,
   DEFAULT_DECK_OPTIONS,
   type DeckOptions,
+  type DeckPage,
+  impose,
   paginate,
   splitSections,
+  wargearParts,
 } from "./printOrder";
 
 function unit(id: string, name: string, attachment?: Datasheet["attachment"]): Datasheet {
@@ -69,7 +72,7 @@ describe("buildDeck", () => {
   });
 
   it("gives characters their own sheets when leaders don't go on the bodyguard", () => {
-    expect(kinds({ ...UNITS_ONLY, leadersOnBack: false }).slice(0, 4)).toEqual([
+    expect(kinds({ ...UNITS_ONLY, leaders: "own" }).slice(0, 4)).toEqual([
       "datasheet:u1",
       "blank:",
       "datasheet:u2",
@@ -141,6 +144,45 @@ describe("buildDeck", () => {
   });
 });
 
+describe("leaders facing their unit", () => {
+  const FACING: DeckOptions = { ...UNITS_ONLY, leaders: "facing" };
+
+  it("puts the unit on a back and its leader on the next front, taking a blank back", () => {
+    const leaderLast = {
+      ...army,
+      units: [army.units[2], army.units[3], army.units[1], army.units[0]],
+    } as Army;
+    const pages = buildDeck(leaderLast, FACING).map(
+      (page) => `${page.kind}:${"unit" in page ? page.unit.id : ""}`,
+    );
+    // Mortifiers and the Servitor on their own sheets; the Zephyrim take the Servitor's
+    // blank back, so the Canoness on the next front faces them.
+    expect(pages.slice(0, 6)).toEqual([
+      "datasheet:u3",
+      "blank:",
+      "datasheet:u4",
+      "datasheet:u2",
+      "datasheet:u1",
+      "blank:",
+    ]);
+    // Every unit's back (odd index) faces the next front.
+    expect(pages.indexOf("datasheet:u2") % 2).toBe(1);
+    expect(pages.indexOf("datasheet:u1") % 2).toBe(0);
+  });
+
+  it("leaves a front blank when nothing blank comes before the unit", () => {
+    // The Zephyrim come first: page one is a front, so it stays blank.
+    expect(kinds(FACING).slice(0, 4)).toEqual(["blank:", "datasheet:u2", "datasheet:u1", "blank:"]);
+  });
+
+  it("prints leaders right after their unit single-sided", () => {
+    expect(kinds({ ...FACING, duplex: false }).slice(0, 2)).toEqual([
+      "datasheet:u2",
+      "datasheet:u1",
+    ]);
+  });
+});
+
 describe("the stratagem deck", () => {
   const many = {
     ...army,
@@ -195,5 +237,125 @@ describe("paginate", () => {
 
   it("makes no pages from nothing", () => {
     expect(paginate([], (n: number) => n, 7)).toEqual([]);
+  });
+});
+
+describe("impose", () => {
+  const page = (key: string) => ({ kind: "blank", key }) as DeckPage;
+  const four = ["1f", "1b", "2f", "2b", "3f", "3b"].map(page);
+  const keys = (side?: (DeckPage | undefined)[]) => side?.map((p) => p?.key ?? "-");
+
+  it("puts one page on each side of an A5 sheet", () => {
+    const sheets = impose(four, { duplex: true, paper: "a5", binding: "none" });
+    expect(sheets.map((s) => [keys(s.front), keys(s.back)])).toEqual([
+      [["1f"], ["1b"]],
+      [["2f"], ["2b"]],
+      [["3f"], ["3b"]],
+    ]);
+  });
+
+  it("stacks two A5 sheets on each A4 sheet, each back right behind its front", () => {
+    const sheets = impose(four, { duplex: true, paper: "a4", binding: "left" });
+    expect(sheets.map((s) => [keys(s.front), keys(s.back)])).toEqual([
+      [
+        ["1f", "2f"],
+        ["1b", "2b"],
+      ],
+      [
+        ["3f", "-"],
+        ["3b", "-"],
+      ],
+    ]);
+  });
+
+  it("swaps an A4 sheet's backs when it turns over its short edge, for a top binding", () => {
+    const sheets = impose(four, { duplex: true, paper: "a4", binding: "top" });
+    expect(keys(sheets[0]?.back)).toEqual(["2b", "1b"]);
+    expect(keys(sheets[1]?.back)).toEqual(["-", "3b"]);
+  });
+
+  it("fills A4 sides in order single-sided", () => {
+    const sheets = impose(four, { duplex: false, paper: "a4", binding: "none" });
+    expect(sheets.map((s) => keys(s.front))).toEqual([
+      ["1f", "1b"],
+      ["2f", "2b"],
+      ["3f", "3b"],
+    ]);
+    expect(sheets.every((s) => s.back === undefined)).toBe(true);
+  });
+});
+
+describe("full datasheets", () => {
+  const armed = (id: string, name: string, attachment?: Datasheet["attachment"]) =>
+    ({
+      ...unit(id, name, attachment),
+      otherRanged: [{ name: "Heavy bolter", count: 0, profiles: [] }],
+    }) as Datasheet;
+  const withWargear = {
+    ...army,
+    units: [
+      armed("u1", "Canoness", { role: "leader", group: 1 }),
+      armed("u2", "Zephyrim Squad", { role: "bodyguard", group: 1 }),
+      armed("u3", "Mortifiers"),
+      unit("u4", "Lonely Servitor"),
+    ],
+  } as Army;
+  const FULL: DeckOptions = { ...UNITS_ONLY, fullDatasheets: true };
+  const pages = (options: DeckOptions) =>
+    buildDeck(withWargear, options).map(
+      (page) => `${page.kind}:${"unit" in page ? page.unit.id : ""}`,
+    );
+
+  it("puts a unit's wargear page on its back, and a group's after the group", () => {
+    expect(pages(FULL).slice(0, 8)).toEqual([
+      "datasheet:u2",
+      "datasheet:u1",
+      "wargear:u2",
+      "wargear:u1",
+      "datasheet:u3",
+      "wargear:u3",
+      // Nothing else to take: no wargear page, a blank back as before.
+      "datasheet:u4",
+      "blank:",
+    ]);
+  });
+
+  it("faces the unit's and its leader's wargear pages on the next spread", () => {
+    const facing = pages({ ...FULL, leaders: "facing" });
+    const at = (key: string) => facing.indexOf(key);
+    expect(at("datasheet:u2") % 2).toBe(1);
+    expect(at("datasheet:u1")).toBe(at("datasheet:u2") + 1);
+    expect(at("wargear:u2") % 2).toBe(1);
+    expect(at("wargear:u1")).toBe(at("wargear:u2") + 1);
+  });
+
+  it("adds nothing with the option off", () => {
+    expect(pages(UNITS_ONLY).some((page) => page.startsWith("wargear"))).toBe(false);
+  });
+});
+
+describe("wargearParts", () => {
+  const row = (name: string) => ({ name, count: 0, profiles: [{ name }] }) as WeaponRow;
+  const sheet = (weapons: number, options: string[] = []) =>
+    ({
+      otherRanged: Array.from({ length: weapons }, (_, i) => row(`Gun ${i}`)),
+      wargearOptions: options,
+    }) as unknown as Datasheet;
+
+  it("fits a short list on one page, and has none for a unit with nothing else to take", () => {
+    expect(wargearParts(sheet(8, ["One option."]))).toHaveLength(1);
+    expect(wargearParts(sheet(0))).toEqual([]);
+  });
+
+  it("spreads a long list evenly over the pages it needs, weapons first", () => {
+    const parts = wargearParts(sheet(80, ["The last option."]));
+    expect(parts.length).toBe(3);
+    expect(parts.map((part) => part.length).every((length) => length >= 25)).toBe(true);
+    expect(parts.at(-1)?.at(-1)).toEqual({ kind: "option", html: "The last option." });
+  });
+
+  it("adds the pages a spilling unit was given, up to a limit", () => {
+    expect(wargearParts(sheet(8), 1)).toHaveLength(2);
+    expect(wargearParts(sheet(8), 20).length).toBeLessThanOrEqual(6);
   });
 });

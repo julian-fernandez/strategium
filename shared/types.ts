@@ -50,6 +50,11 @@ export type Datasheet = {
   stats: StatLine[];
   ranged: WeaponRow[];
   melee: WeaponRow[];
+  /** For the full datasheet: every other weapon the unit could take, with no count. */
+  otherRanged?: WeaponRow[];
+  otherMelee?: WeaponRow[];
+  /** For the full datasheet: its wargear options from Wahapedia, as HTML; a footnote starts with "*". */
+  wargearOptions?: string[];
   coreAbilities: string[];
   factionAbilities: string[];
   abilities: Ability[];
