@@ -20,7 +20,8 @@ export function onDataChanged(listener: Listener): void {
 }
 
 /**
- * Asks Wahapedia and BSData for their latest version and syncs whatever changed.
+ * Asks Wahapedia and BSData for their latest version and syncs whatever changed,
+ * each on its own.
  * Concurrent calls share one run.
  */
 export function checkForUpdates(): Promise<Meta> {
@@ -34,14 +35,27 @@ async function run(): Promise<Meta> {
   let meta = await readMeta();
   let changed = false;
 
-  try {
-    const [stamp, head] = await Promise.all([fetchWahapediaLastUpdate(), fetchBsdataHead()]);
+  // Each source on its own, so one that fails (BSData since GW's takedown) doesn't stop the
+  // other from updating. Either's error is kept for the Data tab.
+  const errors: string[] = [];
+  const attempt = async (source: string, step: () => Promise<void>) => {
+    try {
+      await step();
+    } catch (error) {
+      errors.push(`${source}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
 
+  await attempt("Wahapedia", async () => {
+    const stamp = await fetchWahapediaLastUpdate();
     if (meta.wahapedia?.lastUpdate !== stamp) {
       meta = await syncWahapedia(meta, stamp);
       changed = true;
     }
+  });
 
+  await attempt("BSData", async () => {
+    const head = await fetchBsdataHead();
     if (meta.bsdata?.sha !== head.sha) {
       const previousSha = meta.bsdata?.sha;
       meta = await pinBsdataCommit(meta, head);
@@ -53,11 +67,9 @@ async function run(): Promise<Meta> {
       }
       changed = true;
     }
+  });
 
-    meta.lastError = undefined;
-  } catch (error) {
-    meta.lastError = error instanceof Error ? error.message : String(error);
-  }
+  meta.lastError = errors.length ? errors.join("; ") : undefined;
 
   meta.checkedAt = new Date().toISOString();
   if (changed) meta.changedAt = meta.checkedAt;
